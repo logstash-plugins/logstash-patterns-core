@@ -1,3 +1,3 @@
 source 'https://rubygems.org'
-gem 'rake'
-gem 'gem_publisher'
+gemspec
+gem "logstash", :github => "elasticsearch/logstash", :branch => "1.5"
