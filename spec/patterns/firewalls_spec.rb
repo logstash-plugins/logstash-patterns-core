@@ -50,4 +50,56 @@ describe "FIREWALLS" do
     end
   end
 
+  let(:pattern106023) { "CISCOFW106023" }
+
+  context "parsing a 106023 message" do
+
+    let(:value) { 'Deny tcp src outside:192.168.1.1/50240 dst inside:192.168.1.2/23 by access-group "S_OUTSIDE_TO_INSIDE" [0x54c7fa80, 0x0]' }
+
+    subject { grok_match(pattern106023, value) }
+
+    it 'should break the message up into fields' do
+      expect(subject['action']).to eq('Deny')
+      expect(subject['src_interface']).to eq('outside')
+      expect(subject['dst_interface']).to eq('inside')
+      expect(subject['protocol']).to eq('tcp')
+      expect(subject['src_ip']).to eq('192.168.1.1')
+      expect(subject['dst_ip']).to eq('192.168.1.2')
+      expect(subject['policy_id']).to eq('S_OUTSIDE_TO_INSIDE')
+    end
+  end
+
+  context "parsing a 106023 message with a protocol number" do
+
+    let(:value) { 'Deny protocol 103 src outside:192.168.1.1/50240 dst inside:192.168.1.2/23 by access-group "S_OUTSIDE_TO_INSIDE" [0x54c7fa80, 0x0]' }
+
+    subject { grok_match(pattern106023, value) }
+
+    it 'should break the message up into fields' do
+      expect(subject['action']).to eq('Deny')
+      expect(subject['src_interface']).to eq('outside')
+      expect(subject['dst_interface']).to eq('inside')
+      expect(subject['protocol']).to eq('103')
+      expect(subject['src_ip']).to eq('192.168.1.1')
+      expect(subject['dst_ip']).to eq('192.168.1.2')
+      expect(subject['policy_id']).to eq('S_OUTSIDE_TO_INSIDE')
+    end
+  end
+
+  context "parsing a 106023 message with a hostname" do
+
+    let(:value) { 'Deny tcp src outside:192.168.1.1/50240 dst inside:www.example.com/23 by access-group "S_OUTSIDE_TO_INSIDE" [0x54c7fa80, 0x0]' }
+
+    subject { grok_match(pattern106023, value) }
+
+    it 'should break the message up into fields' do
+      expect(subject['action']).to eq('Deny')
+      expect(subject['src_interface']).to eq('outside')
+      expect(subject['dst_interface']).to eq('inside')
+      expect(subject['protocol']).to eq('tcp')
+      expect(subject['src_ip']).to eq('192.168.1.1')
+      expect(subject['dst_ip']).to eq('www.example.com')
+      expect(subject['policy_id']).to eq('S_OUTSIDE_TO_INSIDE')
+    end
+  end
 end
