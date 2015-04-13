@@ -1,11 +1,20 @@
 # encoding: utf-8
-def test_message(pattern_name, sample_message)
+def grok(pattern_name, sample_message, fields = {})
   describe pattern_name do
-    before(:each) { grok.register; grok.filter(event) }
-    let(:grok) { LogStash::Filters::Grok.new("match" => ["message", "%{#{subject}}"]) }
+    before(:each) { grok_obj.register; grok_obj.filter(event) }
+    let(:grok_obj) { LogStash::Filters::Grok.new("match" => ["message", "%{#{pattern_name}}"]) }
     let(:event) { LogStash::Event.new("message" => sample_message) }
-    it "matches a sample line" do
-      expect(event.to_hash).to_not include("tags")
+
+    context "testing line \"#{sample_message}\"" do
+      it "matches" do
+        expect(event.to_hash).to_not include("tags")
+      end
+
+      if !fields.empty?
+        it "has expected fields \"#{fields.inspect}\"" do
+          expect(event.to_hash).to include(fields)
+        end
+      end
     end
   end
 end
