@@ -16,23 +16,23 @@ describe "NAGIOSLOGLINE - CURRENT HOST STATE" do
   end
 
   it "generates the nagios_epoch field" do
-    expect(grok_match(subject, value)).to include("nagios_epoch" => "1427925600")
+    expect(grok).to include("nagios_epoch" => "1427925600")
   end
 
   it "generates the nagios_message field" do
-    expect(grok_match(subject, value)).to include("nagios_message" => "PING OK - Packet loss = 0%, RTA = 2.24 ms")
+    expect(grok).to include("nagios_message" => "PING OK - Packet loss = 0%, RTA = 2.24 ms")
   end
 
   it "generates the nagios_hostname field" do
-    expect(grok_match(subject, value)).to include("nagios_hostname" => "nagioshost")
+    expect(grok).to include("nagios_hostname" => "nagioshost")
   end
 
   it "generates the nagios_state field" do
-    expect(grok_match(subject, value)).to include("nagios_state" => "UP")
+    expect(grok).to include("nagios_state" => "UP")
   end
 
   it "generates the nagios_statetype field" do
-    expect(grok_match(subject, value)).to include("nagios_statetype" => "HARD")
+    expect(grok).to include("nagios_statetype" => "HARD")
   end
 
 end
@@ -51,31 +51,31 @@ describe "NAGIOSLOGLINE - CURRENT SERVICE STATE" do
   end
 
   it "generates the nagios_type field" do
-    expect(grok_match(subject, value)).to include("nagios_type" => "CURRENT SERVICE STATE")
+    expect(grok).to include("nagios_type" => "CURRENT SERVICE STATE")
   end
 
   it "generates the nagios_epoch field" do
-    expect(grok_match(subject, value)).to include("nagios_epoch" => "1427925600")
+    expect(grok).to include("nagios_epoch" => "1427925600")
   end
 
   it "generates the nagios_message field" do
-    expect(grok_match(subject, value)).to include("nagios_message" => "nagiosmessage")
+    expect(grok).to include("nagios_message" => "nagiosmessage")
   end
 
   it "generates the nagios_hostname field" do
-    expect(grok_match(subject, value)).to include("nagios_hostname" => "nagioshost")
+    expect(grok).to include("nagios_hostname" => "nagioshost")
   end
 
   it "generates the nagios_service field" do
-    expect(grok_match(subject, value)).to include("nagios_service" => "nagiosservice")
+    expect(grok).to include("nagios_service" => "nagiosservice")
   end
 
   it "generates the nagios_state field" do
-    expect(grok_match(subject, value)).to include("nagios_state" => "OK")
+    expect(grok).to include("nagios_state" => "OK")
   end
 
   it "generates the nagios_statetype field" do
-    expect(grok_match(subject, value)).to include("nagios_statetype" => "HARD")
+    expect(grok).to include("nagios_statetype" => "HARD")
   end
 
 end
@@ -94,15 +94,15 @@ describe "NAGIOSLOGLINE - TIMEPERIOD TRANSITION" do
   end
 
   it "generates the nagios_type field" do
-    expect(grok_match(subject, value)).to include("nagios_type" => "TIMEPERIOD TRANSITION")
+    expect(grok).to include("nagios_type" => "TIMEPERIOD TRANSITION")
   end
 
   it "generates the nagios_epoch field" do
-    expect(grok_match(subject, value)).to include("nagios_epoch" => "1427925600")
+    expect(grok).to include("nagios_epoch" => "1427925600")
   end
 
   it "generates the nagios_esrvice field" do
-    expect(grok_match(subject, value)).to include("nagios_service" => "24X7")
+    expect(grok).to include("nagios_service" => "24X7")
   end
 
 end
@@ -121,31 +121,31 @@ describe "NAGIOSLOGLINE - SERVICE ALERT" do
   end
 
   it "generates the nagios_type field" do
-    expect(grok_match(subject, value)).to include("nagios_type" => "SERVICE ALERT")
+    expect(grok).to include("nagios_type" => "SERVICE ALERT")
   end
 
   it "generates the nagios_epoch field" do
-    expect(grok_match(subject, value)).to include("nagios_epoch" => "1427925689")
+    expect(grok).to include("nagios_epoch" => "1427925689")
   end
 
   it "generates the nagios_hostname field" do
-    expect(grok_match(subject, value)).to include("nagios_hostname" => "varnish")
+    expect(grok).to include("nagios_hostname" => "varnish")
   end
 
   it "generates the nagios_service field" do
-    expect(grok_match(subject, value)).to include("nagios_service" => "Varnish Backend Connections")
+    expect(grok).to include("nagios_service" => "Varnish Backend Connections")
   end
 
   it "generates the nagios_state field" do
-    expect(grok_match(subject, value)).to include("nagios_state" => "CRITICAL")
+    expect(grok).to include("nagios_state" => "CRITICAL")
   end
 
   it "generates the nagios_statelevel field" do
-    expect(grok_match(subject, value)).to include("nagios_statelevel" => "SOFT")
+    expect(grok).to include("nagios_statelevel" => "SOFT")
   end
 
   it "generates the nagios_message field" do
-    expect(grok_match(subject, value)).to include("nagios_message" => "Current value: 154.0, warn threshold: 10.0, crit threshold: 20.0")
+    expect(grok).to include("nagios_message" => "Current value: 154.0, warn threshold: 10.0, crit threshold: 20.0")
   end
 
 end
@@ -164,35 +164,35 @@ describe "NAGIOSLOGLINE - SERVICE NOTIFICATION" do
   end
 
   it "generates the nagios_type field" do
-    expect(grok_match(subject, value)).to include("nagios_type" => "SERVICE NOTIFICATION")
+    expect(grok).to include("nagios_type" => "SERVICE NOTIFICATION")
   end
 
   it "generates the nagios_epoch field" do
-    expect(grok_match(subject, value)).to include("nagios_epoch" => "1427950229")
+    expect(grok).to include("nagios_epoch" => "1427950229")
   end
 
   it "generates the nagios_notifyname field" do
-    expect(grok_match(subject, value)).to include("nagios_notifyname" => "nagiosadmin")
+    expect(grok).to include("nagios_notifyname" => "nagiosadmin")
   end
 
   it "generates the nagios_hostname field" do
-    expect(grok_match(subject, value)).to include("nagios_hostname" => "varnish")
+    expect(grok).to include("nagios_hostname" => "varnish")
   end
 
   it "generates the nagios_service field" do
-    expect(grok_match(subject, value)).to include("nagios_service" => "Varnish Backend Connections")
+    expect(grok).to include("nagios_service" => "Varnish Backend Connections")
   end
 
   it "generates the nagios_state field" do
-    expect(grok_match(subject, value)).to include("nagios_state" => "CRITICAL")
+    expect(grok).to include("nagios_state" => "CRITICAL")
   end
 
   it "generates the nagios_contact field" do
-    expect(grok_match(subject, value)).to include("nagios_contact" => "notify-service-by-email")
+    expect(grok).to include("nagios_contact" => "notify-service-by-email")
   end
 
   it "generates the nagios_message field" do
-    expect(grok_match(subject, value)).to include("nagios_message" => "Current value: 337.0, warn threshold: 10.0, crit threshold: 20.0")
+    expect(grok).to include("nagios_message" => "Current value: 337.0, warn threshold: 10.0, crit threshold: 20.0")
   end
 
 end
