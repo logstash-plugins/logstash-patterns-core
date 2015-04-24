@@ -105,6 +105,11 @@ describe "NAGIOSLOGLINE - TIMEPERIOD TRANSITION" do
     expect(grok).to include("nagios_service" => "24X7")
   end
 
+  # Regression test for but fixed in Nagios patterns #30
+  it "doesn't end in a semi-colon" do
+    expect(grok['message']).to_not end_with(";")
+  end
+
 end
 
 describe "NAGIOSLOGLINE - SERVICE ALERT" do
