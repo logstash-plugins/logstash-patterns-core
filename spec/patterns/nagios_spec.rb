@@ -201,3 +201,43 @@ describe "NAGIOSLOGLINE - SERVICE NOTIFICATION" do
   end
 
 end
+
+
+describe "NAGIOSLOGLINE - HOST NOTIFICATION" do
+
+  let(:value)   { "[1429878690] HOST NOTIFICATION: nagiosadmin;nagioshost;DOWN;notify-host-by-email;CRITICAL - Socket timeout after 10 seconds" }
+  let(:grok)    { grok_match(subject, value) }
+
+  it "a pattern pass the grok expression" do
+    expect(grok).to pass
+  end
+
+  it "matches a simple message" do
+    expect(subject).to match(value)
+  end
+
+  it "generates the nagios_type field" do
+    expect(grok).to include("nagios_type" => "HOST NOTIFICATION")
+  end
+
+  it "generates the nagios_epoch field" do
+    expect(grok).to include("nagios_epoch" => "1429878690")
+  end
+
+  it "generates the nagios_notifyname field" do
+    expect(grok).to include("nagios_notifyname" => "nagiosadmin")
+  end
+
+  it "generates the nagios_hostname field" do
+    expect(grok).to include("nagios_hostname" => "nagioshost")
+  end
+
+  it "generates the nagios_contact field" do
+    expect(grok).to include("nagios_contact" => "notify-host-by-email")
+  end
+
+  it "generates the nagios_message field" do
+    expect(grok).to include("nagios_message" => "CRITICAL - Socket timeout after 10 seconds")
+  end
+
+end
