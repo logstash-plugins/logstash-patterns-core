@@ -1,6 +1,14 @@
 require "logstash/devutils/rspec/spec_helper"
-require "logstash/filters/grok"
 require 'rspec/expectations'
+
+# running the grok code outside a logstash package means
+# LOGSTASH_HOME will not be defined, so let's set it here
+# before requiring the grok filter
+unless LogStash::Environment.const_defined?(:LOGSTASH_HOME)
+  LogStash::Environment::LOGSTASH_HOME = File.expand_path("../", __FILE__)
+end
+
+require "logstash/filters/grok"
 
 module GrokHelpers
   def grok_match(label, message)
