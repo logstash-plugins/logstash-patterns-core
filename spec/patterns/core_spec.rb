@@ -29,3 +29,13 @@ describe "COMMONAPACHELOG" do
   end
 
 end
+
+describe "HTTPDATE" do
+
+  let(:value) { '[04/Mai/2015:13:17:15 +0200]'}
+
+  it "generates the month field" do
+    expect(grok_match(subject, value)).to include("month" => "Mai")
+  end
+
+end
