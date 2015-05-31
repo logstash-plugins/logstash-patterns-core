@@ -12,6 +12,8 @@ describe "FIREWALLS" do
 
     subject     { grok_match(pattern, value) }
 
+    it { should include("switch_reason" => "Service card in other unit has failed") }
+
     it "generates a message field" do
       expect(subject["message"]).to include("(Secondary) Switching to ACTIVE - Service card in other unit has failed")
     end
