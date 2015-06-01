@@ -22,5 +22,27 @@ describe "SYSLOGLINE" do
     tag_from_rfc = ((33..126).map { |c| c.chr } - %w{[ ]}).join
     expect(subject).to match("May 11 15:40:51 meow.soy.se #{tag_from_rfc}: Just some data which conforms to RFC5424")
   end
+end
 
+describe "FACILITY5424" do
+
+  let(:pattern)    { "FACILITY5424" }
+
+  context "generates the log_facility field" do
+
+    it "matching the local4 facility" do
+        expect(grok_match(pattern, "local4")).to include("log_facility" => "local4")
+    end
+
+    it "matching the local0 facility" do
+        expect(grok_match(pattern, "local0")).to include("log_facility" => "local0")
+    end
+
+    it "matching the kernel facility" do
+        expect(grok_match(pattern, "kernel")).to include("log_facility" => "kernel")
+    end
+    it "matching the daemon facility" do
+        expect(grok_match(pattern, "daemon")).to include("log_facility" => "daemon")
+    end
+  end
 end
