@@ -16,7 +16,7 @@ describe "NAGIOSLOGLINE - CURRENT HOST STATE" do
   end
 
   it "generates the nagios_epoch field" do
-    expect(grok).to include("nagios_epoch" => "1427925600")
+    expect(grok).to include("nagios_epoch" => 1427925600)
   end
 
   it "generates the nagios_message field" do
@@ -55,7 +55,7 @@ describe "NAGIOSLOGLINE - CURRENT SERVICE STATE" do
   end
 
   it "generates the nagios_epoch field" do
-    expect(grok).to include("nagios_epoch" => "1427925600")
+    expect(grok).to include("nagios_epoch" => 1427925600)
   end
 
   it "generates the nagios_message field" do
@@ -98,7 +98,7 @@ describe "NAGIOSLOGLINE - TIMEPERIOD TRANSITION" do
   end
 
   it "generates the nagios_epoch field" do
-    expect(grok).to include("nagios_epoch" => "1427925600")
+    expect(grok).to include("nagios_epoch" => 1427925600)
   end
 
   it "generates the nagios_esrvice field" do
@@ -130,7 +130,7 @@ describe "NAGIOSLOGLINE - SERVICE ALERT" do
   end
 
   it "generates the nagios_epoch field" do
-    expect(grok).to include("nagios_epoch" => "1427925689")
+    expect(grok).to include("nagios_epoch" => 1427925689)
   end
 
   it "generates the nagios_hostname field" do
@@ -173,7 +173,7 @@ describe "NAGIOSLOGLINE - SERVICE NOTIFICATION" do
   end
 
   it "generates the nagios_epoch field" do
-    expect(grok).to include("nagios_epoch" => "1427950229")
+    expect(grok).to include("nagios_epoch" => 1427950229)
   end
 
   it "generates the nagios_notifyname field" do
@@ -221,7 +221,7 @@ describe "NAGIOSLOGLINE - HOST NOTIFICATION" do
   end
 
   it "generates the nagios_epoch field" do
-    expect(grok).to include("nagios_epoch" => "1429878690")
+    expect(grok).to include("nagios_epoch" => 1429878690)
   end
 
   it "generates the nagios_notifyname field" do
@@ -268,23 +268,23 @@ describe "NAGIOSLOGLINE - EXTERNAL COMMAND: SCHEDULE_HOST_DOWNTIME" do
   end
 
   it "generates the nagios_start_time field" do
-    expect(grok).to include("nagios_start_time" => "1432346400")
+    expect(grok).to include("nagios_start_time" => 1432346400)
   end
 
   it "generates the nagios_end_time field" do
-    expect(grok).to include("nagios_end_time" => "1432360800")
+    expect(grok).to include("nagios_end_time" => 1432360800)
   end
 
   it "generates the nagios_fixed field" do
-    expect(grok).to include("nagios_fixed" => "1")
+    expect(grok).to include("nagios_fixed" => 1)
   end
 
   it "generates the nagios_trigger_id field" do
-    expect(grok).to include("nagios_trigger_id" => "0")
+    expect(grok).to include("nagios_trigger_id" => 0)
   end
 
   it "generates the nagios_duration field" do
-    expect(grok).to include("nagios_duration" => "7200")
+    expect(grok).to include("nagios_duration" => 7200)
   end
 
   it "generates the nagios_author field" do
@@ -437,15 +437,15 @@ describe "NAGIOSLOGLINE - EXTERNAL COMMAND: ACKNOWLEDGE_HOST_PROBLEM" do
   end
 
   it "generates the nagios_acknowlege_sticky field" do
-    expect(grok).to include("nagios_acknowlege_sticky" => "2")
+    expect(grok).to include("nagios_acknowlege_sticky" => 2)
   end
 
   it "generates the nagios_acknowlege_notify field" do
-    expect(grok).to include("nagios_acknowlege_notify" => "0")
+    expect(grok).to include("nagios_acknowlege_notify" => 0)
   end
 
   it "generates the nagios_acknowlege_persistent field" do
-    expect(grok).to include("nagios_acknowlege_persistent" => "0")
+    expect(grok).to include("nagios_acknowlege_persistent" => 0)
   end
 
   it "generates the nagios_author field" do
@@ -488,15 +488,15 @@ describe "NAGIOSLOGLINE - EXTERNAL COMMAND: ACKNOWLEDGE_SVC_PROBLEM" do
   end
 
   it "generates the nagios_acknowlege_sticky field" do
-    expect(grok).to include("nagios_acknowlege_sticky" => "2")
+    expect(grok).to include("nagios_acknowlege_sticky" => 2)
   end
 
   it "generates the nagios_acknowlege_notify field" do
-    expect(grok).to include("nagios_acknowlege_notify" => "0")
+    expect(grok).to include("nagios_acknowlege_notify" => 0)
   end
 
   it "generates the nagios_acknowlege_persistent field" do
-    expect(grok).to include("nagios_acknowlege_persistent" => "0")
+    expect(grok).to include("nagios_acknowlege_persistent" => 0)
   end
 
   it "generates the nagios_author field" do
@@ -570,7 +570,7 @@ describe "NAGIOSLOGLINE - EXTERNAL COMMAND: SCHEDULE_SVC_CHECK & SCHEDULE_FORCED
   end
 
   it "generates the nagios_check_time field" do
-    expect(grok).to include("nagios_check_time" => "1431616619")
+    expect(grok).to include("nagios_check_time" => 1431616619)
   end
 
 end

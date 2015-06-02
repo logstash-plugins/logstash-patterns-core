@@ -14,7 +14,7 @@
 #################################################################################
 #################################################################################
 
-NAGIOSTIME \[%{NUMBER:nagios_epoch}\]
+NAGIOSTIME \[%{INT:nagios_epoch:int}\]
 
 ###############################################
 ######## Begin nagios log types
@@ -73,8 +73,8 @@ NAGIOS_CURRENT_HOST_STATE %{NAGIOS_TYPE_CURRENT_HOST_STATE:nagios_type}: %{DATA:
 NAGIOS_SERVICE_NOTIFICATION %{NAGIOS_TYPE_SERVICE_NOTIFICATION:nagios_type}: %{DATA:nagios_notifyname};%{DATA:nagios_hostname};%{DATA:nagios_service};%{DATA:nagios_state};%{DATA:nagios_contact};%{GREEDYDATA:nagios_message}
 NAGIOS_HOST_NOTIFICATION %{NAGIOS_TYPE_HOST_NOTIFICATION:nagios_type}: %{DATA:nagios_notifyname};%{DATA:nagios_hostname};%{DATA:nagios_state};%{DATA:nagios_contact};%{GREEDYDATA:nagios_message}
 
-NAGIOS_SERVICE_ALERT %{NAGIOS_TYPE_SERVICE_ALERT:nagios_type}: %{DATA:nagios_hostname};%{DATA:nagios_service};%{DATA:nagios_state};%{DATA:nagios_statelevel};%{NUMBER:nagios_attempt};%{GREEDYDATA:nagios_message}
-NAGIOS_HOST_ALERT %{NAGIOS_TYPE_HOST_ALERT:nagios_type}: %{DATA:nagios_hostname};%{DATA:nagios_state};%{DATA:nagios_statelevel};%{NUMBER:nagios_attempt};%{GREEDYDATA:nagios_message}
+NAGIOS_SERVICE_ALERT %{NAGIOS_TYPE_SERVICE_ALERT:nagios_type}: %{DATA:nagios_hostname};%{DATA:nagios_service};%{DATA:nagios_state};%{DATA:nagios_statelevel};%{INT:nagios_attempt:int};%{GREEDYDATA:nagios_message}
+NAGIOS_HOST_ALERT %{NAGIOS_TYPE_HOST_ALERT:nagios_type}: %{DATA:nagios_hostname};%{DATA:nagios_state};%{DATA:nagios_statelevel};%{INT:nagios_attempt:int};%{GREEDYDATA:nagios_message}
 
 NAGIOS_SERVICE_FLAPPING_ALERT %{NAGIOS_TYPE_SERVICE_FLAPPING_ALERT:nagios_type}: %{DATA:nagios_hostname};%{DATA:nagios_service};%{DATA:nagios_state};%{GREEDYDATA:nagios_message}
 NAGIOS_HOST_FLAPPING_ALERT %{NAGIOS_TYPE_HOST_FLAPPING_ALERT:nagios_type}: %{DATA:nagios_hostname};%{DATA:nagios_state};%{GREEDYDATA:nagios_message}
@@ -107,17 +107,17 @@ NAGIOS_EC_LINE_PROCESS_SERVICE_CHECK_RESULT %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagio
 NAGIOS_EC_LINE_PROCESS_HOST_CHECK_RESULT %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_PROCESS_HOST_CHECK_RESULT:nagios_command};%{DATA:nagios_hostname};%{DATA:nagios_state};%{GREEDYDATA:nagios_check_result}
 
 #Schedule host, service & host service downtime
-NAGIOS_EC_LINE_SCHEDULE_SVC_DOWNTIME %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_SCHEDULE_SVC_DOWNTIME:nagios_command};%{DATA:nagios_hostname};%{DATA:nagios_service};%{NUMBER:nagios_start_time};%{NUMBER:nagios_end_time};%{NUMBER:nagios_fixed};%{NUMBER:nagios_trigger_id};%{NUMBER:nagios_duration};%{DATA:nagios_author};%{GREEDYDATA:nagios_comment}
-NAGIOS_EC_LINE_SCHEDULE_HOST_DOWNTIME %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_SCHEDULE_HOST_DOWNTIME:nagios_command};%{DATA:nagios_hostname};%{NUMBER:nagios_start_time};%{NUMBER:nagios_end_time};%{NUMBER:nagios_fixed};%{NUMBER:nagios_trigger_id};%{NUMBER:nagios_duration};%{DATA:nagios_author};%{GREEDYDATA:nagios_comment}
-NAGIOS_EC_LINE_SCHEDULE_HOST_SVC_DOWNTIME %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_SCHEDULE_HOST_SVC_DOWNTIME:nagios_command};%{DATA:nagios_hostname};%{NUMBER:nagios_start_time};%{NUMBER:nagios_end_time};%{NUMBER:nagios_fixed};%{NUMBER:nagios_trigger_id};%{NUMBER:nagios_duration};%{DATA:nagios_author};%{GREEDYDATA:nagios_comment}
+NAGIOS_EC_LINE_SCHEDULE_SVC_DOWNTIME %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_SCHEDULE_SVC_DOWNTIME:nagios_command};%{DATA:nagios_hostname};%{DATA:nagios_service};%{INT:nagios_start_time:int};%{INT:nagios_end_time:int};%{INT:nagios_fixed:int};%{INT:nagios_trigger_id:int};%{INT:nagios_duration:int};%{DATA:nagios_author};%{GREEDYDATA:nagios_comment}
+NAGIOS_EC_LINE_SCHEDULE_HOST_DOWNTIME %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_SCHEDULE_HOST_DOWNTIME:nagios_command};%{DATA:nagios_hostname};%{INT:nagios_start_time:int};%{INT:nagios_end_time:int};%{INT:nagios_fixed:int};%{INT:nagios_trigger_id:int};%{INT:nagios_duration:int};%{DATA:nagios_author};%{GREEDYDATA:nagios_comment}
+NAGIOS_EC_LINE_SCHEDULE_HOST_SVC_DOWNTIME %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_SCHEDULE_HOST_SVC_DOWNTIME:nagios_command};%{DATA:nagios_hostname};%{INT:nagios_start_time:int};%{INT:nagios_end_time:int};%{INT:nagios_fixed:int};%{INT:nagios_trigger_id:int};%{INT:nagios_duration:int};%{DATA:nagios_author};%{GREEDYDATA:nagios_comment}
 
 #Acknowledge host & service problem
-NAGIOS_EC_LINE_ACKNOWLEDGE_SVC_PROBLEM %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_ACKNOWLEDGE_SVC_PROBLEM:nagios_command};%{DATA:nagios_hostname};%{DATA:nagios_service};%{INT:nagios_acknowlege_sticky};%{INT:nagios_acknowlege_notify};%{INT:nagios_acknowlege_persistent};%{DATA:nagios_author};%{GREEDYDATA:nagios_comment}
-NAGIOS_EC_LINE_ACKNOWLEDGE_HOST_PROBLEM %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_ACKNOWLEDGE_HOST_PROBLEM:nagios_command};%{DATA:nagios_hostname};%{INT:nagios_acknowlege_sticky};%{INT:nagios_acknowlege_notify};%{INT:nagios_acknowlege_persistent};%{DATA:nagios_author};%{GREEDYDATA:nagios_comment}
+NAGIOS_EC_LINE_ACKNOWLEDGE_SVC_PROBLEM %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_ACKNOWLEDGE_SVC_PROBLEM:nagios_command};%{DATA:nagios_hostname};%{DATA:nagios_service};%{INT:nagios_acknowlege_sticky:int};%{INT:nagios_acknowlege_notify:int};%{INT:nagios_acknowlege_persistent:int};%{DATA:nagios_author};%{GREEDYDATA:nagios_comment}
+NAGIOS_EC_LINE_ACKNOWLEDGE_HOST_PROBLEM %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_ACKNOWLEDGE_HOST_PROBLEM:nagios_command};%{DATA:nagios_hostname};%{INT:nagios_acknowlege_sticky:int};%{INT:nagios_acknowlege_notify:int};%{INT:nagios_acknowlege_persistent:int};%{DATA:nagios_author};%{GREEDYDATA:nagios_comment}
 
 #Schedule normal and forced host & service check
-NAGIOS_EC_LINE_SCHEDULE_SVC_CHECK %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_SCHEDULE_SVC_CHECK:nagios_command};%{DATA:nagios_hostname};%{DATA:nagios_service};%{INT:nagios_check_time}
-NAGIOS_EC_LINE_SCHEDULE_HOST_CHECK %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_SCHEDULE_HOST_CHECK:nagios_command};%{DATA:nagios_hostname};%{INT:nagios_check_time}
+NAGIOS_EC_LINE_SCHEDULE_SVC_CHECK %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_SCHEDULE_SVC_CHECK:nagios_command};%{DATA:nagios_hostname};%{DATA:nagios_service};%{INT:nagios_check_time:int}
+NAGIOS_EC_LINE_SCHEDULE_HOST_CHECK %{NAGIOS_TYPE_EXTERNAL_COMMAND:nagios_type}: %{NAGIOS_EC_SCHEDULE_HOST_CHECK:nagios_command};%{DATA:nagios_hostname};%{INT:nagios_check_time:int}
 
 #End matching line
 NAGIOSLOGLINE %{NAGIOSTIME} (?:%{NAGIOS_WARNING}|%{NAGIOS_CURRENT_SERVICE_STATE}|%{NAGIOS_CURRENT_HOST_STATE}|%{NAGIOS_SERVICE_NOTIFICATION}|%{NAGIOS_HOST_NOTIFICATION}|%{NAGIOS_SERVICE_ALERT}|%{NAGIOS_HOST_ALERT}|%{NAGIOS_SERVICE_FLAPPING_ALERT}|%{NAGIOS_HOST_FLAPPING_ALERT}|%{NAGIOS_SERVICE_DOWNTIME_ALERT}|%{NAGIOS_HOST_DOWNTIME_ALERT}|%{NAGIOS_PASSIVE_SERVICE_CHECK}|%{NAGIOS_PASSIVE_HOST_CHECK}|%{NAGIOS_SERVICE_EVENT_HANDLER}|%{NAGIOS_HOST_EVENT_HANDLER}|%{NAGIOS_TIMEPERIOD_TRANSITION}|%{NAGIOS_EC_LINE_DISABLE_SVC_CHECK}|%{NAGIOS_EC_LINE_ENABLE_SVC_CHECK}|%{NAGIOS_EC_LINE_DISABLE_HOST_CHECK}|%{NAGIOS_EC_LINE_ENABLE_HOST_CHECK}|%{NAGIOS_EC_LINE_PROCESS_HOST_CHECK_RESULT}|%{NAGIOS_EC_LINE_PROCESS_SERVICE_CHECK_RESULT}|%{NAGIOS_EC_LINE_SCHEDULE_HOST_DOWNTIME}|%{NAGIOS_EC_LINE_SCHEDULE_SVC_DOWNTIME}|%{NAGIOS_EC_LINE_SCHEDULE_HOST_SVC_DOWNTIME}|%{NAGIOS_EC_LINE_ACKNOWLEDGE_SVC_PROBLEM}|%{NAGIOS_EC_LINE_ACKNOWLEDGE_HOST_PROBLEM}|%{NAGIOS_EC_LINE_SCHEDULE_SVC_CHECK}|%{NAGIOS_EC_LINE_SCHEDULE_HOST_CHECK})
