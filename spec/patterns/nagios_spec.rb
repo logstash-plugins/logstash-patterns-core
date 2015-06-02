@@ -327,23 +327,23 @@ describe "NAGIOSLOGLINE - EXTERNAL COMMAND: SCHEDULE_SVC_DOWNTIME" do
   end
 
   it "generates the nagios_start_time field" do
-    expect(grok).to include("nagios_start_time" => "1432346400")
+    expect(grok).to include("nagios_start_time" => 1432346400)
   end
 
   it "generates the nagios_end_time field" do
-    expect(grok).to include("nagios_end_time" => "1432360800")
+    expect(grok).to include("nagios_end_time" => 1432360800)
   end
 
   it "generates the nagios_fixed field" do
-    expect(grok).to include("nagios_fixed" => "1")
+    expect(grok).to include("nagios_fixed" => 1)
   end
 
   it "generates the nagios_trigger_id field" do
-    expect(grok).to include("nagios_trigger_id" => "0")
+    expect(grok).to include("nagios_trigger_id" => 0)
   end
 
   it "generates the nagios_duration field" do
-    expect(grok).to include("nagios_duration" => "7200")
+    expect(grok).to include("nagios_duration" => 7200)
   end
 
   it "generates the nagios_author field" do
@@ -382,23 +382,23 @@ describe "NAGIOSLOGLINE - EXTERNAL COMMAND: SCHEDULE_HOST_SVC_DOWNTIME" do
   end
 
   it "generates the nagios_start_time field" do
-    expect(grok).to include("nagios_start_time" => "1432346400")
+    expect(grok).to include("nagios_start_time" => 1432346400)
   end
 
   it "generates the nagios_end_time field" do
-    expect(grok).to include("nagios_end_time" => "1432360800")
+    expect(grok).to include("nagios_end_time" => 1432360800)
   end
 
   it "generates the nagios_fixed field" do
-    expect(grok).to include("nagios_fixed" => "1")
+    expect(grok).to include("nagios_fixed" => 1)
   end
 
   it "generates the nagios_trigger_id field" do
-    expect(grok).to include("nagios_trigger_id" => "0")
+    expect(grok).to include("nagios_trigger_id" => 0)
   end
 
   it "generates the nagios_duration field" do
-    expect(grok).to include("nagios_duration" => "7200")
+    expect(grok).to include("nagios_duration" => 7200)
   end
 
   it "generates the nagios_author field" do
@@ -535,7 +535,7 @@ describe "NAGIOSLOGLINE - EXTERNAL COMMAND: SCHEDULE_HOST_CHECK & SCHEDULE_FORCE
   end
 
   it "generates the nagios_check_time field" do
-    expect(grok).to include("nagios_check_time" => "1429965113")
+    expect(grok).to include("nagios_check_time" => 1429965113)
   end
 
 end
