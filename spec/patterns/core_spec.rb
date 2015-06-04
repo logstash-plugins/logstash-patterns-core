@@ -32,7 +32,7 @@ end
 
 describe "APACHEERRORLOG" do
 
-  let(:value) { "[Thu May 01 02:23:39 2014] [error] [client 127.0.0.1] PHP Warning:  phpinfo(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. in /var/www/html/index.php on line 1"}
+  let(:value) { "[Thu May 01 02:23:39 2014] [error] [client 127.0.0.1] File does not exist: /var/www/html/404.html" }
 
   it "generates the clientip field" do
     expect(grok_match(subject, value)).to include("clientip" => "127.0.0.1", "timestamp" => "Thu May 01 02:23:39 2014", "loglevel" => "error")
