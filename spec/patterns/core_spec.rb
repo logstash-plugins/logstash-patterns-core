@@ -29,3 +29,13 @@ describe "COMMONAPACHELOG" do
   end
 
 end
+
+describe "APACHEERRORLOG" do
+
+  let(:value) { "[Thu May 01 02:23:39 2014] [error] [client 127.0.0.1] File does not exist: /var/www/html/404.html" }
+
+  it "generates the clientip field" do
+    expect(grok_match(subject, value)).to include("clientip" => "127.0.0.1", "timestamp" => "Thu May 01 02:23:39 2014", "loglevel" => "error")
+  end
+
+end
