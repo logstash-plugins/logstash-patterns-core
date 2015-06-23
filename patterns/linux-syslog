@@ -14,6 +14,3 @@ SYSLOG5424SD \[%{DATA}\]+
 SYSLOG5424BASE %{SYSLOG5424PRI}%{NONNEGINT:syslog5424_ver} +(?:%{TIMESTAMP_ISO8601:syslog5424_ts}|-) +(?:%{HOSTNAME:syslog5424_host}|-) +(-|%{SYSLOG5424PRINTASCII:syslog5424_app}) +(-|%{SYSLOG5424PRINTASCII:syslog5424_proc}) +(-|%{SYSLOG5424PRINTASCII:syslog5424_msgid}) +(?:%{SYSLOG5424SD:syslog5424_sd}|-|)
 
 SYSLOG5424LINE %{SYSLOG5424BASE} +%{GREEDYDATA:syslog5424_msg}
-
-FACILITY5424KEYWORD kernel|user-level|mail|daemon|security/authorization|syslogd|line printer|network news|uucp|clock|security/authorization|ftp|ntp|log audit|log|alert|clock|local0|local1|local2|local3|local4|local5|local6|local7
-FACILITY5424 %{FACILITY5424KEYWORD:log_facility}
