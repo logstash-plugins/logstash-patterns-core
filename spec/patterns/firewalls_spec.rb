@@ -50,6 +50,22 @@ describe "FIREWALLS" do
     end
   end
 
+  let(:pattern304001)    { "CISCOFW304001" }
+
+  context "parsing a 304001 message" do
+
+    let(:value) { "10.20.30.40(DOMAIN\\login) Accessed URL 10.11.12.13:http://example.org/" }
+
+    subject     { grok_match(pattern304001, value) }
+
+    it 'should break the message up into fields' do
+      expect(subject['src_ip']).to eq('10.20.30.40')
+      expect(subject['src_fwuser']).to eq('DOMAIN\\login')
+      expect(subject['dst_ip']).to eq('10.11.12.13')
+      expect(subject['dst_url']).to eq('http://example.org/')
+    end
+  end
+
   let(:pattern106023) { "CISCOFW106023" }
 
   context "parsing a 106023 message" do
