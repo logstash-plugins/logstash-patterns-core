@@ -29,3 +29,47 @@ describe "COMMONAPACHELOG" do
   end
 
 end
+
+describe "HTTP DATE parsing" do
+
+  context "HTTPDATE", "when having a German month" do
+
+    let(:value) { '[04/Mai/2015:13:17:15 +0200]'}
+
+    it "generates the month field" do
+      expect(grok_match(subject, value)).to pass
+    end
+
+  end
+
+  context "HTTPDATE", "when having a English month" do
+
+    let(:value) { '[04/March/2015:13:17:15 +0200]'}
+
+    it "generates the month field" do
+      expect(grok_match(subject, value)).to pass
+    end
+
+  end
+
+  context "HTTPDATE", "when having a wrong months" do
+
+    let(:value) { '[04/Map/2015:13:17:15 +0200]'}
+
+    it "generates the month field" do
+      expect(grok_match(subject, value)).not_to pass
+    end
+
+  end
+
+end
+ 
+describe "TOMCATLOG" do
+
+  let(:value) { '2014-01-09 20:03:28,269 -0800 | ERROR | com.example.service.ExampleService - something compeletely unexpected happened...'}
+
+  it "generates the logmessage field" do
+    expect(grok_match(subject, value)).to include("logmessage" => "something compeletely unexpected happened...")
+  end
+
+end
