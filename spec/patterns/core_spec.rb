@@ -30,15 +30,39 @@ describe "COMMONAPACHELOG" do
 
 end
 
-describe "HTTPDATE" do
+describe "HTTP DATE parsing" do
 
-  let(:value) { '[04/Mai/2015:13:17:15 +0200]'}
+  context "HTTPDATE", "when having a German month" do
 
-  it "generates the month field" do
-    expect(grok_match(subject, value)).to include("month" => "Mai")
+    let(:value) { '[04/Mai/2015:13:17:15 +0200]'}
+
+    it "generates the month field" do
+      expect(grok_match(subject, value)).to pass
+    end
+
   end
 
-end 
+  context "HTTPDATE", "when having a English month" do
+
+    let(:value) { '[04/March/2015:13:17:15 +0200]'}
+
+    it "generates the month field" do
+      expect(grok_match(subject, value)).to pass
+    end
+
+  end
+
+  context "HTTPDATE", "when having a wrong months" do
+
+    let(:value) { '[04/Map/2015:13:17:15 +0200]'}
+
+    it "generates the month field" do
+      expect(grok_match(subject, value)).not_to pass
+    end
+
+  end
+
+end
  
 describe "TOMCATLOG" do
 
