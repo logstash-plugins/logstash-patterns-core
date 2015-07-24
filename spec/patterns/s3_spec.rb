@@ -38,7 +38,23 @@ describe "ELB_ACCESS_LOG" do
         expect(subject[attribute]).to be_nil
       end
     end
+  end
 
+  context "parsing a PUT request access log with missing backend info" do
+
+    let(:value) { '2015-04-10T08:11:09.865823Z us-west-1-production-media 49.150.87.133:55128 - -1 -1 -1 408 0 1294336 0 "PUT https://media.xxxyyyzzz.com:443/videos/F4_M-T4X0MM6Hvy1PFHesw HTTP/1.1"' }
+
+    subject { grok_match(pattern, value) }
+
+    it "a pattern pass the grok expression" do
+      expect(subject).to pass
+    end
+
+    ["backendip", "backendport"].each do |attribute|
+      it "have #{attribute} as nil" do
+        expect(subject[attribute]).to be_nil
+      end
+    end
   end
 end
 
