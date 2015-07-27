@@ -13,7 +13,7 @@ Logstash provides infrastructure to automatically generate documentation for thi
 
 ## Need Help?
 
-Need help? Try #logstash on freenode IRC or the logstash-users@googlegroups.com mailing list.
+Need help? Try #logstash on freenode IRC or the https://discuss.elastic.co/c/logstash discussion forum.
 
 ## Developing
 
