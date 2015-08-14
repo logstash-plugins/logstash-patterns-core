@@ -37,44 +37,153 @@ CISCOFW106006_106007_106010 %{CISCO_ACTION:action} %{CISCO_DIRECTION:direction} 
 CISCOFW106014 %{CISCO_ACTION:action} %{CISCO_DIRECTION:direction} %{WORD:protocol} src %{DATA:src_interface}:%{IP:src_ip}(\(%{DATA:src_fwuser}\))? dst %{DATA:dst_interface}:%{IP:dst_ip}(\(%{DATA:dst_fwuser}\))? \(type %{INT:icmp_type}, code %{INT:icmp_code}\)
 # ASA-6-106015
 CISCOFW106015 %{CISCO_ACTION:action} %{WORD:protocol} \(%{DATA:policy_id}\) from %{IP:src_ip}/%{INT:src_port} to %{IP:dst_ip}/%{INT:dst_port} flags %{DATA:tcp_flags}  on interface %{GREEDYDATA:interface}
+# ASA-6-106016
+CISCOFW106016 Deny IP spoof from \(%{IP:src_ip}\) to %{IP:dst_ip} on interface %{GREEDYDATA:src_interface}
+# ASA-2-106017
+CISCOFW106017 Deny IP due to Land Attack from %{IP:src_ip} to %{IP:dst_ip}
+# ASA-2-106020
+CISCOFW106020 Deny IP teardrop fragment \(size = %{INT:size}, offset = %{INT:offset}\) from %{IP:src_ip} to %{IP:dst_ip}
 # ASA-1-106021
 CISCOFW106021 %{CISCO_ACTION:action} %{WORD:protocol} reverse path check from %{IP:src_ip} to %{IP:dst_ip} on interface %{GREEDYDATA:interface}
 # ASA-4-106023
 CISCOFW106023 %{CISCO_ACTION:action} %{WORD:protocol} src %{DATA:src_interface}:%{IP:src_ip}(/%{INT:src_port})?(\(%{DATA:src_fwuser}\))? dst %{DATA:dst_interface}:%{IP:dst_ip}(/%{INT:dst_port})?(\(%{DATA:dst_fwuser}\))?( \(type %{INT:icmp_type}, code %{INT:icmp_code}\))? by access-group %{NOTSPACE:policy_id} \[%{DATA:hashcode1}, %{DATA:hashcode2}\]
 # ASA-5-106100
 CISCOFW106100 access-list %{NOTSPACE:policy_id} %{CISCO_ACTION:action} %{WORD:protocol} %{DATA:src_interface}/%{IP:src_ip}\(%{INT:src_port}\)(\(%{DATA:src_fwuser}\))? -> %{DATA:dst_interface}/%{IP:dst_ip}\(%{INT:dst_port}\)(\(%{DATA:src_fwuser}\))? hit-cnt %{INT:hit_count} %{CISCO_INTERVAL:interval} \[%{DATA:hashcode1}, %{DATA:hashcode2}\]
+# ASA-5-106101
+CISCOFW106101 Number of cached deny-flows for ACL log has reached limit \(%{INT:deny_flow_max}\)
 # ASA-6-110002
 CISCOFW110002 %{CISCO_REASON:reason} for %{WORD:protocol} from %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{IP:dst_ip}/%{INT:dst_port}
+# ASA-6-110003
+CISCOFW110003 Routing failed to locate next hop for %{WORD:protocol} from %{GREEDYDATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{GREEDYDATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}
+# ASA-5-111007
+CISCOFW111007 Begin configuration: %{DATA:session_source} reading from %{GREEDYDATA:config_source}
+# ASA-5-111008
+CISCOFW111008 User '%{DATA:user}' executed the '%{DATA:command}' command\.
+# ASA-6-113004
+CISCOFW113004 AAA user %{WORD:aaa_type} Successful : server =  %{IP:aaa_server_ip} : user = %{GREEDYDATA:user}
+# ASA-6-113005
+CISCOFW113005 AAA user authentication Rejected : reason = AAA failure : server = %{IP:aaa_server_ip} : user = %{DATA:user} : user IP = %{IP:src_ip}
+# ASA-6-113008
+CISCOFW113008 AAA transaction status ACCEPT : user = %{GREEDYDATA:user}
+# ASA-6-113009
+CISCOFW113009 AAA retrieved default group policy \(%{DATA:policy}\) for user = %{GREEDYDATA:user}
 # ASA-6-302010
 CISCOFW302010 %{INT:connection_count} in use, %{INT:connection_count_max} most used
 # ASA-6-302013, ASA-6-302014, ASA-6-302015, ASA-6-302016
 CISCOFW302013_302014_302015_302016 %{CISCO_ACTION:action}(?: %{CISCO_DIRECTION:direction})? %{WORD:protocol} connection %{INT:connection_id} for %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port}( \(%{IP:src_mapped_ip}/%{INT:src_mapped_port}\))?(\(%{DATA:src_fwuser}\))? to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}( \(%{IP:dst_mapped_ip}/%{INT:dst_mapped_port}\))?(\(%{DATA:dst_fwuser}\))?( duration %{TIME:duration} bytes %{INT:bytes})?(?: %{CISCO_REASON:reason})?( \(%{DATA:user}\))?
 # ASA-6-302020, ASA-6-302021
 CISCOFW302020_302021 %{CISCO_ACTION:action}(?: %{CISCO_DIRECTION:direction})? %{WORD:protocol} connection for faddr %{IP:dst_ip}/%{INT:icmp_seq_num}(?:\(%{DATA:fwuser}\))? gaddr %{IP:src_xlated_ip}/%{INT:icmp_code_xlated} laddr %{IP:src_ip}/%{INT:icmp_code}( \(%{DATA:user}\))?
+# ASA-6-303002
+CISCOFW303002 FTP connection from %{GREEDYDATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{GREEDYDATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}, user %{GREEDYDATA:user} %{WORD:action} file %{GREEDYDATA:filename}
+# ASA-3-305006
+CISCOFW305006 %{DATA:translation_type} translation creation failed for %{NOTSPACE:protocol} src %{GREEDYDATA:src_interface}:%{IP:src_ip}(?:/%{INT:src_port})? dst %{GREEDYDATA:dst_interface}:%{IP:dst_ip}(?:/%{INT:dst_port})?(?: \(type %{INT:icmp_type}, code %{INT:icmp_code}\))?
 # ASA-6-305011
 CISCOFW305011 %{CISCO_ACTION:action} %{CISCO_XLATE_TYPE:xlate_type} %{WORD:protocol} translation from %{DATA:src_interface}:%{IP:src_ip}(/%{INT:src_port})?(\(%{DATA:src_fwuser}\))? to %{DATA:src_xlated_interface}:%{IP:src_xlated_ip}/%{DATA:src_xlated_port}
 # ASA-3-313001, ASA-3-313004, ASA-3-313008
 CISCOFW313001_313004_313008 %{CISCO_ACTION:action} %{WORD:protocol} type=%{INT:icmp_type}, code=%{INT:icmp_code} from %{IP:src_ip} on interface %{DATA:interface}( to %{IP:dst_ip})?
 # ASA-4-313005
 CISCOFW313005 %{CISCO_REASON:reason} for %{WORD:protocol} error message: %{WORD:err_protocol} src %{DATA:err_src_interface}:%{IP:err_src_ip}(\(%{DATA:err_src_fwuser}\))? dst %{DATA:err_dst_interface}:%{IP:err_dst_ip}(\(%{DATA:err_dst_fwuser}\))? \(type %{INT:err_icmp_type}, code %{INT:err_icmp_code}\) on %{DATA:interface} interface\.  Original IP payload: %{WORD:protocol} src %{IP:orig_src_ip}/%{INT:orig_src_port}(\(%{DATA:orig_src_fwuser}\))? dst %{IP:orig_dst_ip}/%{INT:orig_dst_port}(\(%{DATA:orig_dst_fwuser}\))?
+# ASA-4-313009
+CISCOFW313009 Denied invalid ICMP code %{INT:icmp_code}, for %{GREEDYDATA:src_interface}:%{IP:src_ip}/%{INT:src_port} \(%{IP:src_mapped_ip}/%{INT:src_mapped_port}\) to %{GREEDYDATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port} \(%{IP:dst_mapped_ip}/%{INT:dst_mapped_port}\), ICMP id %{INT:icmp_id}, ICMP type %{INT:icmp_type}
+# ASA-6-315011
+CISCOFW315011 SSH session from %{IP:src_ip} on interface %{NOTSPACE:interface} for user "%{USER:user}?" disconnected by SSH server, reason: %{GREEDYDATA:reason}
 # ASA-5-321001
 CISCOFW321001 Resource '%{WORD:resource_name}' limit of %{POSINT:resource_limit} reached for system
 # ASA-4-402117
 CISCOFW402117 %{WORD:protocol}: Received a non-IPSec packet \(protocol= %{WORD:orig_protocol}\) from %{IP:src_ip} to %{IP:dst_ip}
 # ASA-4-402119
 CISCOFW402119 %{WORD:protocol}: Received an %{WORD:orig_protocol} packet \(SPI= %{DATA:spi}, sequence number= %{DATA:seq_num}\) from %{IP:src_ip} \(user= %{DATA:user}\) to %{IP:dst_ip} that failed anti-replay checking
+# ASA-4-410001
+CISCOFW410001 Dropped UDP DNS reply from %{GREEDYDATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{GREEDYDATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}; %{DATA:field_type} length %{INT:field_length} bytes exceeds %{DATA:limit_type} of %{INT:packet_length} bytes
 # ASA-4-419001
 CISCOFW419001 %{CISCO_ACTION:action} %{WORD:protocol} packet from %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}, reason: %{GREEDYDATA:reason}
 # ASA-4-419002
 CISCOFW419002 %{CISCO_REASON:reason} from %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port} with different initial sequence number
 # ASA-4-500004
 CISCOFW500004 %{CISCO_REASON:reason} for protocol=%{WORD:protocol}, from %{IP:src_ip}/%{INT:src_port} to %{IP:dst_ip}/%{INT:dst_port}
+# ASA-5-502103
+CISCOFW502103 User priv level changed: Uname: %{NOTSPACE:user} From: %{INT:enable_prior_level} To: %{INT:enable_new_level}
+# ASA-6-602101
+CISCOFW602101 PMTU-D packet %{INT:bytes} bytes greater than effective mtu %{INT:mtu}, dest_addr=%{IP:dst_ip}, src_addr=%{IP:src_ip}, prot=%{NOTSPACE:protocol}
 # ASA-6-602303, ASA-6-602304
 CISCOFW602303_602304 %{WORD:protocol}: An %{CISCO_DIRECTION:direction} %{GREEDYDATA:tunnel_type} SA \(SPI= %{DATA:spi}\) between %{IP:src_ip} and %{IP:dst_ip} \(user= %{DATA:user}\) has been %{CISCO_ACTION:action}
+# ASA-6-605005
+CISCOFW605005 Login permitted from %{IP:src_ip}/%{INT:src_port} to %{NOTSPACE:dst_interface}:%{IP:dst_ip}/%{WORD:service} for user "%{USER:user}"
+# ASA-6-607001
+CISCOFW607001 Pre-allocate SIP %{DATA:sip_connection_type} secondary channel for %{GREEDYDATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{GREEDYDATA:dst_interface}:%{IP:dst_ip} from %{GREEDYDATA:sip_message_type} message
+# ASA-6-611101
+CISCOFW611101 User authentication succeeded: Uname: %{USER:user}
+# ASA-6-611103
+CISCOFW611103 User logged out: Uname: %{USER:user}
+# ASA-6-622001
+CISCOFW622001 %{WORD:action} tracked route %{IP:route_destination} %{IP:route_netmask} %{IP:route_next_hop}, distance %{INT:route_admin_distance}, table %{NOTSPACE:routing_table}, on interface %{GREEDYDATA:interface}
 # ASA-7-710001, ASA-7-710002, ASA-7-710003, ASA-7-710005, ASA-7-710006
 CISCOFW710001_710002_710003_710005_710006 %{WORD:protocol} (?:request|access) %{CISCO_ACTION:action} from %{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}
+# ASA-5-713041
+CISCOFW713041 (?:Group = %{NOTSPACE:group_id}, )?IP = %{IP:peer_ip}, IKE Initiator: Rekeying Phase %{INT:ike_phase}, Intf %{GREEDYDATA:interface}, IKE Peer %{IP:peer_ip}  local Proxy Address %{IP:local_proxy_ip}, remote Proxy Address %{IP:remote_proxy_ip},  Crypto map \(%{GREEDYDATA:crypto_map}\)
+# ASA-5-713049
+CISCOFW713049 Group = %{NOTSPACE:group_id}(?:, Username = %{GREEDYDATA:user})?, IP = %{IP:peer_ip}, Security negotiation complete for (?:User|%{NOTSPACE:negotiation_group} Group) \((?:[^ ]*)\)  %{WORD:negotiation_role}, Inbound SPI = %{BASE16NUM:inbound_spi}, Outbound SPI = %{BASE16NUM:outbound_spi}
+# ASA-5-713050
+CISCOFW713050 Group = %{NOTSPACE:group_id}, Username = %{GREEDYDATA:user}, IP = %{IP:peer_ip}, Connection terminated for peer (?:.*). Reason: %{GREEDYDATA:reason} Remote Proxy %{IP:remote_proxy_ip}, Local Proxy %{IP:local_proxy_ip}
+# ASA-5-713073
+CISCOFW713073 Group = %{NOTSPACE:group_id}(?:, Username = %{GREEDYDATA:user})?, IP = %{IP:peer_ip}, Responder forcing change of IPSec rekeying duration from %{INT:original_value} to %{INT:new_value} seconds
+# ASA-5-713074
+CISCOFW713074 Group = %{NOTSPACE:group_id}(?:, Username = %{GREEDYDATA:user})?, IP = %{IP:peer_ip}, Responder forcing change of IPSec rekeying duration from %{INT:original_value} to %{INT:new_value} Kbs
+# ASA-5-713075
+CISCOFW713075 Group = %{NOTSPACE:group_id}(?:, Username = %{GREEDYDATA:user})?, IP = %{IP:peer_ip}, Overriding Initiator's IPSec rekeying duration from %{INT:original_value} to %{INT:new_value} seconds
+# ASA-5-713076
+CISCOFW713076 Group = %{NOTSPACE:group_id}(?:, Username = %{GREEDYDATA:user})?, IP = %{IP:peer_ip}, Overriding Initiator's IPSec rekeying duration from %{INT:original_value} to %{INT:new_value} Kbs
+# ASA-5-713119
+CISCOFW713119 Group = %{NOTSPACE:group_id}(?:, Username = %{GREEDYDATA:user})?, IP = %{IP:peer_ip}, PHASE 1 COMPLETED
+# ASA-5-713120
+CISCOFW713120 Group = %{NOTSPACE:group_id}(?:, Username = %{GREEDYDATA:user})?, IP = %{IP:peer_ip}, PHASE 2 COMPLETED \(msgid=%{GREEDYDATA:msgid}\)
+# ASA-5-713130
+CISCOFW713130 Group = %{NOTSPACE:group_id}(?:, Username = %{GREEDYDATA:user})?, IP = %{IP:peer_ip}, Received unsupported transaction mode attribute: %{GREEDYDATA:attribute}
 # ASA-6-713172
 CISCOFW713172 Group = %{GREEDYDATA:group}, IP = %{IP:src_ip}, Automatic NAT Detection Status:\s+Remote end\s*%{DATA:is_remote_natted}\s*behind a NAT device\s+This\s+end\s*%{DATA:is_local_natted}\s*behind a NAT device
+# ASA-5-713184
+CISCOFW713184 Group = %{NOTSPACE:group_id}(?:, Username = %{GREEDYDATA:user})?, IP = %{IP:peer_ip}, Client Type: %{DATA:client_type}  Client Application Version: %{GREEDYDATA:client_version}
+# ASA-5-713228
+CISCOFW713228 Group = %{NOTSPACE:group_id}(?:, Username = %{GREEDYDATA:user})?, IP = %{IP:peer_ip}, Assigned private IP address %{IP:private_ip} to remote user
+# ASA-5-713902
+#   Generic Match
+CISCOFW713902 Group = %{NOTSPACE:group_id}(?:, Username = %{GREEDYDATA:user})?, IP = %{IP:peer_ip}, .*
+# ASA-5-713904
+#   Generic Messaging
+CISCOFW713904 IP = %{IP:peer_ip}, .*
+# ASA-6-713905
+#   Floating NAT-T
+CISCOFW713905_1 Group = %{NOTSPACE:group_id}(?:, Username = %{GREEDYDATA:user})?, IP = %{IP:peer_ip}, Floating NAT-T from %{IP:peer_original_ip} port %{INT:peer_original_port} to %{IP:peer_new_ip} port %{INT:peer_new_port}
+#   Generic match
+CISCOFW713905 Group = %{NOTSPACE:group_id}(?:, Username = %{GREEDYDATA:user})?, IP = %{IP:peer_ip}, .*
+# ASA-5-725001
+CISCOFW725001 Starting SSL handshake with %{WORD:peer_type} %{GREEDYDATA:src_interface}:%{IP:src_ip}/%{INT:src_port} for %{WORD:protocol} session
+# ASA-5-725002
+CISCOFW725002 Device completed SSL handshake with %{WORD:peer_type} %{GREEDYDATA:src_interface}:%{IP:src_ip}/%{INT:src_port}
+# ASA-5-725003
+CISCOFW725003 SSL %{WORD:peer_type} %{GREEDYDATA:src_interface}:%{IP:src_ip}/%{INT:src_port} request to resume previous session
+# ASA-5-725006
+CISCOFW725006 Device failed SSL handshake with %{NOTSPACE:peer_type} %{GREEDYDATA:src_interface}:%{IP:src_ip}/%{INT:src_port}(?: to %{IP:dst_ip}/%{INT:dst_port})?
+# ASA-5-725007
+CISCOFW725007 SSL session with %{WORD:peer_type} %{GREEDYDATA:src_interface}:%{IP:src_ip}/%{INT:src_port} terminated
 # ASA-4-733100
 CISCOFW733100 \[\s*%{DATA:drop_type}\s*\] drop %{DATA:drop_rate_id} exceeded. Current burst rate is %{INT:drop_rate_current_burst} per second, max configured rate is %{INT:drop_rate_max_burst}; Current average rate is %{INT:drop_rate_current_avg} per second, max configured rate is %{INT:drop_rate_max_avg}; Cumulative total count is %{INT:drop_total_count}
+# ASA-6-734001
+CISCOFW734001 DAP: User %{DATA:user}, Addr %{IP:peer_ip}, Connection %{GREEDYDATA:connection_type}: The following DAP records were selected for this connection: %{GREEDYDATA:dap_records}
+# ASA-6-737006
+CISCOFW737006 IPAA: Local pool request succeeded for tunnel-group '%{GREEDYDATA:tunnel_group}'
+# ASA-6-737016
+CISCOFW737016 IPAA: Freeing local pool address %{IP:ip}
+# ASA-6-737026
+CISCOFW737026 IPAA: Client assigned %{IP:ip} from local pool
+# ASA-3-746005
+CISCOFW746005 user-identity: The AD Agent %{IP:agent_ip} cannot be reached - %{GREEDYDATA:reason}
+# ASA-3-746006
+CISCOFW746006 user-identity: Out of sync with AD Agent, start bulk download
+# ASA-5-752004
+CISCOFW752004 Tunnel Manager dispatching a KEY_ACQUIRE message to IKEv1\.  Map Tag = %{NOTSPACE:crypto_map}\.  Map Sequence Number = %{INT:crypto_map_sequence_num}\.
+# ASA-4-752010
+CISCOFW752010 IKEv2 Doesn't have a proposal specified
+# ASA-4-752016
+CISCOFW752016 %{NOTSPACE:ike_protocol} was successful at setting up a tunnel\.  Map Tag = %{NOTSPACE:crypto_map}\. Map Sequence Number = %{INT:crypto_map_sequence_num}\.
 #== End Cisco ASA ==
