@@ -1,3 +1,9 @@
+# 0.3.0
+ - Updated the AWS S3 patterns
+ - Added patterns for rails 3
+ - Added patterns for haproxy
+ - Added patterns for bro http.log
+ - Added shorewall patterns
 # 0.2.0
  - Added patterns for S3 and ELB access logs amazon services
 # 0.1.12
