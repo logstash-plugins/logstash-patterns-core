@@ -72,3 +72,24 @@ describe "TOMCATLOG" do
     expect(grok_match(subject, value)).to include("logmessage" => "something compeletely unexpected happened...")
   end
 end
+
+describe "IPORHOST" do
+
+  let(:pattern)    { "IPORHOST" }
+
+  context "matching an IP" do
+    let(:value) { '127.0.0.1' }
+
+    it "should match the IP value" do
+      expect(grok_match(pattern, value)).to pass
+    end
+  end
+
+  context "matching a HOST" do
+    let(:value) { 'example.org' }
+
+    it "should match the IP value" do
+      expect(grok_match(pattern, value)).to pass
+    end
+  end
+end
