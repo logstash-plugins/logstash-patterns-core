@@ -93,3 +93,13 @@ describe "IPORHOST" do
     end
   end
 end
+
+describe "UNIXPATH" do
+
+  let(:value) { '/foo/bar' }
+
+  it "should match the path" do
+    expect(grok_match(subject,value)).to pass
+  end
+
+end
