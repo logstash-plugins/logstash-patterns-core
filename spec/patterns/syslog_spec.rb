@@ -23,4 +23,13 @@ describe "SYSLOGLINE" do
     expect(subject).to match("May 11 15:40:51 meow.soy.se #{tag_from_rfc}: Just some data which conforms to RFC5424")
   end
 
+  context "when having an optional progname" do
+
+    let(:pattern) { "SYSLOGLINE" }
+    let(:value)   { "<14>Jun 24 10:32:02 hostname WinFileService Event: read, Path: /.DS_Store, File/Folder: File, Size: 6.00 KB, User: user@host, IP: 123.123.123.123" }
+
+    it "should accept the message" do
+      expect(grok_match(pattern, value)).to pass
+    end
+  end
 end
