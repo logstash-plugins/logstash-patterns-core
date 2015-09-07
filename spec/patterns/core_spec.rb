@@ -112,3 +112,30 @@ describe "UNIXPATH" do
     end
   end
 end
+
+describe "IPV4" do
+
+  let(:pattern) { 'IPV4' }
+  let(:value) { "127.0.0.1" }
+
+  it "should match the path" do
+    expect(grok_match(pattern,value)).to pass
+  end
+
+  context "when parsing a local IP" do
+    let(:value) { "10.0.0.1" }
+
+    it "should match the path" do
+      expect(grok_match(pattern,value)).to pass
+    end
+  end
+
+  context "when parsing a wrong IP" do
+    let(:value) { "192.300.300.300" }
+
+    it "should match the path" do
+      expect(grok_match(pattern,value)).not_to pass
+    end
+  end
+
+end
