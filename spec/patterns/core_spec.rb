@@ -96,10 +96,19 @@ end
 
 describe "UNIXPATH" do
 
-  let(:value) { '/foo/bar' }
+  let(:pattern) { 'UNIXPATH' }
+  let(:value)   { '/foo/bar' }
 
   it "should match the path" do
-    expect(grok_match(subject,value)).to pass
+    expect(grok_match(pattern,value)).to pass
   end
 
+  context "when using comma separators and other regexp" do
+
+    let(:value) { 'a=/some/path, b=/some/other/path' }
+
+    it "should match the path" do
+      expect(grok_match(pattern,value)).to pass
+    end
+  end
 end
