@@ -83,6 +83,7 @@ PROG [\x21-\x5a\x5c\x5e-\x7e]+
 SYSLOGPROG %{PROG:program}(?:\[%{POSINT:pid}\])?
 SYSLOGHOST %{IPORHOST}
 SYSLOGFACILITY <%{NONNEGINT:facility}.%{NONNEGINT:priority}>
+HTTPDATE %{MONTHDAY}/%{MONTH}/%{YEAR}:%{TIME} %{INT}
 
 # Shortcuts
 QS %{QUOTEDSTRING}
