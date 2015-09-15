@@ -9,7 +9,7 @@ describe "ELB_ACCESS_LOG" do
 
   context "parsing an access log" do
 
-    let(:value) { "2014-02-15T23:39:43.945958Z my-test-loadbalancer 192.168.131.39:2817 10.0.0.1:80 0.000073 0.001048 0.000057 200 200 0 29 \"GET http://www.example.com:80/ HTTP/1.1\"" }
+    let(:value) { "2014-02-15T23:39:43.945958Z my-test-loadbalancer 192.168.131.39:2817 10.0.0.1:80 0.000073 0.001048 0.000057 200 200 0 29 \"GET http://www.example.com:80/ HTTP/1.1\"  \"Mozilla/5.0 (Windows NT 6.1)\" ECDHE-RSA-AES128-SHA TLSv1.2" }
 
     subject { grok_match(pattern, value) }
 
@@ -32,6 +32,9 @@ describe "ELB_ACCESS_LOG" do
     it { should include("httpversion" => "1.1" ) }
     it { should include("urihost" => "www.example.com:80" ) }
     it { should include("path" => "/" ) }
+    it { should include("agent" => "Mozilla/5.0 (Windows NT 6.1)" ) }
+    it { should include("cipher" => "ECDHE-RSA-AES128-SHA" ) }
+    it { should include("protocol" => "TLSv1.2" ) }
 
     ["tags", "params"].each do |attribute|
       it "have #{attribute} as nil" do
