@@ -13,7 +13,7 @@ describe "HTTPD_COMBINEDLOG" do
         'clientip' => '83.149.9.216',
         'verb' => 'GET',
         'request' => '/presentations/logstash-monitorama-2013/images/kibana-search.png',
-        'httpversion' => '1.1',
+        'httpversion' => 1.1,
         'response' => '200',
         'bytes' => 203023,
         'referrer' => '"http://semicomplete.com/presentations/logstash-monitorama-2013/"',
