@@ -4,7 +4,7 @@ require "logstash/patterns/core"
 
 describe "SYSLOGLINE" do
 
-  let(:value)   { "Mar 16 00:01:25 evita postfix/smtpd[1713]: connect from camomile.cloud9.net[168.100.1.3]" }
+  let(:value)   { "Mar 16 00:01:25 UNKNOWN_HOSTNAME postfix/smtpd[1713]: connect from camomile.cloud9.net[168.100.1.3]" }
   let(:grok)    { grok_match(subject, value) }
   it "a pattern pass the grok expression" do
     expect(grok).to pass
@@ -18,6 +18,9 @@ describe "SYSLOGLINE" do
     expect(grok_match(subject, value)).to include("program" => "postfix/smtpd")
   end
 
+  it "generates the host field" do
+    expect(grok_match(subject, value)).to include("logsource" => "UNKNOWN_HOSTNAME")
+  end
 end
 
 describe "COMMONAPACHELOG" do
