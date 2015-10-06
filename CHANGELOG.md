@@ -1,3 +1,7 @@
+# 2.0.0
+- Plugins were updated to follow the new shutdown semantic, allowing Logstash to stop without hanging and cleanly empty his internal queues. Ref: https://github.com/elastic/logstash/pull/3895
+- Dependency on logstash-core update to 2.0
+
 # 0.4.0
  - Added grok patterns for nagios notifications
  - Added commong exim patterns
