@@ -113,6 +113,62 @@ describe "UNIXPATH" do
   end
 end
 
+describe "URIPATH" do
+  let(:pattern) { 'URIPATH' }
+
+  context "when matching valid URIs" do
+    context "and the URI is simple" do
+      let(:value) { '/foo' }
+
+      it "should match the path" do
+        expect(grok_match(pattern,value)).to pass
+      end
+    end
+
+    context "and the URI has a trailing slash" do
+      let(:value) { '/foo/' }
+
+      it "should match the path" do
+        expect(grok_match(pattern,value)).to pass
+      end
+    end
+
+    context "and the URI has multiple levels" do
+      let(:value) { '/foo/bar' }
+
+      it "should match the path" do
+        expect(grok_match(pattern,value)).to pass
+      end
+    end
+
+    context "and the URI has fancy characters" do
+      let(:value) { '/aA1$.+!*\'(){},~:;=@#%&|-' }
+
+      it "should match the path" do
+        expect(grok_match(pattern,value)).to pass
+      end
+    end
+  end
+
+  context "when matching invalid URIs" do
+    context "and the URI has no leading slash" do
+      let(:value) { 'foo' }
+
+      it "should not match the path" do
+        expect(grok_match(pattern,value)).not_to pass
+      end
+    end
+
+    context "and the URI has invalid characters" do
+      let(:value) { '/`' }
+
+      it "should not match the path" do
+        expect(grok_match(pattern,value)).not_to pass
+      end
+    end
+  end
+end
+
 describe "IPV4" do
 
   let(:pattern) { 'IPV4' }
