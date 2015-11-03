@@ -1,3 +1,6 @@
+# 0.4.1
+ - Bring HOSTNAME and HOST back as they where removed here by
+   mistake.
 # 0.4.0
  - Added grok patterns for nagios notifications
  - Added commong exim patterns
