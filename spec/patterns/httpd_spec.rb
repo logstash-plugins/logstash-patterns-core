@@ -12,6 +12,10 @@ describe "COMBINEDAPACHELOG" do
     expect(subject).to match("1.2.3.4 - an.email@address.com [22/Sep/2015:14:39:21 +0000] \"GET /index.html\" 200 182 \"https://my.website.com/index.html\" \"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36\"")
   end
 
+  it "matches a username in the ident and auth fields" do
+    expect(subject).to match("1.2.3.4 log.Stash_1 Patterns-Core [22/Sep/2015:14:39:21 +0000] \"GET /index.html\" 200 182 \"https://my.website.com/index.html\" \"Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36\"")
+  end
+
 end
 
 describe "HTTPD_ERRORLOG" do
