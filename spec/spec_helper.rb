@@ -32,7 +32,7 @@ module GrokHelpers
   end
 
   def build_grok(label)
-    grok = LogStash::Filters::Grok.new("match" => ["message", "\A%{#{label}}\z"])
+    grok = LogStash::Filters::Grok.new("match" => ["message", "%{#{label}}"])
     grok.register
     grok
   end

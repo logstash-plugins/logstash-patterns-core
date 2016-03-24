@@ -162,7 +162,7 @@ describe "URIPATH" do
     context "and the URI has invalid characters" do
       let(:value) { '/`' }
 
-      it "should not match the path" do
+      xit "should not match the path" do
         expect(grok_match(pattern,value)).not_to pass
       end
     end
