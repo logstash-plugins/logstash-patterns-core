@@ -1,6 +1,6 @@
 # Logstash Plugin
 
-[![Build Status](http://build-eu-00.elastic.co/view/LS%20Other/job/logstash_patterns_core_commit/badge/icon)](http://build-eu-00.elastic.co/view/LS%20Other/job/logstash_patterns_core_commit/)
+[![Travis Build Status](https://travis-ci.org/logstash-plugins/logstash-patterns-core.svg)](https://travis-ci.org/logstash-plugins/logstash-patterns-core)
 
 This is a plugin for [Logstash](https://github.com/elastic/logstash).
 
