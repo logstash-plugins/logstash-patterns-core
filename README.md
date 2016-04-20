@@ -56,7 +56,7 @@ gem "logstash-filter-awesome", :path => "/your/local/logstash-filter-awesome"
 - Install plugin
 ```sh
 # Logstash 2.3 and higher
-bin/logstah-plugin install --no-verify
+bin/logstash-plugin install --no-verify
 
 # Prior to Logstash 2.3
 bin/plugin install --no-verify
@@ -79,7 +79,7 @@ gem build logstash-filter-awesome.gemspec
 - Install the plugin from the Logstash home
 ```sh
 # Logstash 2.3 and higher
-bin/logstah-plugin install --no-verify
+bin/logstash-plugin install --no-verify
 
 # Prior to Logstash 2.3
 bin/plugin install --no-verify
