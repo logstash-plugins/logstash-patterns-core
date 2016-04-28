@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   # Gem dependencies
   s.add_runtime_dependency "logstash-core-plugin-api", "~> 2.0"
 
-  s.add_development_dependency 'logstash-devutils'
-  s.add_development_dependency 'logstash-filter-grok'
+  s.add_development_dependency "logstash-devutils"
+  s.add_development_dependency "logstash-filter-grok"
 end
 
