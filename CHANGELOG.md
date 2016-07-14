@@ -1,3 +1,6 @@
+## 4.0.2
+  - Relax constraint on logstash-core-plugin-api to >= 1.60 <= 2.99
+
 ## 4.0.1
   - Republish all the gems under jruby.
 ## 4.0.0
