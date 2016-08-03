@@ -1,3 +1,6 @@
+## 4.0.3
+  - Fix bug https://github.com/logstash-plugins/logstash-patterns-core/issues/159 with the introduction of atomic grouping (http://ruby-doc.org/core-2.3.0/Regexp.html#class-Regexp-label-Atomic+Grouping) for the unix path expression, this makes hte engine not to backtrack until timeout without specific reason, so expression gets optimized to find exit condition in such situations.
+
 ## 4.0.2
   - Relax constraint on logstash-core-plugin-api to >= 1.60 <= 2.99
 
