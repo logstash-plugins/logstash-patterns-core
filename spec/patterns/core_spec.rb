@@ -111,6 +111,16 @@ describe "UNIXPATH" do
       expect(grok_match(pattern,value)).to pass
     end
   end
+
+  context "when using recursive paths" do
+
+    let(:pattern) { "%{UNIXPATH}/bar/%{DATA:fileName}" }
+    let(:value)   { "/foo/bar/my_input_file_12345.xml" }
+
+    it "should match the path expression" do
+      expect(grok_complex_match(pattern,value)).to pass
+    end
+  end
 end
 
 describe "URIPATH" do

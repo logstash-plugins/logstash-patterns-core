@@ -25,14 +25,21 @@ require "logstash/filters/grok"
 
 module GrokHelpers
   def grok_match(label, message)
-    grok  = build_grok(label)
+    grok  = build_grok("%{#{label}}")
     event = build_event(message)
     grok.filter(event)
     event.to_hash
   end
 
-  def build_grok(label)
-    grok = LogStash::Filters::Grok.new("match" => ["message", "%{#{label}}"])
+  def grok_complex_match(expression, message)
+    grok  = build_grok(expression)
+    event = build_event(message)
+    grok.filter(event)
+    event.to_hash
+  end
+
+  def build_grok(expression)
+    grok = LogStash::Filters::Grok.new("match" => ["message", expression])
     grok.register
     grok
   end
@@ -54,7 +61,7 @@ end
 
 RSpec::Matchers.define :match do |value|
   match do |grok|
-    grok  = build_grok(grok)
+    grok  = build_grok("%{#{grok}}")
     event = build_event(value)
     grok.filter(event)
     !event.include?("tags")
