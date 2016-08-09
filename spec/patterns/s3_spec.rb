@@ -156,7 +156,7 @@ describe "CLOUDFRONT_ACCESS_LOG" do
     it { should include("x-edge-result-type" => "Miss" ) }
     it { should include("x-edge-request-id" => "UGskZ6dUKY7b4C6Pt7wAWVsU2KO-vTRe-mR4r9H-WQMjhNvY6w1Xcg==" ) }
     it { should include("x-host-header" => "host.example.com" ) }
-    it { should include("cs_proto" => "https" ) }
+    it { should include("cs_protocol" => "https" ) }
     it { should include("cs_bytes" => 883 ) }
     it { should include("time_taken" => 0.036 ) }
     it { should include("x-forwarded-for" => "-" ) }
