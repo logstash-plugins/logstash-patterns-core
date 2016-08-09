@@ -141,7 +141,7 @@ describe "CLOUDFRONT_ACCESS_LOG" do
 
     subject { grok_match(pattern, value) }
 
-    it { should include("timestamp" => "2014-02-15T23:39:43.945958Z" ) }
+    it { should include("timestamp" => "2016-06-10⇥18:41:39" ) }
     it { should include("x_edge_location" => "IAD53" ) }
     it { should include("sc_bytes" => 224281 ) }
     it { should include("clientip" => "192.168.1.1" ) }
