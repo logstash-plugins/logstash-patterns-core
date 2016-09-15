@@ -19,6 +19,21 @@ describe "FIREWALLS" do
       expect(subject["message"]).to include("(Secondary) Switching to ACTIVE - Service card in other unit has failed")
     end
   end
+  
+  let(:pattern106015) { "CISCOFW106015" }
+
+  context "parsing a 106015 message" do
+
+    let(:value) { "Deny TCP (no connection) from 192.168.150.65/2278 to 64.101.128.83/80 flags RST on interface inside" }
+
+    subject     { grok_match(pattern106015, value) }
+
+    it { should include("interface" => "inside") }
+
+    it "generates a message field" do
+      expect(subject["message"]).to include("Deny TCP (no connection) from 192.168.150.65/2278 to 64.101.128.83/80 flags RST on interface inside")
+    end
+  end
 
   let(:pattern106100)    { "CISCOFW106100" }
 
@@ -47,6 +62,22 @@ describe "FIREWALLS" do
 
     it "generates a message field" do
       expect(subject["message"]).to include("access-list outside-entry permitted tcp outside/10.11.12.13(54726) -> inside/192.168.17.18(80) hit-cnt 1 300-second interval [0x32b3835, 0x0]")
+    end
+  end
+
+  let(:pattern304001)    { "CISCOFW304001" }
+
+  context "parsing a 304001 message" do
+
+    let(:value) { "10.20.30.40(DOMAIN\\login) Accessed URL 10.11.12.13:http://example.org/" }
+
+    subject     { grok_match(pattern304001, value) }
+
+    it 'should break the message up into fields' do
+      expect(subject['src_ip']).to eq('10.20.30.40')
+      expect(subject['src_fwuser']).to eq('DOMAIN\\login')
+      expect(subject['dst_ip']).to eq('10.11.12.13')
+      expect(subject['dst_url']).to eq('http://example.org/')
     end
   end
 
