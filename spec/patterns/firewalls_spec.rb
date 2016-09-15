@@ -19,6 +19,21 @@ describe "FIREWALLS" do
       expect(subject["message"]).to include("(Secondary) Switching to ACTIVE - Service card in other unit has failed")
     end
   end
+  
+  let(:pattern106015) { "CISCOFW106015" }
+
+  context "parsing a 106015 message" do
+
+    let(:value) { "Deny TCP (no connection) from 192.168.150.65/2278 to 64.101.128.83/80 flags RST on interface inside" }
+
+    subject     { grok_match(pattern106015, value) }
+
+    it { should include("interface" => "inside") }
+
+    it "generates a message field" do
+      expect(subject["message"]).to include("Deny TCP (no connection) from 192.168.150.65/2278 to 64.101.128.83/80 flags RST on interface inside")
+    end
+  end
 
   let(:pattern106100)    { "CISCOFW106100" }
 
