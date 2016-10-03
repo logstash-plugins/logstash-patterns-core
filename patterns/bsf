@@ -1,5 +1,4 @@
 # Barracuda Spam Firewall Grok Patterns
-
 # Fields: action_id, client_ip, client_name, destination, delivery_detail, encryption, message_id, process, reason_extra, reason_id, recipient, score, sender, service, message_size, subject, unix_start_time, unix_end_time
 
 BSF_SERVICE RECV|SCAN|SEND
@@ -7,6 +6,7 @@ BSF_SERVICE RECV|SCAN|SEND
 # Common Particles
 BSF_SCAN %{NOTSPACE:process}: %{NOTSPACE:client_name}\[%{IP:client_ip}\] %{NOTSPACE:message_id} %{NOTSPACE:unix_start_time} %{NOTSPACE:unix_end_time} %{BSF_SERVICE:service} %{NOTSPACE:encryption} %{NOTSPACE:sender} %{NOTSPACE:recipient} %{NOTSPACE:score} %{NOTSPACE:action_id} %{NOTSPACE:reason_id} %{GREEDYDATA:reason_extra} SZ:%{NOTSPACE:message_size} SUBJ:%{GREEDYDATA:subject}
 BSF_SEND %{NOTSPACE:process}: %{IP:client_ip} %{NOTSPACE:message_id} %{NOTSPACE:unix_start_time} %{NOTSPACE:unix_end_time} %{BSF_SERVICE:service} %{NOTSPACE:encryption} %{NOTSPACE:action_id} %{NOTSPACE:queue_id} %{GREEDYDATA:delivery_detail} #to#%{GREEDYDATA:destination}
+BSF_SEND_NO_DESTINATION %{NOTSPACE:process}: %{IP:client_ip} %{NOTSPACE:message_id} %{NOTSPACE:unix_start_time} %{NOTSPACE:unix_end_time} %{BSF_SERVICE:service} %{NOTSPACE:encryption} %{NOTSPACE:action_id} %{NOTSPACE:queue_id} %{GREEDYDATA:delivery_detail}
 BSF_RECV_SCAN %{NOTSPACE:process}: %{NOTSPACE:client_name}\[%{IP:client_ip}\] %{NOTSPACE:message_id} %{NOTSPACE:unix_start_time} %{NOTSPACE:unix_end_time} %{BSF_SERVICE:service} %{NOTSPACE:encryption} %{NOTSPACE:sender} %{NOTSPACE:recipient} %{NOTSPACE:score} %{NOTSPACE:action_id} %{NOTSPACE:reason_id} %{GREEDYDATA:reason_extra} SZ:%{NOTSPACE:message_size} SUBJ:%{GREEDYDATA:subject}
 BSF_RECV_SCAN_2 %{NOTSPACE:process}: \[%{IP:client_ip}\] %{NOTSPACE:message_id} %{NOTSPACE:unix_start_time} %{NOTSPACE:unix_end_time} %{BSF_SERVICE:service} %{NOTSPACE:encryption} %{NOTSPACE:sender} %{NOTSPACE:recipient} %{NOTSPACE:score} %{NOTSPACE:action_id} %{NOTSPACE:reason_id} %{GREEDYDATA:reason_extra} SZ:%{NOTSPACE:message_size} SUBJ:%{GREEDYDATA:subject}
 BSF_RECV %{NOTSPACE:process}: %{NOTSPACE:client_name}\[%{IP:client_ip}\] %{NOTSPACE:message_id} %{NOTSPACE:unix_start_time} %{NOTSPACE:unix_end_time} %{BSF_SERVICE:service} %{NOTSPACE:sender} %{NOTSPACE:recipient} %{NOTSPACE:action_id} %{NOTSPACE:reason_id} %{GREEDYDATA:reason_extra}
