@@ -1,4 +1,5 @@
 # Barracuda Spam Firewall Grok Patterns
+
 # Fields: action_id, client_ip, client_name, destination, delivery_detail, encryption, message_id, process, reason_extra, reason_id, recipient, score, sender, service, message_size, subject, unix_start_time, unix_end_time
 
 BSF_SERVICE RECV|SCAN|SEND
