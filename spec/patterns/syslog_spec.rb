@@ -4,6 +4,20 @@ require "logstash/patterns/core"
 
 describe "SYSLOGLINE" do
 
+  describe "SYSLOG5424BASE" do
+     it "matches host names in the syslog base pattern" do
+        expect(subject).to match("<174>1 2016-11-14T09:32:44+01:00 resolver.se named 6344 - -  info: client 10.23.53.22#63252: query: googlehosted.l.googleusercontent.com IN A + (10.23.16.6)")
+     end
+     
+     it "matches ipv4 in the syslog base pattern" do
+        expect(subject).to match("<174>1 2016-11-14T09:49:23+01:00 10.23.16.6 named 2255 - -  info: client 10.23.56.93#63295 (i1.tmg.com): query: i1.tmg.com IN A + (10.23.4.13)")
+     end
+
+     it "matches ipv6 in the syslog base pattern" do
+        expect(subject).to match("<174>1 2016-11-14T09:49:23+01:00 2000:6a0:b:315:10:23:4:13 named 2255 - -  info: client 10.23.56.9#63295 (i1.tmg.com): query: i1.tmg.com IN A + (10.23.4.13)")
+     end
+   end
+
   it "matches a simple message with pid" do
     expect(subject).to match("May 11 15:17:02 meow.soy.se CRON[10973]: pam_unix(cron:session): session opened for user root by (uid=0)")
   end
