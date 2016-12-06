@@ -4,18 +4,29 @@ require "logstash/patterns/core"
 
 describe "SYSLOGLINE" do
 
-  let(:value)   { "Mar 16 00:01:25 evita postfix/smtpd[1713]: connect from camomile.cloud9.net[168.100.1.3]" }
-  let(:grok)    { grok_match(subject, value) }
-  it "a pattern pass the grok expression" do
-    expect(grok).to pass
+  context "SYSLOGLINE", "syslog line parsing" do
+    let(:value)   { "Mar 16 00:01:25 evita postfix/smtpd[1713]: connect from camomile.cloud9.net[168.100.1.3]" }
+    let(:grok)    { grok_match(subject, value) }
+
+    it "a pattern pass the grok expression" do
+      expect(grok).to pass
+    end
+
+    it "matches a simple message" do
+      expect(subject).to match(value)
+    end
+
+    it "generates the program field" do
+      expect(grok_match(subject, value)).to include("program" => "postfix/smtpd")
+    end
   end
 
-  it "matches a simple message" do
-    expect(subject).to match(value)
-  end
+  context "SYSLOGLINE", "when hostname contains underscore" do
+    let(:value)   { "Mar 16 00:01:25 UNKNOWN_HOSTNAME postfix/smtpd[1713]: connect from camomile.cloud9.net[168.100.1.3]" }
 
-  it "generates the program field" do
-    expect(grok_match(subject, value)).to include("program" => "postfix/smtpd")
+    it "generates the logsource field" do
+      expect(grok_match(subject, value)).to include("logsource" => "UNKNOWN_HOSTNAME")
+    end
   end
 
 end
@@ -82,6 +93,7 @@ describe "IPORHOST" do
       expect(grok_match(pattern, value)).to pass
     end
   end
+
 end
 
 describe "UNIXPATH" do
