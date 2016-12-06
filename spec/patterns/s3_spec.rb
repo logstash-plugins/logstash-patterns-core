@@ -75,7 +75,7 @@ describe "S3_ACCESS_LOG" do
     it { should include("requester" => "79a5" ) }
     it { should include("request_id" => "3E57427F3EXAMPLE" ) }
     it { should include("operation" => "REST.GET.VERSIONING" ) }
-    it { should include("key" => "-" ) }
+    it { should_not include("key") }
 
     it { should include("verb" => "GET" ) }
     it { should include("request" => "/mybucket?versioning" ) }
@@ -106,7 +106,7 @@ describe "S3_ACCESS_LOG" do
     it { should include("bucket" => "mybucket" ) }
     it { should include("timestamp" => "12/May/2014:07:54:01 +0000" ) }
     it { should include("clientip" => "10.0.1.2" ) }
-    it { should include("requester" => "-" ) }
+    it { should_not include("requester") }
     it { should include("request_id" => "7ACC4BE89EXAMPLE" ) }
     it { should include("operation" => "REST.GET.OBJECT" ) }
     it { should include("key" => "foo/bar.html" ) }
