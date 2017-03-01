@@ -36,7 +36,7 @@ HOSTPORT %{IPORHOST}:%{POSINT}
 PATH (?:%{UNIXPATH}|%{WINPATH})
 UNIXPATH (/([\w_%!$@:.,+~-]+|\\.)*)+
 TTY (?:/dev/(pts|tty([pq])?)(\w+)?/?(?:[0-9]+))
-WINPATH (?>[A-Za-z]+:|\\)(?:\\[^\\?*]*)+
+WINPATH (?>[A-Za-z]+:|\\|\/)(?:(\\|\/)[^(\\|\/)?*]*)+
 URIPROTO [A-Za-z]+(\+[A-Za-z+]+)?
 URIHOST %{IPORHOST}(?::%{POSINT:port})?
 # uripath comes loosely from RFC1738, but mostly from what Firefox
