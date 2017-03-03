@@ -103,6 +103,26 @@ describe "UNIXPATH" do
   end
 end
 
+describe "URIPROTO" do
+  let(:pattern) { 'URIPROTO' }
+
+  context "http is a valid URIPROTO" do
+    let(:value) { 'http' }
+
+    it "should match" do
+      expect(grok_match(pattern,value)).to pass
+    end
+  end
+
+  context "android-app is a valid URIPROTO" do
+    let(:value) { 'android-app' }
+
+    it "should match" do
+      expect(grok_match(pattern,value)).to pass
+    end
+  end
+end
+
 describe "URIPATH" do
   let(:pattern) { 'URIPATH' }
 
