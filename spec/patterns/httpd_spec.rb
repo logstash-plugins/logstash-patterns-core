@@ -74,11 +74,11 @@ describe "HTTPD_ERRORLOG" do
   end
 
   context "HTTPD_ERRORLOG", "matches a short httpd 2.4 message" do
-    let(:value) {
+    let(:value1) {
       "[Mon Aug 31 07:15:38.664897 2015] [proxy_fcgi:error] [pid 28786:tid 140169629898496] [client 81.139.1.34:52042] AH01071: Got error 'Primary script unknown\n'"
     }
     it "generates the fields" do
-      expect(grok_match(subject, value)).to include(
+      expect(grok_match(subject, value1)).to include(
         'timestamp' => 'Mon Aug 31 07:15:38.664897 2015',
         'module' => 'proxy_fcgi',
         'loglevel' => 'error',
@@ -87,7 +87,22 @@ describe "HTTPD_ERRORLOG" do
         'clientip' => '81.139.1.34',
         'clientport' => '52042',
         'errorcode' => 'AH01071',
-        'message' => [ value, "Got error 'Primary script unknown\n'" ]
+        'message' => [ value1, "Got error 'Primary script unknown\n'" ]
+      )
+    end
+
+    let(:value2) {
+      "[Thu Apr 27 10:39:46.719636 2017] [php7:notice] [pid 17] [client 10.255.0.3:49580] Test error log record"
+    }
+	it "generates the fields" do
+      expect(grok_match(subject, value2)).to include(
+        'timestamp' => 'Thu Apr 27 10:39:46.719636 2017',
+        'module' => 'php7',
+        'loglevel' => 'notice',
+        'pid' => '17',
+        'clientip' => '10.255.0.3',
+        'clientport' => '49580',
+        'message' => [ value2, "Test error log record" ]
       )
     end
   end
@@ -124,4 +139,5 @@ describe "HTTPD_ERRORLOG" do
     end
   end
 
+  
 end
