@@ -5,6 +5,8 @@ NETSCREENSESSIONLOG %{SYSLOGTIMESTAMP:date} %{IPORHOST:device} %{IPORHOST}: NetS
 CISCO_TAGGED_SYSLOG ^<%{POSINT:syslog_pri}>%{CISCOTIMESTAMP:timestamp}( %{SYSLOGHOST:sysloghost})? ?: %%{CISCOTAG:ciscotag}:
 CISCOTIMESTAMP %{MONTH} +%{MONTHDAY}(?: %{YEAR})? %{TIME}
 CISCOTAG [A-Z0-9]+-%{INT}-(?:[A-Z0-9_]+)
+CISCODURATIONHOUR (?:[0-9]+)
+CISCODURATION (?!<[0-9])%{CISCODURATIONHOUR}:%{MINUTE}(?::%{SECOND})(?![0-9])
 # Common Particles
 CISCO_ACTION Built|Teardown|Deny|Denied|denied|requested|permitted|denied by ACL|discarded|est-allowed|Dropping|created|deleted
 CISCO_REASON Duplicate TCP SYN|Failed to locate egress interface|Invalid transport field|No matching connection|DNS Response|DNS Query|(?:%{WORD}\s*)*
@@ -52,7 +54,7 @@ CISCOFW110002 %{CISCO_REASON:reason} for %{WORD:protocol} from %{DATA:src_interf
 # ASA-6-302010
 CISCOFW302010 %{INT:connection_count} in use, %{INT:connection_count_max} most used
 # ASA-6-302013, ASA-6-302014, ASA-6-302015, ASA-6-302016
-CISCOFW302013_302014_302015_302016 %{CISCO_ACTION:action}(?: %{CISCO_DIRECTION:direction})? %{WORD:protocol} connection %{INT:connection_id} for %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port}( \(%{IP:src_mapped_ip}/%{INT:src_mapped_port}\))?(\(%{DATA:src_fwuser}\))? to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}( \(%{IP:dst_mapped_ip}/%{INT:dst_mapped_port}\))?(\(%{DATA:dst_fwuser}\))?( duration %{TIME:duration} bytes %{INT:bytes})?(?: %{CISCO_REASON:reason})?( \(%{DATA:user}\))?
+CISCOFW302013_302014_302015_302016 %{CISCO_ACTION:action}(?: %{CISCO_DIRECTION:direction})? %{WORD:protocol} connection %{INT:connection_id} for %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port}( \(%{IP:src_mapped_ip}/%{INT:src_mapped_port}\))?(\(%{DATA:src_fwuser}\))? to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}( \(%{IP:dst_mapped_ip}/%{INT:dst_mapped_port}\))?(\(%{DATA:dst_fwuser}\))?( duration %{CISCODURATION:duration} bytes %{INT:bytes})?(?: %{CISCO_REASON:reason})?( \(%{DATA:user}\))?
 # ASA-6-302020, ASA-6-302021
 CISCOFW302020_302021 %{CISCO_ACTION:action}(?: %{CISCO_DIRECTION:direction})? %{WORD:protocol} connection for faddr %{IP:dst_ip}/%{INT:icmp_seq_num}(?:\(%{DATA:fwuser}\))? gaddr %{IP:src_xlated_ip}/%{INT:icmp_code_xlated} laddr %{IP:src_ip}/%{INT:icmp_code}( \(%{DATA:user}\))?
 # ASA-6-305011
@@ -86,6 +88,11 @@ CISCOFW733100 \[\s*%{DATA:drop_type}\s*\] drop %{DATA:drop_rate_id} exceeded. Cu
 # Shorewall firewall logs
 SHOREWALL (%{SYSLOGTIMESTAMP:timestamp}) (%{WORD:nf_host}) kernel:.*Shorewall:(%{WORD:nf_action1})?:(%{WORD:nf_action2})?.*IN=(%{USERNAME:nf_in_interface})?.*(OUT= *MAC=(%{COMMONMAC:nf_dst_mac}):(%{COMMONMAC:nf_src_mac})?|OUT=%{USERNAME:nf_out_interface}).*SRC=(%{IPV4:nf_src_ip}).*DST=(%{IPV4:nf_dst_ip}).*LEN=(%{WORD:nf_len}).?*TOS=(%{WORD:nf_tos}).?*PREC=(%{WORD:nf_prec}).?*TTL=(%{INT:nf_ttl}).?*ID=(%{INT:nf_id}).?*PROTO=(%{WORD:nf_protocol}).?*SPT=(%{INT:nf_src_port}?.*DPT=%{INT:nf_dst_port}?.*)
 #== End Shorewall
+
+# Sophos UTM logs
+TIMESTAMP_UTM1 %{YEAR}:%{MONTHNUM}:%{MONTHDAY}[T \-]%{HOUR}:?%{MINUTE}(?::?%{SECOND})?%{ISO8601_TIMEZONE}?
+TIMESTAMP_UTM %{TIMESTAMP_UTM1}|%{TIMESTAMP_ISO8601}
+#== End Sophos UTM logs
 #== SuSE Firewall 2 ==
 SFW2 ((%{SYSLOGTIMESTAMP})|(%{TIMESTAMP_ISO8601}))\s*%{HOSTNAME}\s*kernel\S+\s*%{NAGIOSTIME}\s*SFW2\-INext\-%{NOTSPACE:nf_action}\s*IN=%{USERNAME:nf_in_interface}.*OUT=((\s*%{USERNAME:nf_out_interface})|(\s*))MAC=((%{COMMONMAC:nf_dst_mac}:%{COMMONMAC:nf_src_mac})|(\s*)).*SRC=%{IP:nf_src_ip}\s*DST=%{IP:nf_dst_ip}.*PROTO=%{WORD:nf_protocol}((.*SPT=%{INT:nf_src_port}.*DPT=%{INT:nf_dst_port}.*)|())
 #== End SuSE ==
