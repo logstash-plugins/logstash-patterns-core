@@ -84,6 +84,8 @@ CISCOFW713172 Group = %{GREEDYDATA:group}, IP = %{IP:src_ip}, Automatic NAT Dete
 CISCOFW713202 %{CISCO_MESSAGE_ID:message_id}: IP = %{IP:src_ip}, %{GREEDYDATA:reason}. %{CISCO_ACTION:action} packet.
 # ASA-4-733100
 CISCOFW733100 \[\s*%{DATA:drop_type}\s*\] drop %{DATA:drop_rate_id} exceeded. Current burst rate is %{INT:drop_rate_current_burst} per second, max configured rate is %{INT:drop_rate_max_burst}; Current average rate is %{INT:drop_rate_current_avg} per second, max configured rate is %{INT:drop_rate_max_avg}; Cumulative total count is %{INT:drop_total_count}
+# ASA-5-750006
+CISCOFW750006 %{CISCO_MESSAGE_ID:message_id}: Local:%{IP:dst_ip}:%{INT:dst_port} Remote:%{IP:src_ip}:%{INT:src_port} Username:%{USERNAME:username} %{DATA}. Reason: %{CISCO_REASON:reason}
 #== End Cisco ASA ==
 
 # Shorewall firewall logs
