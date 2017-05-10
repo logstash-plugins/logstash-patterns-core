@@ -50,6 +50,8 @@ CISCOFW106100 access-list %{NOTSPACE:policy_id} %{CISCO_ACTION:action} %{WORD:pr
 CISCOFW304001 %{IP:src_ip}(\(%{DATA:src_fwuser}\))? Accessed URL %{IP:dst_ip}:%{GREEDYDATA:dst_url}
 # ASA-6-110002
 CISCOFW110002 %{CISCO_REASON:reason} for %{WORD:protocol} from %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{IP:dst_ip}/%{INT:dst_port}
+# ASA-6-113009
+CISCOFW113009 %{CISCO_MESSAGE_ID:message_id}: %{CISCO_REASON:reason} \(%{WORD:src_name}\) for user = %{USERNAME:username}
 # ASA-6-302010
 CISCOFW302010 %{INT:connection_count} in use, %{INT:connection_count_max} most used
 # ASA-6-302013, ASA-6-302014, ASA-6-302015, ASA-6-302016
