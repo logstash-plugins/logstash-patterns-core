@@ -17,3 +17,4 @@ TOMCAT_DATESTAMP 20%{YEAR}-%{MONTHNUM}-%{MONTHDAY} %{HOUR}:?%{MINUTE}(?::?%{SECO
 CATALINALOG %{CATALINA_DATESTAMP:timestamp} %{JAVACLASS:class} %{JAVALOGMESSAGE:logmessage}
 # 2014-01-09 20:03:28,269 -0800 | ERROR | com.example.service.ExampleService - something compeletely unexpected happened...
 TOMCATLOG %{TOMCAT_DATESTAMP:timestamp} \| %{LOGLEVEL:level} \| %{JAVACLASS:class} - %{JAVALOGMESSAGE:logmessage}
+GLASSFISHLOG \[%{TIMESTAMP_ISO8601:timestamp}\] \[%{DATA:product_name}\] \[%{WORD:severity}\] \[%{DATA:message_id}\] \[%{DATA:logger}\] \[tid: %{DATA:thread}\] \[timeMillis: %{NONNEGINT:time_millis}\] \[levelValue: %{NONNEGINT:level_value}\] \[\[\n  %{GREEDYDATA:payload}\]\]
