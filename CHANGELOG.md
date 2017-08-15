@@ -1,3 +1,6 @@
+## 4.1.2
+  - Fix some documentation issues
+
 ## 4.1.0
   - Added SYSLOG5424LINE and test ipv4/ipv6/hostname as syslog5424_host rfc5424
   - Accordig to rcf5424 IP address should be accepted
