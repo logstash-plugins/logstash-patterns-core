@@ -56,21 +56,4 @@ describe "HAPROXY" do
 
   end
 
-  context "Parsing HAPROXY log line that is truncated and thus not ending with a double quote or HTTP version." do
-
-    let(:value) { 'Jul 31 22:20:22 loadbalancer haproxy[1190]: 203.0.113.54:59968 [31/Jul/2017:22:20:22.447] loadbalancer default/instance8 135/0/1/19/156 200 1015 - - --VR 8/8/0/0/0 0/0 "GET /path/to/request/that/exceeds/more/than/1024/characterssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss'}
-    subject     { grok_match(haproxyhttpbase_pattern, value)}
-
-    it { should include("client_ip" => "203.0.113.54") }
-    it { should include("http_verb" => "GET") }
-    it { should include("server_name" => "instance8") }
-    it { should include("http_request" => "/path/to/request/that/exceeds/more/than/1024/characterssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss") }
-    it { should_not have_key("http_version") }
-
-    it "generates a message field" do
-      expect(subject["message"]).to include("loadbalancer default/instance8")
-    end
-
-  end
-
 end
