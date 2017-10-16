@@ -53,7 +53,7 @@ describe "REDISMONLOG - SIMPLE COMMAND" do
   end
 
   it "generates the port field" do
-    expect(grok).to include("port" => "52500")
+    expect(grok).to include("port" => 52500)
   end
 
   it "generates the command field" do
@@ -85,7 +85,7 @@ describe "REDISMONLOG - ONE PARAM COMMAND" do
   end
 
   it "generates the port field" do
-    expect(grok).to include("port" => "60866")
+    expect(grok).to include("port" => 60866)
   end
 
   it "generates the command field" do
@@ -121,7 +121,7 @@ describe "REDISMONLOG - TWO PARAM COMMAND" do
   end
 
   it "generates the port field" do
-    expect(grok).to include("port" => "39404")
+    expect(grok).to include("port" => 39404)
   end
 
   it "generates the command field" do
@@ -157,7 +157,7 @@ describe "REDISMONLOG - VARIADIC COMMAND" do
   end
 
   it "generates the port field" do
-    expect(grok).to include("port" => "52500")
+    expect(grok).to include("port" => 52500)
   end
 
   it "generates the command field" do

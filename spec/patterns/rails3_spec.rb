@@ -45,11 +45,11 @@ Completed 200 OK in 640ms (Views: 1.7ms | ActiveRecord: 91.0ms)' }
     # Completed
     it { should include("response" => "200" ) }
     # in
-    it { should include("totalms" =>  "640" ) }
+    it { should include("totalms" =>  640 ) }
     # (Views: 
-    it { should include("viewms" =>  "1.7" ) }
+    it { should include("viewms" =>  1.7 ) }
     # | ActiveRecord:
-    it { should include("activerecordms" =>  "91.0" ) }
+    it { should include("activerecordms" =>  91.0 ) }
 
   end
 

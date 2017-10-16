@@ -14,8 +14,8 @@ describe "HTTPD_COMBINEDLOG" do
         'verb' => 'GET',
         'request' => '/presentations/logstash-monitorama-2013/images/kibana-search.png',
         'httpversion' => '1.1',
-        'response' => '200',
-        'bytes' => '203023',
+        'response' => 200,
+        'bytes' => 203023,
         'referrer' => '"http://semicomplete.com/presentations/logstash-monitorama-2013/"',
         'agent' => '"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36"'
       )
@@ -47,12 +47,12 @@ describe "HTTPD_ERRORLOG" do
         'timestamp' => 'Mon Aug 31 09:30:48.958285 2015',
         'module' => 'proxy_fcgi',
         'loglevel' => 'error',
-        'pid' => '28787',
-        'tid' => '140169587934976',
+        'pid' => 28787,
+        'tid' => 140169587934976,
         'proxy_errorcode' => '70008',
         'proxy_message' => 'Partial results are valid but processing is incomplete',
         'clientip' => '58.13.45.166',
-        'clientport' => '59307',
+        'clientport' => 59307,
         'errorcode' => 'AH01075',
         'message' => [ value, 'Error dispatching request to : (reading input brigade), referer: http://example.com/index.php?id_product=11&controller=product' ],
       )
@@ -82,10 +82,10 @@ describe "HTTPD_ERRORLOG" do
         'timestamp' => 'Mon Aug 31 07:15:38.664897 2015',
         'module' => 'proxy_fcgi',
         'loglevel' => 'error',
-        'pid' => '28786',
-        'tid' => '140169629898496',
+        'pid' => 28786,
+        'tid' => 140169629898496,
         'clientip' => '81.139.1.34',
-        'clientport' => '52042',
+        'clientport' => 52042,
         'errorcode' => 'AH01071',
         'message' => [ value1, "Got error 'Primary script unknown\n'" ]
       )
@@ -99,9 +99,9 @@ describe "HTTPD_ERRORLOG" do
         'timestamp' => 'Thu Apr 27 10:39:46.719636 2017',
         'module' => 'php7',
         'loglevel' => 'notice',
-        'pid' => '17',
+        'pid' => 17,
         'clientip' => '10.255.0.3',
-        'clientport' => '49580',
+        'clientport' => 49580,
         'message' => [ value2, "Test error log record" ]
       )
     end
@@ -116,8 +116,8 @@ describe "HTTPD_ERRORLOG" do
         'timestamp' => 'Mon Aug 31 06:29:47.406518 2015',
         'module' => 'mpm_event',
         'loglevel' => 'notice',
-        'pid' => '24968',
-        'tid' => '140169861986176',
+        'pid' => 24968,
+        'tid' => 140169861986176,
         'errorcode' => 'AH00489',
         'message' => [ value1, 'Apache/2.4.16 (Ubuntu) configured -- resuming normal operations' ]
       )
@@ -131,8 +131,8 @@ describe "HTTPD_ERRORLOG" do
         'timestamp' => 'Mon Aug 31 06:29:47.406530 2015',
         'module' => 'core',
         'loglevel' => 'notice',
-        'pid' => '24968',
-        'tid' => '140169861986176',
+        'pid' => 24968,
+        'tid' => 140169861986176,
         'errorcode' => 'AH00094',
         'message' => [ value2, 'Command line: \'/usr/sbin/apache2\'' ]
       )
