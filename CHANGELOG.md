@@ -1,3 +1,29 @@
+## 4.1.2
+  - Fix some documentation issues
+
+## 4.1.0
+  - Added SYSLOG5424LINE and test ipv4/ipv6/hostname as syslog5424_host rfc5424
+  - Accordig to rcf5424 IP address should be accepted
+  - HTTPDATE is used by patterns/aws
+  - HTTPD (formerly APACHE) deserves its own pattern and test files. See #45
+  - httpd: sync names between httpd20 and httpd24
+  - Adding maven version to the list of default Grok patterns
+  - Added Redis Monitor Log format
+  - Remove extra space in ASA-6-106015 rule
+  - fix COMMONAPACHELOG specs
+  - Added SuSEfirewall2 pattern
+  - switch USER to HTTPDUSER for "auth" field (match email addresses)
+  - bind9 pattern
+  - Pattern for squid3 native format
+  - Parse Cisco ASA-5-304001
+  - use underscores instead of hyphens in field names
+  - fix timestamp expect
+  - fix cs_protocol pattern name
+  - fix cs_protocol and cs_uri_query names
+  - added cloudfront spec test
+  - add pattern for cloudfront access log
+  - Java Patterns: JAVASTACKTRACEPART was duplicate
+
 ## 4.0.2
   - Relax constraint on logstash-core-plugin-api to >= 1.60 <= 2.99
 
