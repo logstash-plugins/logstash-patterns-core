@@ -133,4 +133,19 @@ describe "FIREWALLS" do
       expect(subject['policy_id']).to eq('S_OUTSIDE_TO_INSIDE')
     end
   end
+
+  let(:patternSFW2)    { "SFW2" }
+
+  context "parsing a SFW2 message" do
+
+    let(:value) { "May  8 16:22:42 node1 kernel: [3556260.491987] SFW2-INext-ACC IN=bond0 OUT= MAC=99:99:99:99:99:99:99:99:99:99:99:99:99:99 SRC=10.0.2.5 DST=10.0.2.19 LEN=60 TOS=0x00 PREC=0x00 TTL=64 ID=12635 DF PROTO=TCP SPT=38570 DPT=5666 WINDOW=29200 RES=0x00 SYN URGP=0 OPT (020405B40402080A7E6200B40000000001030307)" }
+
+    subject     { grok_match(patternSFW2, value) }
+
+    it { should include("nf_action" => "ACC") }
+
+    it "generates a message field" do
+      expect(subject["message"]).to include("May  8 16:22:42 node1 kernel: [3556260.491987] SFW2-INext-ACC IN=bond0 OUT= MAC=99:99:99:99:99:99:99:99:99:99:99:99:99:99 SRC=10.0.2.5 DST=10.0.2.19 LEN=60 TOS=0x00 PREC=0x00 TTL=64 ID=12635 DF PROTO=TCP SPT=38570 DPT=5666 WINDOW=29200 RES=0x00 SYN URGP=0 OPT (020405B40402080A7E6200B40000000001030307)")
+    end
+  end
 end
