@@ -24,15 +24,19 @@ end
 require "logstash/filters/grok"
 
 module GrokHelpers
-  def grok_match(label, message)
-    grok  = build_grok(label)
+  def grok_match(label, message, exact_match = false)
+    grok  = build_grok(label, exact_match)
     event = build_event(message)
     grok.filter(event)
     event.to_hash
   end
 
-  def build_grok(label)
-    grok = LogStash::Filters::Grok.new("match" => ["message", "%{#{label}}"])
+  def build_grok(label, exact_match = false)
+    if exact_match
+      grok = LogStash::Filters::Grok.new("match" => ["message", "^%{#{label}}$"])
+    else
+      grok = LogStash::Filters::Grok.new("match" => ["message", "%{#{label}}"])
+    end
     grok.register
     grok
   end
