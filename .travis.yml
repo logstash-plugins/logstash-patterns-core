@@ -7,9 +7,11 @@ matrix:
   - rvm: jruby-9.1.13.0
     env: LOGSTASH_BRANCH=master
   - rvm: jruby-9.1.13.0
-    env: LOGSTASH_BRANCH=6.x
+    env: LOGSTASH_BRANCH=7.0
   - rvm: jruby-9.1.13.0
-    env: LOGSTASH_BRANCH=6.5
+    env: LOGSTASH_BRANCH=6.7
+  - rvm: jruby-9.1.13.0
+    env: LOGSTASH_BRANCH=6.6
   - rvm: jruby-1.7.27
     env: LOGSTASH_BRANCH=5.6
   fast_finish: true
