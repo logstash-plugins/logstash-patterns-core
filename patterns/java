@@ -10,8 +10,11 @@ JAVATHREAD (?:[A-Z]{2}-Processor[\d]+)
 JAVALOGMESSAGE (.*)
 # MMM dd, yyyy HH:mm:ss eg: Jan 9, 2014 7:13:13 AM
 CATALINA_DATESTAMP %{MONTH} %{MONTHDAY}, 20%{YEAR} %{HOUR}:?%{MINUTE}(?::?%{SECOND}) (?:AM|PM)
+#dd-MMM-yyyy HH:mm:ss
+CATALINA_DATESTAMP9 %{MONTHDAY}-%{MONTH}-20%{YEAR} %{HOUR}:?%{MINUTE}(?::?%{SECOND})
 # yyyy-MM-dd HH:mm:ss,SSS ZZZ eg: 2014-01-09 17:32:25,527 -0800
 TOMCAT_DATESTAMP 20%{YEAR}-%{MONTHNUM}-%{MONTHDAY} %{HOUR}:?%{MINUTE}(?::?%{SECOND}) %{ISO8601_TIMEZONE}
 CATALINALOG %{CATALINA_DATESTAMP:timestamp} %{JAVACLASS:class} %{JAVALOGMESSAGE:logmessage}
+CATALINALOG9 %{CATALINA_DATESTAMP9:timestamp} %{LOGLEVEL:loglevel} \[%{DATA:func}\] %{JAVACLASS:class} %{GREEDYDATA:message}
 # 2014-01-09 20:03:28,269 -0800 | ERROR | com.example.service.ExampleService - something compeletely unexpected happened...
 TOMCATLOG %{TOMCAT_DATESTAMP:timestamp} \| %{LOGLEVEL:level} \| %{JAVACLASS:class} - %{JAVALOGMESSAGE:logmessage}
