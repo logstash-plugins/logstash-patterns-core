@@ -9,28 +9,29 @@ describe "ELB_ACCESS_LOG" do
 
   context "parsing an access log" do
 
-    let(:value) { "2014-02-15T23:39:43.945958Z my-test-loadbalancer 192.168.131.39:2817 10.0.0.1:80 0.000073 0.001048 0.000057 200 200 0 29 \"GET http://www.example.com:80/ HTTP/1.1\"" }
+    let(:value) { "https 2018-07-02T22:23:00.186641Z app/my-loadbalancer/50dc6c495c0c9188 192.168.131.39:2817 10.0.0.1:80 0.086 0.048 0.037 200 200 0 57 \"GET https://www.example.com:443/ HTTP/1.1\" \"curl/7.46.0\" ECDHE-RSA-AES128-GCM-SHA256 TLSv1.2 arn:aws:elasticloadbalancing:us-east-2:123456789012:targetgroup/my-targets/73e2d6bc24d8a067 \"Root=1-58337281-1d84f3d73c47ec4e58577259\" \"www.example.com\" \"arn:aws:acm:us-east-2:123456789012:certificate/12345678-1234-1234-1234-123456789012\" 1 2018-07-02T22:22:48.364000Z \"authenticate,forward\" \"-\" \"-\""}
 
     subject { grok_match(pattern, value) }
 
-    it { should include("timestamp" => "2014-02-15T23:39:43.945958Z" ) }
-    it { should include("elb" => "my-test-loadbalancer" ) }
+    it { should include("type" => "https" ) }
+    it { should include("timestamp" => "2018-07-02T22:23:00.186641Z" ) }
+    it { should include("elb" => "app/my-loadbalancer/50dc6c495c0c9188" ) }
     it { should include("clientip" => "192.168.131.39" ) }
     it { should include("clientport" => 2817 ) }
     it { should include("backendip" => "10.0.0.1" ) }
     it { should include("backendport" => 80 ) }
-    it { should include("request_processing_time" => 0.000073 ) }
-    it { should include("backend_processing_time" => 0.001048 ) }
-    it { should include("response_processing_time" => 0.000057 ) }
+    it { should include("request_processing_time" => 0.086 ) }
+    it { should include("backend_processing_time" => 0.048 ) }
+    it { should include("response_processing_time" => 0.037 ) }
     it { should include("response" => 200 ) }
     it { should include("backend_response" => 200 ) }
     it { should include("received_bytes" => 0 ) }
-    it { should include("bytes" => 29 ) }
+    it { should include("bytes" => 57 ) }
     it { should include("verb" => "GET" ) }
-    it { should include("request" => "http://www.example.com:80/" ) }
-    it { should include("proto" => "http" ) }
+    it { should include("request" => "https://www.example.com:443/" ) }
+    it { should include("proto" => "https" ) }
     it { should include("httpversion" => "1.1" ) }
-    it { should include("urihost" => "www.example.com:80" ) }
+    it { should include("urihost" => "www.example.com:443" ) }
     it { should include("path" => "/" ) }
 
     ["tags", "params"].each do |attribute|
@@ -42,7 +43,7 @@ describe "ELB_ACCESS_LOG" do
 
   context "parsing a PUT request access log with missing backend info" do
 
-    let(:value) { '2015-04-10T08:11:09.865823Z us-west-1-production-media 49.150.87.133:55128 - -1 -1 -1 408 0 1294336 0 "PUT https://media.xxxyyyzzz.com:443/videos/F4_M-T4X0MM6Hvy1PFHesw HTTP/1.1"' }
+    let(:value) { 'https 2015-04-10T08:11:09.865823Z us-west-1-production-media 49.150.87.133:55128 - -1 -1 -1 408 0 1294336 0 "PUT https://media.xxxyyyzzz.com:443/videos/F4_M-T4X0MM6Hvy1PFHesw HTTP/1.1"' }
 
     subject { grok_match(pattern, value) }
 
