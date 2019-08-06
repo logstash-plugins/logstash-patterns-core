@@ -137,7 +137,7 @@ describe "CLOUDFRONT_ACCESS_LOG" do
 
   context "parsing a cloudfront access log" do
 
-    let(:value) { "2016-06-10	18:41:39	IAD53	224281	192.168.1.1	GET	d27enomp470abc.cloudfront.net	/content/sample/thing.pdf	200	https://example.com/	Mozilla/5.0%2520(Windows%2520NT%25206.1;%2520WOW64)%2520AppleWebKit/537.36%2520(KHTML,%2520like%2520Gecko)%2520Chrome/51.0.2704.79%2520Safari/537.36	-	-	Miss	UGskZ6dUKY7b4C6Pt7wAWVsU2KO-vTRe-mR4r9H-WQMjhNvY6w1Xcg==	host.example.com	https	883	0.036	-	TLSv1.2	ECDHE-RSA-AES128-GCM-SHA256	Miss" }
+    let(:value) { "2016-06-10	18:41:39	IAD53	224281	192.168.1.1	GET	d27enomp470abc.cloudfront.net	/content/sample/thing.pdf	200	https://example.com/	Mozilla/5.0%2520(Windows%2520NT%25206.1;%2520WOW64)%2520AppleWebKit/537.36%2520(KHTML,%2520like%2520Gecko)%2520Chrome/51.0.2704.79%2520Safari/537.36	-	-	Miss	UGskZ6dUKY7b4C6Pt7wAWVsU2KO-vTRe-mR4r9H-WQMjhNvY6w1Xcg==	host.example.com	https	883	0.036	-	TLSv1.2	ECDHE-RSA-AES128-GCM-SHA256	Miss	HTTP/2.0	-	-" }
 
     subject { grok_match(pattern, value) }
 
@@ -163,6 +163,9 @@ describe "CLOUDFRONT_ACCESS_LOG" do
     it { should include("ssl_protocol" => "TLSv1.2" ) }
     it { should include("ssl_cipher" => "ECDHE-RSA-AES128-GCM-SHA256" ) }
     it { should include("x_edge_response_result_type" => "Miss" ) }
+    it { should include("cs_protocol_version" => "HTTP/2.0" ) }
+    it { should include("fle_status" => "-" ) }
+    it { should include("fle_encrypted_fields" => "-" ) }
 
     ["tags", "params"].each do |attribute|
       it "have #{attribute} as nil" do
