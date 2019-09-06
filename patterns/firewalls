@@ -11,6 +11,8 @@ CISCO_REASON Duplicate TCP SYN|Failed to locate egress interface|Invalid transpo
 CISCO_DIRECTION Inbound|inbound|Outbound|outbound
 CISCO_INTERVAL first hit|%{INT}-second interval
 CISCO_XLATE_TYPE static|dynamic
+CISCO_KEEPALIVE_TYPE R-U-THERE|R-U-THERE-ACK
+CISCO_SEQ_NUMBER 0x[0-9a-f]{4}
 # ASA-1-104001
 CISCOFW104001 \((?:Primary|Secondary)\) Switching to ACTIVE - %{GREEDYDATA:switch_reason}
 # ASA-1-104002
@@ -81,6 +83,51 @@ CISCOFW710001_710002_710003_710005_710006 %{WORD:protocol} (?:request|access) %{
 CISCOFW713172 Group = %{GREEDYDATA:group}, IP = %{IP:src_ip}, Automatic NAT Detection Status:\s+Remote end\s*%{DATA:is_remote_natted}\s*behind a NAT device\s+This\s+end\s*%{DATA:is_local_natted}\s*behind a NAT device
 # ASA-4-733100
 CISCOFW733100 \[\s*%{DATA:drop_type}\s*\] drop %{DATA:drop_rate_id} exceeded. Current burst rate is %{INT:drop_rate_current_burst} per second, max configured rate is %{INT:drop_rate_max_burst}; Current average rate is %{INT:drop_rate_current_avg} per second, max configured rate is %{INT:drop_rate_max_avg}; Cumulative total count is %{INT:drop_total_count}
+# ASA-6-303002
+CISCOFW303002 FTP connection from %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}, user %{DATA:ftp_username} %{DATA:ftp_action} file %{GREEDYDATA:filename}
+# ASA-6-302015
+CISCOFW302015 %{CISCO_ACTION:action} %{CISCO_DIRECTION:direction} %{WORD:protocol} connection %{INT} for %{DATA:src_interface}:%{IP:src_ip}(\(%{IP:src_mapped_ip}/%{INT:src_mapped_port}\))? to %{DATA:dst_interface}:%{IP:dst_ip}(\(%{IP:dst_mapped_ip}/%{INT:dst_mapped_port}\))?
+# ASA-4-405001
+CISCOFW405001 Received ARP (request|response) collision from %{IP:src_ip}/%{MAC:src_mac} on interface %{DATA:src_interface} with existing ARP entry %{IP:dst_ip}/%{MAC:dst_mac}
+# ASA-6-607001
+CISCOFW607001 Pre-allocate SIP %{WORD:connection_type} secondary channel for %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip} from %{DATA} message
+# ASA-7-609001
+CISCOFW609001 %{CISCO_ACTION:action} local-host %{DATA:src_interface}:%{IP:src_ip}
+# ASA-7-609002
+CISCOFW609002 %{CISCO_ACTION:action} local-host %{DATA:src_interface}:%{IP:src_ip} duration %{TIME:duration}
+# ASA-6-713172
+CISCOFW713172 Group = %{GREEDYDATA:group}, IP = %{IP:src_ip}, Automatic NAT Detection Status:\s+Remote end\s*%{DATA:is_remote_natted}\s*behind a NAT device\s+This\s+end\s*%{DATA:is_local_natted}\s*behind a NAT device
+# ASA-7-715036
+CISCOFW715036 Group = %{GREEDYDATA:group}, IP = %{IP:src_ip}, Sending keep-alive of type DPD %{CISCO_KEEPALIVE_TYPE:keepalive_type} \(seq number %{CISCO_SEQ_NUMBER:seq_number}\)
+# ASA-7-715046
+CISCOFW715046 Group = %{GREEDYDATA:group}, IP = %{IP:src_ip}, constructing .* payload
+# ASA-7-715047
+CISCOFW715047 Group = %{GREEDYDATA:group}, IP = %{IP:src_ip}, processing .* payload
+# ASA-7-715075
+CISCOFW715075 Group = %{GREEDYDATA:group}, IP = %{IP:src_ip}, Received keep-alive of type DPD %{CISCO_KEEPALIVE_TYPE:keepalive_type} \(seq number %{CISCO_SEQ_NUMBER:seq_number}\)
+# ASA-7-713236
+CISCOFW713236 IP = %{IP:src_ip}, IKE_DECODE .* Message \(msgid=.*\) with payloads .*
+# ASA-7-713906
+CISCOFW713906 IKE Receiver: Packet received on %{IP:dst_ip}:%{INT:dst_port} from %{IP:src_ip}:%{INT:src_port}
+CISCOFW713906alt1 Group = %{GREEDYDATA:group}, IP = %{IP:src_ip}, (?<msg>.*)
+# ASA-6-302016
+CISCOFW302016alt1 %{CISCO_ACTION:action}(?: %{CISCO_DIRECTION:direction})? %{WORD:protocol} connection %{INT:connection_id} for %{DATA:src_interface}:%{IPORHOST:src_ip}/%{INT:src_port}( \(%{IP:src_mapped_ip}/%{INT:src_mapped_port}\))?(\(%{DATA:src_fwuser}\))? to %{DATA:dst_interface}:%{IPORHOST:dst_ip}/%{INT:dst_port}( \(%{IP:dst_mapped_ip}/%{INT:dst_mapped_port}\))?(\(%{DATA:dst_fwuser}\))?( duration %{TIME:duration} bytes %{INT:bytes})?(?: %{CISCO_REASON:reason})?( \(%{DATA:user}\))?
+# ASA-7-108006
+CISCOFW108006 Detected ESMTP size violation from %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}; declared size is: %{INT:declared_size}, actual size is %{INT:actual_size}
+# ASA-6-725001
+CISCOFW725001 Starting SSL handshake with %{WORD:peer_type} %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port} for %{DATA:protocol} session
+# ASA-6-725002
+CISCOFW725002 Device completed SSL handshake with %{WORD:peer_type} %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port} for %{DATA:protocol} session
+# ASA-6-725003
+CISCOFW725003 SSL %{WORD:peer_type} %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port} request to resume previous session
+# ASA-6-725004
+CISCOFW725004 Device requesting certificate from SSL %{WORD:peer_type} %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port} for authentication
+# ASA-6-725005
+CISCOFW725005 SSL %{WORD:peer_type} %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port} requesting our device certificate for authentication
+# ASA-6-725006
+CISCOFW725006 Device failed SSL handshake with %{WORD:peer_type} %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}
+# ASA-6-725007
+CISCOFW725007 SSL session with %{WORD:peer_type} %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port} terminated
 #== End Cisco ASA ==
 
 # Shorewall firewall logs
@@ -89,3 +136,11 @@ SHOREWALL (%{SYSLOGTIMESTAMP:timestamp}) (%{WORD:nf_host}) kernel:.*Shorewall:(%
 #== SuSE Firewall 2 ==
 SFW2 ((%{SYSLOGTIMESTAMP})|(%{TIMESTAMP_ISO8601}))\s*%{HOSTNAME}\s*kernel\S+\s*%{NAGIOSTIME}\s*SFW2\-INext\-%{NOTSPACE:nf_action}\s*IN=%{USERNAME:nf_in_interface}.*OUT=((\s*%{USERNAME:nf_out_interface})|(\s*))MAC=((%{COMMONMAC:nf_dst_mac}:%{COMMONMAC:nf_src_mac})|(\s*)).*SRC=%{IP:nf_src_ip}\s*DST=%{IP:nf_dst_ip}.*PROTO=%{WORD:nf_protocol}((.*SPT=%{INT:nf_src_port}.*DPT=%{INT:nf_dst_port}.*)|())
 #== End SuSE ==
+
+#== CISCO SFR ==
+CISCO_SFR_ACTION requested to drop|requested ASA to bypass further packet redirection
+# ASA-4-434002
+CISCOFWSFR434002 SFR %{CISCO_SFR_ACTION:action} %{WORD:protocol} packet from %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}
+# ASA-6-434004
+CISCOFWSFR434004 SFR %{CISCO_SFR_ACTION:action} and process %{WORD:protocol} flow from %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port} locally
+#== END CISCO SFR ==
