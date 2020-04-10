@@ -189,9 +189,8 @@ describe "ALB_ACCESS_LOG" do
       it { should include("target_ip" =>  "172.31.2.30" ) }
       it { should include("verb" => "HEAD" ) }
       it { should include("request" => "https://abc.com:443/packages/maldives" ) }
-      it { should include("httpversion" => 1.1 ) }
+      it { should include("httpversion" => "1.1" ) }
       it { should include("userAgent" => "Mozilla/5.0+(compatible; UptimeRobot/2.0; http://www.uptimerobot.com/" ) }
-      it { should include("agent" => "Mozilla/5.0%2520(Windows%2520NT%25206.1;%2520WOW64)%2520AppleWebKit/537.36%2520(KHTML,%2520like%2520Gecko)%2520Chrome/51.0.2704.79%2520Safari/537.36" ) }
       it { should include("ssl_cipher" => "ECDHE-RSA-AES128-GCM-SHA256" ) }
       it { should include("ssl_protocol" => "TLSv1.2" ) }
       it { should include("target_group_arn" => "arn:aws:elasticloadbalancing:ap-south-1:855430014109:targetgroup/ABC-FrontEnd/8c8983a24851ee4a") }
