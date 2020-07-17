@@ -1,7 +1,7 @@
 SYSLOG5424PRINTASCII [!-~]+
 
 SYSLOGBASE2 (?:%{SYSLOGTIMESTAMP:timestamp}|%{TIMESTAMP_ISO8601:timestamp}) (?:%{SYSLOGFACILITY} )?%{SYSLOGHOST:[host][hostname]}+(?: %{SYSLOGPROG}:|)
-SYSLOGPAMSESSION %{SYSLOGBASE} (?=%{GREEDYDATA:message})%{WORD:[system][syslog][pam][module]}\(%{DATA:[system][syslog][pam][origin]}\): session %{WORD:[system][syslog][pam][session_state]} for user %{USERNAME:[user][name]}(?: by %{GREEDYDATA})?
+SYSLOGPAMSESSION %{SYSLOGBASE} (?=%{GREEDYDATA:message})%{WORD:[system][auth][pam][module]}\(%{DATA:[system][auth][pam][origin]}\): session %{WORD:[system][auth][pam][session_state]} for user %{USERNAME:[user][name]}(?: by %{GREEDYDATA})?
 
 CRON_ACTION [A-Z ]+
 CRONLOG %{SYSLOGBASE} \(%{USER:[user][name]}\) %{CRON_ACTION:[system][cron][action]} \(%{DATA:message}\)
