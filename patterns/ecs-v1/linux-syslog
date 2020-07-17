@@ -4,7 +4,7 @@ SYSLOGBASE2 (?:%{SYSLOGTIMESTAMP:timestamp}|%{TIMESTAMP_ISO8601:timestamp}) (?:%
 SYSLOGPAMSESSION %{SYSLOGBASE} (?=%{GREEDYDATA:message})%{WORD:[system][syslog][pam][module]}\(%{DATA:[system][syslog][pam][origin]}\): session %{WORD:[system][syslog][pam][session_state]} for user %{USERNAME:[user][name]}(?: by %{GREEDYDATA})?
 
 CRON_ACTION [A-Z ]+
-CRONLOG %{SYSLOGBASE} \(%{USER:[user][name]}\) %{CRON_ACTION:action} \(%{DATA:message}\)
+CRONLOG %{SYSLOGBASE} \(%{USER:[user][name]}\) %{CRON_ACTION:[system][cron][action]} \(%{DATA:message}\)
 
 SYSLOGLINE %{SYSLOGBASE2} %{GREEDYDATA:message}
 
