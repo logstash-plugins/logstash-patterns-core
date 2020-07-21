@@ -2,33 +2,37 @@
 require "spec_helper"
 require "logstash/patterns/core"
 
-describe "JAVA" do
-  describe "JAVACLASS" do
-    let(:example) { 'hudson.node_monitors.AbstractAsyncNodeMonitorDescriptor' }
-    it "matches a java class with underscores" do
-      expect(grok_match(subject, example, true)['tags']).to be_nil
-    end
+describe "JAVACLASS" do
+  let(:example) { 'hudson.node_monitors.AbstractAsyncNodeMonitorDescriptor' }
+  it "matches a java class with underscores" do
+    expect(grok_match(subject, example, true)['tags']).to be_nil
   end
-  describe "JAVAFILE" do
-    let(:example) { 'Native Method' }
-    it "matches a java file name with spaces" do
-      expect(grok_match(subject, example, true)['tags']).to be_nil
-    end
+end
+describe "JAVAFILE" do
+  let(:example) { 'Native Method' }
+  it "matches a java file name with spaces" do
+    expect(grok_match(subject, example, true)['tags']).to be_nil
   end
 end
 
-describe "JAVASTACKTRACEPART" do
-  let(:pattern) { 'JAVASTACKTRACEPART' }
+describe_pattern "JAVASTACKTRACEPART", [ 'legacy', 'ecs-v1' ] do
   let(:message) { '  at com.sample.stacktrace.StackTraceExample.aMethod(StackTraceExample.java:42)' }
+
   it "matches" do
-    grok = grok_match(pattern, message, true)
-    expect(grok).to include({
-                                "message"=>"  at com.sample.stacktrace.StackTraceExample.aMethod(StackTraceExample.java:42)",
-                                "method"=>"aMethod",
-                                "class"=>"com.sample.stacktrace.StackTraceExample",
-                                "file"=>"StackTraceExample.java",
-                                "line"=>"42"
-                            })
+    if ecs_compatibility?
+      expect(grok).to include(
+                          "log" => { "origin" => { "function" => 'aMethod', "file" => { "name" => 'StackTraceExample.java', "line" => 42 } } },
+                          "java" => { "log" => { "origin" => { "class_name" => 'com.sample.stacktrace.StackTraceExample' } } }
+                      )
+    else
+      expect(grok).to include(
+                          "message"=>"  at com.sample.stacktrace.StackTraceExample.aMethod(StackTraceExample.java:42)",
+                          "method"=>"aMethod",
+                          "class"=>"com.sample.stacktrace.StackTraceExample",
+                          "file"=>"StackTraceExample.java",
+                          "line"=>"42"
+                      )
+    end
   end
 
   context 'generated file' do
