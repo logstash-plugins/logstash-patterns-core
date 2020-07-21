@@ -135,74 +135,74 @@ describe_pattern 'REDISMONLOG', [ 'legacy', 'ecs-v1' ] do
 
 end
 
-describe "REDISMONLOG (two param command)" do
+describe_pattern "REDISMONLOG" do
 
-  let(:pattern) { "REDISMONLOG" }
-  let(:message) { "1470637925.186681 [0 127.0.0.1:39404] \"rpush\" \"my:special:key\" \"{\\\"data\\\":\"cdr\\\",\\\"payload\\\":\\\"json\\\"}\"" }
-  let(:grok)    { grok_match(pattern, message) }
+  context 'two param command' do
 
-  it "a pattern pass the grok expression" do
-    expect(grok).to pass
+    let(:message) { "1470637925.186681 [0 127.0.0.1:39404] \"rpush\" \"my:special:key\" \"{\\\"data\\\":\"cdr\\\",\\\"payload\\\":\\\"json\\\"}\"" }
+
+    it "a pattern pass the grok expression" do
+      expect(grok).to pass
+    end
+
+    it "generates the timestamp field" do
+      expect(grok).to include("timestamp" => "1470637925.186681")
+    end
+
+    it "generates the database field" do
+      expect(grok).to include("database" => "0")
+    end
+
+    it "generates the client field" do
+      expect(grok).to include("client" => "127.0.0.1")
+    end
+
+    it "generates the port field" do
+      expect(grok).to include("port" => "39404")
+    end
+
+    it "generates the command field" do
+      expect(grok).to include("command" => "rpush")
+    end
+
+    it "generates the params field" do
+      expect(grok).to include("params" => "\"my:special:key\" \"{\\\"data\\\":\"cdr\\\",\\\"payload\\\":\\\"json\\\"}\"")
+    end
+
   end
 
-  it "generates the timestamp field" do
-    expect(grok).to include("timestamp" => "1470637925.186681")
-  end
+  context "variadic command" do
 
-  it "generates the database field" do
-    expect(grok).to include("database" => "0")
-  end
+    let(:message) { "1470637875.777457 [15 195.168.1.1:52500] \"intentionally\" \"broken\" \"variadic\" \"log\" \"entry\"" }
 
-  it "generates the client field" do
-    expect(grok).to include("client" => "127.0.0.1")
-  end
+    it "a pattern pass the grok expression" do
+      expect(grok).to pass
+    end
 
-  it "generates the port field" do
-    expect(grok).to include("port" => "39404")
-  end
+    it "generates the timestamp field" do
+      expect(grok).to include("timestamp" => "1470637875.777457")
+    end
 
-  it "generates the command field" do
-    expect(grok).to include("command" => "rpush")
-  end
+    it "generates the database field" do
+      expect(grok).to include("database" => "15")
+    end
 
-  it "generates the params field" do
-    expect(grok).to include("params" => "\"my:special:key\" \"{\\\"data\\\":\"cdr\\\",\\\"payload\\\":\\\"json\\\"}\"")
-  end
+    it "generates the client field" do
+      expect(grok).to include("client" => "195.168.1.1")
+    end
 
-end
+    it "generates the port field" do
+      expect(grok).to include("port" => "52500")
+    end
 
-describe "REDISMONLOG (variadic command)" do
+    it "generates the command field" do
+      expect(grok).to include("command" => "intentionally")
+    end
 
-  let(:pattern) { "REDISMONLOG" }
-  let(:message) { "1470637875.777457 [15 195.168.1.1:52500] \"intentionally\" \"broken\" \"variadic\" \"log\" \"entry\"" }
-  let(:grok)    { grok_match(pattern, message) }
+    it "generates the params field" do
+      expect(grok).to include("params" => "\"broken\" \"variadic\" \"log\" \"entry\"")
+    end
 
-  it "a pattern pass the grok expression" do
-    expect(grok).to pass
-  end
-
-  it "generates the timestamp field" do
-    expect(grok).to include("timestamp" => "1470637875.777457")
-  end
-
-  it "generates the database field" do
-    expect(grok).to include("database" => "15")
-  end
-
-  it "generates the client field" do
-    expect(grok).to include("client" => "195.168.1.1")
-  end
-
-  it "generates the port field" do
-    expect(grok).to include("port" => "52500")
-  end
-
-  it "generates the command field" do
-    expect(grok).to include("command" => "intentionally")
-  end
-
-  it "generates the params field" do
-    expect(grok).to include("params" => "\"broken\" \"variadic\" \"log\" \"entry\"")
   end
 
 end
