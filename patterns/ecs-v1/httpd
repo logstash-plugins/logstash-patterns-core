@@ -2,12 +2,12 @@ HTTPDUSER %{EMAILADDRESS}|%{USER}
 HTTPDERROR_DATE %{DAY} %{MONTH} %{MONTHDAY} %{TIME} %{YEAR}
 
 # Log formats
-HTTPD_COMMONLOG %{IPORHOST:clientip} %{HTTPDUSER:ident} %{HTTPDUSER:auth} \[%{HTTPDATE:timestamp}\] "(?:%{WORD:verb} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?|%{DATA:rawrequest})" (?:-|%{NUMBER:response}) (?:-|%{NUMBER:bytes})
-HTTPD_COMBINEDLOG %{HTTPD_COMMONLOG} %{QS:referrer} %{QS:agent}
+HTTPD_COMMONLOG %{IPORHOST:[source][address]} %{HTTPDUSER:[apache][access][user][identity]} %{HTTPDUSER:[user][name]} \[%{HTTPDATE:[apache][access][time]}\] "(?:%{WORD:[http][request][method]} %{NOTSPACE:[url][original]}(?: HTTP/%{NUMBER:[http][version]})?|%{DATA})" (?:-|%{NUMBER:[http][response][status_code]}) (?:-|%{NUMBER:[http][response][body][bytes]})
+HTTPD_COMBINEDLOG %{HTTPD_COMMONLOG} %{QS:[http][request][referrer]} %{QS:[user_agent][original]}
 
 # Error logs
-HTTPD20_ERRORLOG \[%{HTTPDERROR_DATE:timestamp}\] \[%{LOGLEVEL:loglevel}\] (?:\[client %{IPORHOST:clientip}\] ){0,1}%{GREEDYDATA:message}
-HTTPD24_ERRORLOG \[%{HTTPDERROR_DATE:timestamp}\] \[%{WORD:module}:%{LOGLEVEL:loglevel}\] \[pid %{POSINT:pid}(:tid %{NUMBER:tid})?\]( \(%{POSINT:proxy_errorcode}\)%{DATA:proxy_message}:)?( \[client %{IPORHOST:clientip}:%{POSINT:clientport}\])?( %{DATA:errorcode}:)? %{GREEDYDATA:message}
+HTTPD20_ERRORLOG \[%{HTTPDERROR_DATE:timestamp}\] \[%{LOGLEVEL:[log][level]}\] (?:\[client %{IPORHOST:[source][address]}\] ){0,1}%{GREEDYDATA:message}
+HTTPD24_ERRORLOG \[%{HTTPDERROR_DATE:timestamp}\] \[%{WORD:[apache][error][module]}:%{LOGLEVEL:[log][level]}\] \[pid %{POSINT:[process][pid]}(:tid %{NUMBER:[trace][id]})?\]( \(%{POSINT:[apache][error][proxy][error_code]?}\)%{DATA:[apache][error][proxy][message]}:)?( \[client %{IPORHOST:[source][address]}:%{POSINT:[source][port]}\])?( %{DATA:[apache][error][error_code]}:)? %{GREEDYDATA:message}
 HTTPD_ERRORLOG %{HTTPD20_ERRORLOG}|%{HTTPD24_ERRORLOG}
 
 # Deprecated
