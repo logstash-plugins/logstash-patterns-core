@@ -2,7 +2,7 @@ HTTPDUSER %{EMAILADDRESS}|%{USER}
 HTTPDERROR_DATE %{DAY} %{MONTH} %{MONTHDAY} %{TIME} %{YEAR}
 
 # Log formats
-HTTPD_COMMONLOG %{IPORHOST:[source][address]} %{HTTPDUSER:[apache][access][user][identity]} %{HTTPDUSER:[user][name]} \[%{HTTPDATE:[apache][access][time]}\] "(?:%{WORD:[http][request][method]} %{NOTSPACE:[url][original]}(?: HTTP/%{NUMBER:[http][version]})?|%{DATA})" (?:-|%{NUMBER:[http][response][status_code]}) (?:-|%{NUMBER:[http][response][body][bytes]})
+HTTPD_COMMONLOG %{IPORHOST:[source][address]} %{HTTPDUSER:[apache][access][user][identity]} %{HTTPDUSER:[user][name]} \[%{HTTPDATE:[apache][access][time]}\] "(?:%{WORD:[http][request][method]} %{NOTSPACE:[url][original]}(?: HTTP/%{NUMBER:[http][version]})?|%{DATA})" (?:-|%{INT:[http][response][status_code]}) (?:-|%{INT:[http][response][body][bytes]})
 HTTPD_COMBINEDLOG %{HTTPD_COMMONLOG} %{QS:[http][request][referrer]} %{QS:[user_agent][original]}
 
 # Error logs
