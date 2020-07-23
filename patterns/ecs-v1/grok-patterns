@@ -38,14 +38,15 @@ UNIXPATH (/([\w_%!$@:.,+~-]+|\\.)*)+
 TTY (?:/dev/(pts|tty([pq])?)(\w+)?/?(?:[0-9]+))
 WINPATH (?>[A-Za-z]+:|\\)(?:\\[^\\?*]*)+
 URIPROTO [A-Za-z]([A-Za-z0-9+\-.]+)+
-URIHOST %{IPORHOST}(?::%{POSINT:port})?
-# uripath comes loosely from RFC1738, but mostly from what Firefox
-# doesn't turn into %XX
+URIHOST %{IPORHOST}(?::%{POSINT})?
+# uripath comes loosely from RFC1738, but mostly from what Firefox doesn't turn into %XX
 URIPATH (?:/[A-Za-z0-9$.+!*'(){},~:;=@#%&_\-]*)+
-#URIPARAM \?(?:[A-Za-z0-9]+(?:=(?:[^&]*))?(?:&(?:[A-Za-z0-9]+(?:=(?:[^&]*))?)?)*)?
-URIPARAM \?[A-Za-z0-9$.+!*'|(){},~@#%&/=:;_?\-\[\]<>]*
-URIPATHPARAM %{URIPATH}(?:%{URIPARAM})?
-URI %{URIPROTO}://(?:%{USER}(?::[^@]*)?@)?(?:%{URIHOST})?(?:%{URIPATHPARAM})?
+#URIQUERY (?:[A-Za-z0-9]+(?:=(?:[^&]*))?(?:&(?:[A-Za-z0-9]+(?:=(?:[^&]*))?)?)*)?
+URIQUERY [A-Za-z0-9$.+!*'|(){},~@#%&/=:;_?\-\[\]<>]*
+# deprecated (kept due compatibility):
+URIPARAM \?%{URIQUERY}
+URIPATHPARAM %{URIPATH}(?:\?%{URIQUERY})?
+URI %{URIPROTO}://(?:%{USER}(?::[^@]*)?@)?(?:%{URIHOST})?(?:%{URIPATH}(?:\?%{URIQUERY})?)?
 
 # Months: January, Feb, 3, 03, 12, December
 MONTH \b(?:[Jj]an(?:uary|uar)?|[Ff]eb(?:ruary|ruar)?|[Mm](?:a|ä)?r(?:ch|z)?|[Aa]pr(?:il)?|[Mm]a(?:y|i)?|[Jj]un(?:e|i)?|[Jj]ul(?:y|i)?|[Aa]ug(?:ust)?|[Ss]ep(?:tember)?|[Oo](?:c|k)?t(?:ober)?|[Nn]ov(?:ember)?|[Dd]e(?:c|z)(?:ember)?)\b
