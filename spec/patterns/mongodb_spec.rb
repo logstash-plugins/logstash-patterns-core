@@ -82,3 +82,30 @@ describe "MONGO3_LOG" do
     end
   end
 end
+
+describe "MONGO_SLOWQUERY" do
+
+  let(:pattern) { "MONGO_SLOWQUERY" }
+  let(:value) do
+    "[conn11485496] query sample.User query: { clientId: 12345 } ntoreturn:0 ntoskip:0 nscanned:287011 keyUpdates:0 numYields: 2 locks(micros) r:4187700 nreturned:18 reslen:14019 2340ms"
+  end
+
+  subject { grok_match(pattern, value) }
+
+  it do
+    should include("database" => "sample", "collection" => "User")
+  end
+
+  it do
+    should include("ntoreturn" => '0', "ntoskip" => '0', "nscanned" => "287011", "nreturned" => "18")
+  end
+
+  it do
+    should include("query" => "{ clientId: 12345 }")
+  end
+
+  it do
+    should include("duration" => "2340")
+  end
+
+end
