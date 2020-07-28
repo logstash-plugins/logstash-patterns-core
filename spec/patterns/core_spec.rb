@@ -495,3 +495,14 @@ describe "URN" do
     end
   end
 end
+
+describe "EMAILADDRESS" do
+
+  it "matches e-mail address" do
+    expect(grok_match(subject, 'hello.world@123.net')).to pass
+  end
+
+  it "matches e-mail with digits only local-part" do
+    expect(grok_match(subject, '00@q.ro')).to pass
+  end
+end
