@@ -35,12 +35,11 @@ describe "JAVASTACKTRACEPART" do
     let(:message) { '  at org.jruby.RubyMethod$INVOKER$i$call.call(RubyMethod$INVOKER$i$call.gen)' }
     it "matches" do
       grok = grok_match(pattern, message, true)
-      # TODO does not match
-      # expect(grok).to include({
-      #                             "method"=>"call",
-      #                             "class"=>"org.jruby.RubyMethod$INVOKER$i$call",
-      #                             "file"=>"RubyMethod$INVOKER$i$call.gen",
-      #                         })
+      expect(grok).to include({
+                                  "method"=>"call",
+                                  "class"=>"org.jruby.RubyMethod$INVOKER$i$call",
+                                  "file"=>"RubyMethod$INVOKER$i$call.gen",
+                              })
     end
   end
 end
