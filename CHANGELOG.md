@@ -1,3 +1,6 @@
+## 4.2.0
+  - Fix: Java stack trace's JAVAFILE to better match generated names 
+
 ## 4.1.2
   - Fix some documentation issues
 
