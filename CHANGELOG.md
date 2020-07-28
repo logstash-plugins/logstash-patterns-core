@@ -1,5 +1,6 @@
 ## 4.2.0
-  - Fix: Java stack trace's JAVAFILE to better match generated names 
+  - Fix: Java stack trace's JAVAFILE to better match generated names
+  - Fix: match Information/INFORMATION in LOGLEVEL [#274](https://github.com/logstash-plugins/logstash-patterns-core/pull/274) 
 
 ## 4.1.2
   - Fix some documentation issues
