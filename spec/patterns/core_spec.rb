@@ -63,6 +63,19 @@ describe "TOMCATLOG" do
   end
 end
 
+describe 'LOGLEVEL' do
+  it 'matches info label' do
+    expect(grok_match(subject, 'INFO')).to pass
+    expect(grok_match(subject, 'info')).to pass
+  end
+
+  it 'matches information label' do
+    expect(grok_match(subject, 'information')).to pass
+    expect(grok_match(subject, 'Information')).to pass
+    expect(grok_match(subject, 'INFORMATION')).to pass
+  end
+end
+
 describe "IPORHOST" do
 
   let(:pattern)    { "IPORHOST" }
