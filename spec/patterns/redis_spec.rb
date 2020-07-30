@@ -21,7 +21,6 @@ describe_pattern 'REDISLOG', [ 'legacy', 'ecs-v1' ] do
   end
 
   it "generates the pid field" do
-    puts "ecs_compatibility?: #{ecs_compatibility?.inspect}"
     if ecs_compatibility?
       expect(grok).to include("process" => { 'pid' => 4018 })
     else

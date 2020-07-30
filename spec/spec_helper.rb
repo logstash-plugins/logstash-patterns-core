@@ -95,6 +95,7 @@ def describe_pattern(name, pattern_modes = [ nil ], &block)
       let(:pattern) { name }
       let(:message) { raise 'let(:message) { ... } is missing' }
       let(:grok) { grok_match(pattern, message) }
+      subject { grok }
 
       instance_eval(&block)
     end
