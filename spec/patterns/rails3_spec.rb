@@ -2,14 +2,11 @@
 require "spec_helper"
 require "logstash/patterns/core"
 
-describe "RAILS" do
-  let(:rails3_pattern)  { "RAILS3" }
+describe_pattern "RAILS3" do
 
-  context "Parsing RAILS3 single-line log from raw log file" do
+  context "single-line log" do
 
-    let(:value) { 'Started POST "/api/v3/internal/allowed" for 127.0.0.1 at 2015-08-05 11:37:01 +0200' } 
-
-    subject     { grok_match(rails3_pattern, value) }
+    let(:message) { 'Started POST "/api/v3/internal/allowed" for 127.0.0.1 at 2015-08-05 11:37:01 +0200' }
 
     # Started
     it { should include("verb" => "POST" ) }
@@ -20,13 +17,12 @@ describe "RAILS" do
     it { should include("timestamp" => "2015-08-05 11:37:01 +0200" ) }
   end
 
-  context "Parsing RAILS3 multi-line log from raw log file" do
+  context "multi-line log" do
 
-    let(:value) { 'Started GET "/puppet/postfix/notes?target_id=162&target_type=issue&last_fetched_at=1438695732" for 127.0.0.1 at 2015-08-05 07:40:22 +0200
+    let(:message) { 'Started GET "/puppet/postfix/notes?target_id=162&target_type=issue&last_fetched_at=1438695732" for 127.0.0.1 at 2015-08-05 07:40:22 +0200
 Processing by Projects::NotesController#index as JSON
   Parameters: {"target_id"=>"162", "target_type"=>"issue", "last_fetched_at"=>"1438695732", "namespace_id"=>"puppet", "project_id"=>"postfix"}
-Completed 200 OK in 640ms (Views: 1.7ms | ActiveRecord: 91.0ms)' } 
-    subject     { grok_match(rails3_pattern, value) }
+Completed 200 OK in 640ms (Views: 1.7ms | ActiveRecord: 91.0ms)' }
 
     # started
     it { should include("verb" => "GET" ) }
