@@ -24,6 +24,35 @@ end
 require "logstash/filters/grok"
 
 module GrokHelpers
+  module PatternModeSupport
+    @@pattern_mode = nil
+    def pattern_mode
+      @@pattern_mode
+    end
+    module_function :pattern_mode
+
+    def pattern_mode=(mode)
+      @@pattern_mode = mode
+    end
+  end
+
+  def ecs_compatibility?
+    case ecs_compatibility
+    when :disabled then false
+    when nil then nil
+    else true
+    end
+  end
+
+  def ecs_compatibility
+    case mode = PatternModeSupport.pattern_mode
+    when 'legacy' then :disabled
+    when 'ecs-v1' then :v1
+    when nil then nil
+    else fail "pattern_mode: #{mode.inspect}"
+    end
+  end
+
   def grok_match(label, message, exact_match = false)
     grok  = build_grok(label, exact_match)
     event = build_event(message)
@@ -32,11 +61,10 @@ module GrokHelpers
   end
 
   def build_grok(label, exact_match = false)
-    if exact_match
-      grok = LogStash::Filters::Grok.new("match" => ["message", "^%{#{label}}$"])
-    else
-      grok = LogStash::Filters::Grok.new("match" => ["message", "%{#{label}}"])
-    end
+    grok_opts = { "match" => [ "message", exact_match ? "^%{#{label}}$" : "%{#{label}}" ] }
+    ecs_compat = ecs_compatibility # if not set use the plugin default
+    grok_opts["ecs_compatibility"] = ecs_compat unless ecs_compat.nil?
+    grok = LogStash::Filters::Grok.new(grok_opts)
     grok.register
     grok
   end
@@ -48,6 +76,29 @@ end
 
 RSpec.configure do |c|
   c.include GrokHelpers
+  c.include GrokHelpers::PatternModeSupport
+  c.extend GrokHelpers::PatternModeSupport
+end
+
+def describe_pattern(name, pattern_modes = [ nil ], &block)
+  pattern_modes.each do |mode|
+    RSpec.describe "#{name}#{mode ? " (#{mode})" : nil}" do
+
+      before(:each) do
+        @restore_pattern_mode = pattern_mode
+        self.pattern_mode = mode
+      end
+      after(:each) do
+        self.pattern_mode = @restore_pattern_mode
+      end
+
+      let(:pattern) { name }
+      let(:message) { raise 'let(:message) { ... } is missing' }
+      let(:grok) { grok_match(pattern, message) }
+
+      instance_eval(&block)
+    end
+  end
 end
 
 RSpec::Matchers.define :pass do |expected|
