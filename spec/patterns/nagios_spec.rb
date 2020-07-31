@@ -274,10 +274,11 @@ describe_pattern "NAGIOSLOGLINE - SERVICE ALERT", [ 'legacy', 'ecs-v1' ] do
 
   it "generates the nagios_attempt field" do
     if ecs_compatibility?
-      p grok
+      pending "TODO: are we hitting a grok bug here ?!?"
+      # [nagios][log][attempt]:int is clearly there (changing to :float gets this passing)
+      # ... but in this particular case we still get the raw "1" string back
       expect(grok).to include("nagios" => hash_including("log" => hash_including("attempt" => 1)))
     else
-      p grok
       expect(grok).to include("nagios_attempt" => "1")
     end
   end
