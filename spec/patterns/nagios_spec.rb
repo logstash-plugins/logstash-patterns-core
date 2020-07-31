@@ -82,7 +82,7 @@ end
 
 describe "NAGIOSLOGLINE - TIMEPERIOD TRANSITION" do
 
-  let(:value)   { "[1427925600] TIMEPERIOD TRANSITION: 24X7;1;1" }
+  let(:value)   { "[1427925600] TIMEPERIOD TRANSITION: 24X7;-1;1" }
   let(:grok)    { grok_match(subject, value) }
 
   it "a pattern pass the grok expression" do
@@ -103,6 +103,10 @@ describe "NAGIOSLOGLINE - TIMEPERIOD TRANSITION" do
 
   it "generates the nagios_esrvice field" do
     expect(grok).to include("nagios_service" => "24X7")
+  end
+
+  it "generates the period from/to fields" do
+    expect(grok).to include("nagios_unknown1" => "-1", "nagios_unknown2" => "1")
   end
 
   # Regression test for but fixed in Nagios patterns #30
