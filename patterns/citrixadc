@@ -1,0 +1,1 @@
+CITRIXADC_LOG %{SYSLOG5424PRI:CitrixAdcSyslog5424Pri} %{DATE:CitrixAdcDate}:%{TIME:CitrixAdcTime}  %{NOTSPACE:CitrixAdcHostname} %{NOTSPACE:CitrixAdcPacketEngine} : %{WORD} %{WORD:CitrixAdcModule} %{WORD:CitrixAdcEventType} %{WORD:CitrixAdcEventId} \d :  %{GREEDYDATA:CitrixAdcMessage}
