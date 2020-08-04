@@ -11,11 +11,9 @@ describe "HTTPD_COMBINEDLOG" do
 
     let(:message) { '83.149.9.216 - - [24/Feb/2015:23:13:42 +0000] "GET /presentations/logstash-monitorama-2013/images/kibana-search.png HTTP/1.1" 200 203023 "http://semicomplete.com/presentations/logstash-monitorama-2013/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36"'}
 
-    it "generates the clientip field" do
+    it "matches" do
       expect(grok).to include(
         'clientip' => '83.149.9.216',
-        'ident' => '-',
-        'auth' => '-',
         'verb' => 'GET',
         'request' => '/presentations/logstash-monitorama-2013/images/kibana-search.png',
         'httpversion' => '1.1',
@@ -24,6 +22,10 @@ describe "HTTPD_COMBINEDLOG" do
         'referrer' => '"http://semicomplete.com/presentations/logstash-monitorama-2013/"',
         'agent' => '"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36"'
       )
+    end
+
+    it "does not capture 'null' fields" do
+      expect(grok.keys).to_not include('ident', 'auth')
     end
 
   end
