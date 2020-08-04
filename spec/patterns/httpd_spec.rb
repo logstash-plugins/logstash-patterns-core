@@ -34,8 +34,22 @@ describe "HTTPD_COMBINEDLOG" do
 
     let(:message) { '10.0.0.1 - username@example.com [07/Apr/2016:18:42:24 +0000] "GET /bar/foo/users/1/username%40example.com/authenticate?token=blargh&client_id=15 HTTP/1.1" 400 75 "" "Mozilla/5.0 (iPad; CPU OS 9_3_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13E238 Safari/601.1"'}
 
-    it "generates the clientip field" do
+    it "gets captured" do
       expect(grok).to include("auth" => "username@example.com")
+    end
+
+  end
+
+  context 'sample OPTIONS line' do
+
+    let(:message) { '83.149.9.216 - a.user [11/Jan/2020:23:05:27 +0100] "OPTIONS /remote.php/ HTTP/1.1" - 7908 "-" "monitoring-client (v2.2)"' }
+
+    it 'matches' do
+      expect(grok).to include("verb" => "OPTIONS", 'request' => '/remote.php/', 'httpversion' => '1.1', "bytes" => '7908')
+    end
+
+    it 'does not capture optional response code' do
+      expect(grok.keys).to_not include("response")
     end
 
   end
