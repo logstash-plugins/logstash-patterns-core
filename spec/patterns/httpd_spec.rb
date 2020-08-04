@@ -19,8 +19,8 @@ describe "HTTPD_COMBINEDLOG" do
         'httpversion' => '1.1',
         'response' => '200',
         'bytes' => '203023',
-        'referrer' => '"http://semicomplete.com/presentations/logstash-monitorama-2013/"',
-        'agent' => '"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36"'
+        'referrer' => 'http://semicomplete.com/presentations/logstash-monitorama-2013/',
+        'agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36'
       )
     end
 
