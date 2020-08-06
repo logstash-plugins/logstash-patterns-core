@@ -4,4 +4,4 @@ BIND9_DNSTYPE (?:A|AAAA|CAA|CDNSKEY|CDS|CERT|CNAME|CSYNC|DLV|DNAME|DNSKEY|DS|HIN
 
 # dns.question.class is static - only 'IN' is supported by Bind9
 # bind.log.question.name is expected to be a 'duplicate' (same as the dns.question.name capture)
-BIND9 %{BIND9_TIMESTAMP:timestamp} queries: %{LOGLEVEL:[log][level]}: client %{IP:[client][ip]}#%{POSINT:[client][port]:int} \(%{GREEDYDATA:[bind][log][question][name]}\): query: %{GREEDYDATA:[dns][question][name]} (?<[dns][question][class]>IN) %{BIND9_DNSTYPE:[dns][question][type]}(:? %{DATA:[bind][log][question][flags]})? \(%{IP:[server][ip]}\)
+BIND9 %{BIND9_TIMESTAMP:timestamp} queries: %{LOGLEVEL:[log][level]}: client(:? @0x(?:[0-9A-Fa-f]+))? %{IP:[client][ip]}#%{POSINT:[client][port]:int} \(%{GREEDYDATA:[bind][log][question][name]}\): query: %{GREEDYDATA:[dns][question][name]} (?<[dns][question][class]>IN) %{BIND9_DNSTYPE:[dns][question][type]}(:? %{DATA:[bind][log][question][flags]})? \(%{IP:[server][ip]}\)
