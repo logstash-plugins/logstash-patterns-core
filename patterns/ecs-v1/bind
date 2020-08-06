@@ -1,3 +1,7 @@
 BIND9_TIMESTAMP %{MONTHDAY}[-]%{MONTH}[-]%{YEAR} %{TIME}
 
-BIND9 %{BIND9_TIMESTAMP:timestamp} queries: %{LOGLEVEL:loglevel}: client %{IP:clientip}#%{POSINT:clientport} \(%{GREEDYDATA:query}\): query: %{GREEDYDATA:query} IN %{GREEDYDATA:querytype} \(%{IP:dns}\)
+BIND9_DNSTYPE (?:A|AAAA|CAA|CDNSKEY|CDS|CERT|CNAME|CSYNC|DLV|DNAME|DNSKEY|DS|HINFO|LOC|MX|NAPTR|NS|NSEC|NSEC3|OPENPGPKEY|PTR|RRSIG|RP|SIG|SMIMEA|SOA|SRV|TSIG|TXT|URI)
+
+# dns.question.class is static - only 'IN' is supported by Bind9
+# bind.log.question.name is expected to be a 'duplicate' (same as the dns.question.name capture)
+BIND9 %{BIND9_TIMESTAMP:timestamp} queries: %{LOGLEVEL:[log][level]}: client %{IP:[client][ip]}#%{POSINT:[client][port]:int} \(%{GREEDYDATA:[bind][log][question][name]}\): query: %{GREEDYDATA:[dns][question][name]} (?<[dns][question][class]>IN) %{BIND9_DNSTYPE:[dns][question][type]}(:? %{DATA:[bind][log][question][flags]})? \(%{IP:[server][ip]}\)
