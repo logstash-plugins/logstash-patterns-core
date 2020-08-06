@@ -16,8 +16,9 @@ describe_pattern "SQUID3", ['legacy', 'ecs-v1'] do
         expect(grok).to include(
                             "event" => { "action" => "TCP_TUNNEL" },
                             "squid" => {
-                                "hierarchy_code" => "HIER_DIRECT",
-                                "request" => { "duration" => 16867, "content_type" => "-" }
+                                "request" => { "duration" => 16867 },
+                                "response" => { "content_type" => "-" },
+                                "hierarchy_code" => "HIER_DIRECT"
                             })
         expect(grok).to include("destination" => { "address" => "53.140.206.134" })
         expect(grok).to include("http" => { "request" => { "method" => "CONNECT" }, "response" => { "bytes" => 6256, "status_code" => 200 } })
@@ -54,7 +55,9 @@ describe_pattern "SQUID3", ['legacy', 'ecs-v1'] do
         expect(grok).to include(
                             "event" => { "action" => "TCP_REFRESH_MISS" },
                             "squid" => {
-                                "request" => { "content_type" => "text/plain", "duration" => 3 }, "hierarchy_code" => "DIRECT"
+                                "request" => { "duration" => 3 },
+                                "response" => { "content_type" => "text/plain" },
+                                "hierarchy_code" => "DIRECT"
                             })
         expect(grok).to include("destination" => { "address" => "www.sample.com" })
         expect(grok).to include("http" => { "request" => { "method" => "GET" }, "response" => { "bytes" => 2014, "status_code" => 200 } })
