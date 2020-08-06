@@ -17,7 +17,6 @@ describe_pattern "SQUID3", ['legacy', 'ecs-v1'] do
                             "event" => { "action" => "TCP_TUNNEL" },
                             "squid" => {
                                 "request" => { "duration" => 16867 },
-                                "response" => { "content_type" => "-" },
                                 "hierarchy_code" => "HIER_DIRECT"
                             })
         expect(grok).to include("destination" => { "address" => "53.140.206.134" })
@@ -38,6 +37,18 @@ describe_pattern "SQUID3", ['legacy', 'ecs-v1'] do
                             "server" => "53.140.206.134",
                             "content_type" => "-",
                             )
+      end
+    end
+
+    it "does not include missing ('-') user-name" do
+      if ecs_compatibility?
+        expect(grok.keys).to_not include("user") # "user" => { "name" => "-" }
+      end
+    end
+
+    it "does not include missing ('-') content-type" do
+      if ecs_compatibility?
+        expect(grok['squid'].keys).to_not include("response") # "squid" => { "response" => { "content_type" => "-" } }
       end
     end
 
