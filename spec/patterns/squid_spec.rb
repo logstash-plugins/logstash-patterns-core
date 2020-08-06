@@ -14,8 +14,8 @@ describe_pattern "SQUID3", ['legacy', 'ecs-v1'] do
       expect(grok).to include("timestamp" => "1525344856.899")
       if ecs_compatibility?
         expect(grok).to include(
+                            "event" => { "action" => "TCP_TUNNEL" },
                             "squid" => {
-                                "cache_result_code" => "TCP_TUNNEL",
                                 "hierarchy_code" => "HIER_DIRECT",
                                 "request" => { "duration" => 16867, "content_type" => "-" }
                             })
@@ -52,8 +52,8 @@ describe_pattern "SQUID3", ['legacy', 'ecs-v1'] do
       expect(grok).to include("timestamp" => "1525334330.556")
       if ecs_compatibility?
         expect(grok).to include(
+                            "event" => { "action" => "TCP_REFRESH_MISS" },
                             "squid" => {
-                                "cache_result_code" => "TCP_REFRESH_MISS",
                                 "request" => { "content_type" => "text/plain", "duration" => 3 }, "hierarchy_code" => "DIRECT"
                             })
         expect(grok).to include("destination" => { "address" => "www.sample.com" })
