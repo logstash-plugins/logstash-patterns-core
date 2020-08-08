@@ -54,17 +54,29 @@ describe_pattern "SYSLOGLINE", ['legacy', 'ecs-v1'] do
     end
   end
 
+  it 'does not parse facility-level or msg-id' do
+    message = 'May 11 10:40:48 scrooge disk-health-nurse[26783]: [ID 702911 user.error] m:SY-mon-full-500 c:H : partition health measures for /var did not suffice - still using 96% of partition space'
+    match = grok_match pattern, message
+    expect(match).to include("timestamp" => "May 11 10:40:48")
+    expect(match).to include("message" => [message, "[ID 702911 user.error] m:SY-mon-full-500 c:H : partition health measures for /var did not suffice - still using 96% of partition space"])
+    if ecs_compatibility?
+      expect(match).to include("process"=>{"pid"=>26783, "name"=>"disk-health-nurse"}, "host"=>{"hostname"=>"scrooge"})
+    else
+      expect(match).to include("program"=>"disk-health-nurse", "pid"=>"26783", "logsource"=>"scrooge")
+    end
+  end
+
   context "when having an optional progname" do
 
     let(:message) { "<14>Jun 24 10:32:02 win-host WinFileService Event: read, Path: /.DS_Store, File/Folder: File, Size: 6.00 KB, User: user@host, IP: 123.123.123.123" }
 
     it "should accept the message" do
-      # TODO seems not to work as intented, but let's at least assert something got matched:
       if ecs_compatibility?
         expect(grok).to include("host" => { "hostname" => "win-host" })
       else
         expect(grok).to include("logsource" => "win-host")
       end
+      expect(grok['message']).to eql [message, 'WinFileService Event: read, Path: /.DS_Store, File/Folder: File, Size: 6.00 KB, User: user@host, IP: 123.123.123.123']
     end
   end
 end
