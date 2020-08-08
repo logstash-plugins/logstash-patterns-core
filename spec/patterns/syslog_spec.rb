@@ -66,6 +66,14 @@ describe_pattern "SYSLOGLINE", ['legacy', 'ecs-v1'] do
     end
   end
 
+  it 'parses (non-syslog) mesages without hostname' do
+    message = "Jan 11 22:33:44 su: 'su root' failed for luser on /dev/pts/8"
+    match = grok_match pattern, message
+    if ecs_compatibility? # in legacy mode a parse failure
+      expect(match).to include("process" => { "name" => "su" })
+    end
+  end
+
   context "when having an optional progname" do
 
     let(:message) { "<14>Jun 24 10:32:02 win-host WinFileService Event: read, Path: /.DS_Store, File/Folder: File, Size: 6.00 KB, User: user@host, IP: 123.123.123.123" }
