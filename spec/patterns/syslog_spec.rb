@@ -98,8 +98,8 @@ describe_pattern "SYSLOG5424LINE", ['legacy', 'ecs-v1'] do
       expect(match).to include("log" => { "syslog" => { "facility" => { "code" => 174 }}})
       expect(match).to include("host" => { "hostname" => "10.23.16.6"})
       expect(match).to include("process" => { "name" => "named", "pid" => 2255 })
-      expect(match).to include("timestamp" => "2016-11-14T09:49:23+01:00")
       expect(match).to include("system" => { "syslog" => { "version" => "1" }})
+      expect(match).to include("timestamp" => "2016-11-14T09:49:23+01:00")
       expect(match).to include("message" => [message, "info: client 10.23.56.93#63295 (i1.tmg.com): query: i1.tmg.com IN A + (10.23.4.13)"])
     else
       expect(match).to include({
@@ -116,20 +116,30 @@ describe_pattern "SYSLOG5424LINE", ['legacy', 'ecs-v1'] do
   end
 
   it "matches ipv6 host" do
-    match = grok_match pattern, "<174>1 2016-11-14T09:49:23+01:00 2000:6a0:b:315:10:23:4:13 named 2255 - -  info: client 10.23.56.9#63295 (i1.tmg.com): query: i1.tmg.com IN A + (10.23.4.13)"
+    message = "<174>1 1995-04-12T23:20:50.52Z 2000:6a0:b:315:10:23:4:13 named 2255 - -  info: client 10.23.56.9#63295 (i1.tmg.com): query: i1.tmg.com IN A + (10.23.4.13)"
+    match = grok_match pattern, message
     if ecs_compatibility?
       expect(match).to include("host" => { "hostname" => "2000:6a0:b:315:10:23:4:13" })
+      expect(match).to include("timestamp" => "1995-04-12T23:20:50.52Z")
+      expect(match).to include("message" => [message, "info: client 10.23.56.9#63295 (i1.tmg.com): query: i1.tmg.com IN A + (10.23.4.13)"])
     else
       expect(match).to include("syslog5424_host" => "2000:6a0:b:315:10:23:4:13")
+      expect(match).to include("syslog5424_ts" => "1995-04-12T23:20:50.52Z")
     end
   end
 
   it "matches host name" do
-    match = grok_match pattern, "<174>1 2016-11-14T09:32:44+01:00 resolver.se prg00000[1234] - -  info: client 10.23.53.22#63252: query: googlehosted.l.googleusercontent.com IN A + (10.23.16.6)"
+    message = "<174>1 2016-12-31T23:59:60-04:00 resolver.se prg00000[1234] - -  info: client 10.23.53.22#63252: query: googlehosted.l.googleusercontent.com IN A + (10.23.16.6)"
+    match = grok_match pattern, message
     if ecs_compatibility?
       expect(match).to include("host" => { "hostname" => "resolver.se" })
+      expect(match).to include("message" => [message, "info: client 10.23.53.22#63252: query: googlehosted.l.googleusercontent.com IN A + (10.23.16.6)"])
+      expect(match).to include("timestamp" => "2016-12-31T23:59:60-04:00")
     else
       expect(match).to include("syslog5424_host" => "resolver.se")
+      expect(match).to include("syslog5424_ts" => "2016-12-31T23:59:60-04:00")
+    end
+  end
     end
   end
 
