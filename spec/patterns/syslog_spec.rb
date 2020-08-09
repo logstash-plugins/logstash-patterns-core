@@ -135,9 +135,22 @@ describe_pattern "SYSLOG5424LINE", ['legacy', 'ecs-v1'] do
       expect(match).to include("host" => { "hostname" => "resolver.se" })
       expect(match).to include("message" => [message, "info: client 10.23.53.22#63252: query: googlehosted.l.googleusercontent.com IN A + (10.23.16.6)"])
       expect(match).to include("timestamp" => "2016-12-31T23:59:60-04:00")
+      expect(match['system']['syslog'].keys).to_not include("message_id")
     else
       expect(match).to include("syslog5424_host" => "resolver.se")
       expect(match).to include("syslog5424_ts" => "2016-12-31T23:59:60-04:00")
+      expect(match.keys).to_not include("syslog5424_msgid")
+    end
+  end
+
+  it "matches nil host-name" do
+    message = "<174>1 2003-08-24T05:14:15+00:00 - - - - - IN=enx503f560021dc OUT= MAC=01:00:5e:00:00:01:88:f8:c7:8b:1a:b4:04:00 SRC=192.168.81.1 DST=224.0.0.1 LEN=32 TOS=0x00 PREC=0xC0 TTL=1 ID=0 PROTO=2"
+    match = grok_match pattern, message
+    if ecs_compatibility?
+      expect(match).to include("timestamp" => "2003-08-24T05:14:15+00:00")
+      expect(match.keys).to_not include("host")
+    else
+      expect(match.keys).to_not include("syslog5424_host")
     end
   end
 
@@ -145,17 +158,51 @@ describe_pattern "SYSLOG5424LINE", ['legacy', 'ecs-v1'] do
     match = grok_match pattern, "<34>1 2003-08-24T05:14:15.123-07:00 the.borg.com su - ID47 - BOM'su root' failed for borg on /dev/pts/7"
     if ecs_compatibility?
       expect(match).to include("timestamp" => "2003-08-24T05:14:15.123-07:00")
+      expect(match).to include("process" => { "name" => "su" })
     else
       expect(match).to include("syslog5424_ts" => "2003-08-24T05:14:15.123-07:00")
     end
   end
 
-  it 'matches milli-second precision timestamp (Z)' do
-    match = grok_match pattern, "<34>1 2030-10-11T22:14:15.003Z the.borg.com su - ID47 - BOM'su root' failed for borg on /dev/pts/7"
+  it 'matches milli-second precision timestamp (Z) and msgid' do
+    match = grok_match pattern, "<34>1 2030-10-11T22:14:15.003Z the.borg.com su - m:WR-ID47 - BOM'su root' failed for borg on /dev/pts/7"
     if ecs_compatibility?
       expect(match).to include("timestamp" => "2030-10-11T22:14:15.003Z")
+      expect(match).to include("system" => { "syslog" =>  hash_including("msgid" => 'm:WR-ID47') })
     else
       expect(match).to include("syslog5424_ts" => "2030-10-11T22:14:15.003Z")
+      expect(match).to include("syslog5424_msgid" => "m:WR-ID47")
+    end
+  end
+
+  it 'matches micro-second precision timestamp and structured-data' do
+    message = "<34>1 2012-12-19T01:45:54.001234Z rufus - - - [meta sequenceId=10] BOMStack unit 3 Power supply 2 is down"
+    match = grok_match pattern, message
+    p match
+    if ecs_compatibility?
+      expect(match).to include("timestamp" => "2012-12-19T01:45:54.001234Z")
+      expect(match).to include("system" => { "syslog" =>  hash_including("structured_data" => '[meta sequenceId=10]') })
+      expect(match).to include("message" => [message, "BOMStack unit 3 Power supply 2 is down"])
+
+      expect(match.keys).to_not include("process")
+    else
+      expect(match).to include("syslog5424_ts" => "2012-12-19T01:45:54.001234Z")
+      expect(match).to include("syslog5424_sd" => "[meta sequenceId=10]")
+      expect(match).to include("syslog5424_msg" => "BOMStack unit 3 Power supply 2 is down")
+    end
+  end
+
+  it 'matches more structured-data' do
+    sd = '[exampleSDID@32473 iut="3" eventSource="Application" eventID="1011"][examplePriority@32473 class="high"]'
+    message = "<34>1 2012-12-19T01:45:54.001234+11:30 rufus - - - #{sd} [down]"
+    match = grok_match pattern, message
+    p match
+    if ecs_compatibility?
+      expect(match).to include("system" => { "syslog" =>  hash_including("structured_data" => sd) })
+      expect(match).to include("message" => [message, "[down]"])
+    else
+      expect(match).to include("syslog5424_sd" => sd)
+      expect(match).to include("syslog5424_msg" => "[down]")
     end
   end
 
