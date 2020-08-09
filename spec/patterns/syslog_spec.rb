@@ -140,6 +140,22 @@ describe_pattern "SYSLOG5424LINE", ['legacy', 'ecs-v1'] do
       expect(match).to include("syslog5424_ts" => "2016-12-31T23:59:60-04:00")
     end
   end
+
+  it 'matches milli-second precision timestamp' do
+    match = grok_match pattern, "<34>1 2003-08-24T05:14:15.123-07:00 the.borg.com su - ID47 - BOM'su root' failed for borg on /dev/pts/7"
+    if ecs_compatibility?
+      expect(match).to include("timestamp" => "2003-08-24T05:14:15.123-07:00")
+    else
+      expect(match).to include("syslog5424_ts" => "2003-08-24T05:14:15.123-07:00")
+    end
+  end
+
+  it 'matches milli-second precision timestamp (Z)' do
+    match = grok_match pattern, "<34>1 2030-10-11T22:14:15.003Z the.borg.com su - ID47 - BOM'su root' failed for borg on /dev/pts/7"
+    if ecs_compatibility?
+      expect(match).to include("timestamp" => "2030-10-11T22:14:15.003Z")
+    else
+      expect(match).to include("syslog5424_ts" => "2030-10-11T22:14:15.003Z")
     end
   end
 
