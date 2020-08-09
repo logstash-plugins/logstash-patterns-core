@@ -168,7 +168,7 @@ describe_pattern "SYSLOG5424LINE", ['legacy', 'ecs-v1'] do
     match = grok_match pattern, "<34>1 2030-10-11T22:14:15.003Z the.borg.com su - m:WR-ID47 - BOM'su root' failed for borg on /dev/pts/7"
     if ecs_compatibility?
       expect(match).to include("timestamp" => "2030-10-11T22:14:15.003Z")
-      expect(match).to include("system" => { "syslog" =>  hash_including("msgid" => 'm:WR-ID47') })
+      expect(match).to include("event" => { "code" => 'm:WR-ID47' })
     else
       expect(match).to include("syslog5424_ts" => "2030-10-11T22:14:15.003Z")
       expect(match).to include("syslog5424_msgid" => "m:WR-ID47")
@@ -178,13 +178,13 @@ describe_pattern "SYSLOG5424LINE", ['legacy', 'ecs-v1'] do
   it 'matches micro-second precision timestamp and structured-data' do
     message = "<34>1 2012-12-19T01:45:54.001234Z rufus - - - [meta sequenceId=10] BOMStack unit 3 Power supply 2 is down"
     match = grok_match pattern, message
-    p match
     if ecs_compatibility?
       expect(match).to include("timestamp" => "2012-12-19T01:45:54.001234Z")
       expect(match).to include("system" => { "syslog" =>  hash_including("structured_data" => '[meta sequenceId=10]') })
       expect(match).to include("message" => [message, "BOMStack unit 3 Power supply 2 is down"])
 
-      expect(match.keys).to_not include("process")
+      expect(match.keys).to_not include("process") # process.name
+      expect(match.keys).to_not include("event") # event.code
     else
       expect(match).to include("syslog5424_ts" => "2012-12-19T01:45:54.001234Z")
       expect(match).to include("syslog5424_sd" => "[meta sequenceId=10]")
@@ -196,7 +196,6 @@ describe_pattern "SYSLOG5424LINE", ['legacy', 'ecs-v1'] do
     sd = '[exampleSDID@32473 iut="3" eventSource="Application" eventID="1011"][examplePriority@32473 class="high"]'
     message = "<34>1 2012-12-19T01:45:54.001234+11:30 rufus - - - #{sd} [down]"
     match = grok_match pattern, message
-    p match
     if ecs_compatibility?
       expect(match).to include("system" => { "syslog" =>  hash_including("structured_data" => sd) })
       expect(match).to include("message" => [message, "[down]"])
