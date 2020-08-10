@@ -1,7 +1,8 @@
 ## 4.2.0
   - Fix: Java stack trace's JAVAFILE to better match generated names
   - Fix: match Information/INFORMATION in LOGLEVEL [#274](https://github.com/logstash-plugins/logstash-patterns-core/pull/274)
-  - Fix: NAGIOS TIMEPERIOD unknown (from/to) field matching [#275](https://github.com/logstash-plugins/logstash-patterns-core/pull/275) 
+  - Fix: NAGIOS TIMEPERIOD unknown (from/to) field matching [#275](https://github.com/logstash-plugins/logstash-patterns-core/pull/275)
+  - Fix: HTTPD access log parse failure on missing response [#282](https://github.com/logstash-plugins/logstash-patterns-core/pull/282) 
 
 ## 4.1.2
   - Fix some documentation issues
