@@ -2,8 +2,8 @@ HTTPDUSER %{EMAILADDRESS}|%{USER}
 HTTPDERROR_DATE %{DAY} %{MONTH} %{MONTHDAY} %{TIME} %{YEAR}
 
 # Log formats
-HTTPD_COMMONLOG %{IPORHOST:clientip} (?:-|%{HTTPDUSER:ident}) (?:-|%{HTTPDUSER:auth}) \[%{HTTPDATE:timestamp}\] "(?:%{WORD:verb} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?|%{DATA:rawrequest})" (?:-|%{NUMBER:response}) (?:-|%{NUMBER:bytes})
-HTTPD_COMBINEDLOG %{HTTPD_COMMONLOG} "(?:-|%{DATA:referrer})" "(?:-|%{DATA:agent})"
+HTTPD_COMMONLOG %{IPORHOST:clientip} %{HTTPDUSER:ident} %{HTTPDUSER:auth} \[%{HTTPDATE:timestamp}\] "(?:%{WORD:verb} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?|%{DATA:rawrequest})" (?:%{NUMBER:response}|-) (?:%{NUMBER:bytes}|-)
+HTTPD_COMBINEDLOG %{HTTPD_COMMONLOG} %{QS:referrer} %{QS:agent}
 
 # Error logs
 HTTPD20_ERRORLOG \[%{HTTPDERROR_DATE:timestamp}\] \[%{LOGLEVEL:loglevel}\] (?:\[client %{IPORHOST:clientip}\] ){0,1}%{GREEDYDATA:message}
