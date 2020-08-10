@@ -92,7 +92,7 @@ describe_pattern "NAGIOSLOGLINE - CURRENT SERVICE STATE", [ 'legacy', 'ecs-v1' ]
     end
   end
 
-  it "generates the nagios_hostname field" do
+  it "generates the hostname field" do
     if ecs_compatibility?
       expect(grok).to include("host" => { "hostname" => "nagioshost" })
     else
@@ -100,9 +100,9 @@ describe_pattern "NAGIOSLOGLINE - CURRENT SERVICE STATE", [ 'legacy', 'ecs-v1' ]
     end
   end
 
-  it "generates the nagios_service field" do
+  it "generates the service field" do
     if ecs_compatibility?
-      expect(grok).to include("nagios" => hash_including("log" => hash_including("service" => "SSH")))
+      expect(grok).to include("service" => hash_including("name" => "SSH"))
     else
       expect(grok).to include("nagios_service" => "SSH")
     end
@@ -143,12 +143,12 @@ describe_pattern "NAGIOSLOGLINE - CURRENT SERVICE STATE", [ 'legacy', 'ecs-v1' ]
       if ecs_compatibility?
         expect(grok).to include(
           "host" => { "hostname" => "prod-virtual-ESz06" },
+          "service" => { "name" => "check_vmfs_prod-PvDC2" },
           "nagios" => { "log" => {
               "type" => "CURRENT SERVICE STATE",
               "status" => "CRITICAL",
               "state_type" => "HARD",
-              "attempt" => 3,
-              "service" => "check_vmfs_prod-PvDC2"
+              "attempt" => 3
           }},
           "message" => [message, "CRITICAL - /vmfs/volumes/prod-vsRoot - total: 8191.75 Gb - used: 7859.84 Gb (95%)- free: 331.90 Gb (5%)"]
         )
@@ -187,9 +187,9 @@ describe_pattern "NAGIOSLOGLINE - TIMEPERIOD TRANSITION", [ 'legacy', 'ecs-v1' ]
     expect(grok).to include("nagios_epoch" => "1427925600") unless ecs_compatibility?
   end
 
-  it "generates the nagios_service field" do
+  it "generates the service field" do
     if ecs_compatibility?
-      expect(grok).to include("nagios" => hash_including("log" => hash_including("service" => '24X7')))
+      expect(grok).to include("service" => hash_including("name" => '24X7'))
     else
       expect(grok).to include("nagios_service" => "24X7")
     end
@@ -240,7 +240,7 @@ describe_pattern "NAGIOSLOGLINE - SERVICE ALERT", [ 'legacy', 'ecs-v1' ] do
     end
   end
 
-  it "generates the nagios_hostname field" do
+  it "generates the hostname field" do
     if ecs_compatibility?
       expect(grok).to include("host" => { "hostname" => "varnish" })
     else
@@ -248,9 +248,9 @@ describe_pattern "NAGIOSLOGLINE - SERVICE ALERT", [ 'legacy', 'ecs-v1' ] do
     end
   end
 
-  it "generates the nagios_service field" do
+  it "generates the service field" do
     if ecs_compatibility?
-      expect(grok).to include("nagios" => hash_including("log" => hash_including("service" => 'Varnish Backend Connections')))
+      expect(grok).to include("service" => hash_including("name" => 'Varnish Backend Connections'))
     else
       expect(grok).to include("nagios_service" => "Varnish Backend Connections")
     end
@@ -329,7 +329,7 @@ describe_pattern "NAGIOSLOGLINE - SERVICE NOTIFICATION", [ 'legacy', 'ecs-v1' ] 
     end
   end
 
-  it "generates the nagios_hostname field" do
+  it "generates the hostname field" do
     if ecs_compatibility?
       expect(grok).to include("host" => { "hostname" => "varnish" })
     else
@@ -337,9 +337,9 @@ describe_pattern "NAGIOSLOGLINE - SERVICE NOTIFICATION", [ 'legacy', 'ecs-v1' ] 
     end
   end
 
-  it "generates the nagios_service field" do
+  it "generates the service field" do
     if ecs_compatibility?
-      expect(grok).to include("nagios" => hash_including("log" => hash_including("service" => 'Varnish Backend Connections')))
+      expect(grok).to include("service" => hash_including("name" => 'Varnish Backend Connections'))
     else
       expect(grok).to include("nagios_service" => "Varnish Backend Connections")
     end
