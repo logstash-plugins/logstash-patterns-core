@@ -25,7 +25,7 @@ describe "HTTPD_COMBINEDLOG" do
     end
 
     it "does not capture 'null' fields" do
-      expect(grok.keys).to_not include('ident', 'auth')
+      expect(grok).to include('auth' => '-', 'ident' => '-')
     end
 
   end
