@@ -28,7 +28,15 @@ describe_pattern "BIND9", ['legacy', 'ecs-v1'] do
     end
   end
 
-  context 'with client memory address (Bind 9.11)' do
+  context 'with client memory address (since Bind 9.11)' do
+    # logging format is the same <= 9.16, but if using a separate query-log all options need to be enabled :
+    #   channel query.log {
+    #     file "/var/log/named/query.log";
+    #     severity debug 3;
+    #     //print-time YES; // @timestamp
+    #     //print-category YES; // queries:
+    #     //print-severity YES; // info:
+    #   };
 
     let(:message) do # client @0x7f64500020ef - memory address of the data structure representing the client
       '30-Jun-2018 15:50:00.999 queries: info: client @0x7f64500020ef 192.168.10.48#60061 (91.2.10.170.in-addr.internal): query: 91.2.10.170.in-addr.internal IN PTR + (192.168.2.2)'
@@ -54,4 +62,17 @@ describe_pattern "BIND9", ['legacy', 'ecs-v1'] do
 
   end
 
+end
+
+describe_pattern "BIND9_QUERYLOGBASE", ['ecs-v1'] do
+  let(:message) do
+    'client @0x7f85b4026ed0 127.0.0.1#42520 (ci.elastic.co): query: ci.elastic.co IN A +E(0)K (35.193.103.164)'
+  end
+
+  it 'matches' do
+    should include("client" => { "ip" => "127.0.0.1", "port" => 42520 })
+    should include("dns" => { "question" => { "name" => "ci.elastic.co", "type" => 'A', "class" => 'IN' }})
+    should include("bind" => { "log" => { "question" => hash_including("flags" => '+E(0)K') }})
+    should include("server" => { "ip" => "35.193.103.164" })
+  end
 end
