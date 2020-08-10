@@ -40,7 +40,7 @@ describe_pattern "NAGIOSLOGLINE - CURRENT HOST STATE", [ 'legacy', 'ecs-v1' ] do
 
   it "generates the nagios_state field" do
     if ecs_compatibility?
-      expect(grok).to include("nagios" => hash_including("log" => hash_including("status" => "UP")))
+      expect(grok).to include("service" => hash_including("state" => "UP"))
     else
       expect(grok).to include("nagios_state" => "UP")
     end
@@ -110,7 +110,7 @@ describe_pattern "NAGIOSLOGLINE - CURRENT SERVICE STATE", [ 'legacy', 'ecs-v1' ]
 
   it "generates the nagios_state field" do
     if ecs_compatibility?
-      expect(grok).to include("nagios" => hash_including("log" => hash_including("status" => "OK")))
+      expect(grok).to include("service" => hash_including("state" => "OK"))
     else
       expect(grok).to include("nagios_state" => "OK")
     end
@@ -143,10 +143,9 @@ describe_pattern "NAGIOSLOGLINE - CURRENT SERVICE STATE", [ 'legacy', 'ecs-v1' ]
       if ecs_compatibility?
         expect(grok).to include(
           "host" => { "hostname" => "prod-virtual-ESz06" },
-          "service" => { "name" => "check_vmfs_prod-PvDC2" },
+          "service" => { "name" => "check_vmfs_prod-PvDC2", "state" => 'CRITICAL' },
           "nagios" => { "log" => {
               "type" => "CURRENT SERVICE STATE",
-              "status" => "CRITICAL",
               "state_type" => "HARD",
               "attempt" => 3
           }},
@@ -258,7 +257,7 @@ describe_pattern "NAGIOSLOGLINE - SERVICE ALERT", [ 'legacy', 'ecs-v1' ] do
 
   it "generates the nagios_state field" do
     if ecs_compatibility?
-      expect(grok).to include("nagios" => hash_including("log" => hash_including("status" => "CRITICAL")))
+      expect(grok).to include("service" => hash_including("state" => "CRITICAL"))
     else
       expect(grok).to include("nagios_state" => "CRITICAL")
     end
@@ -347,7 +346,7 @@ describe_pattern "NAGIOSLOGLINE - SERVICE NOTIFICATION", [ 'legacy', 'ecs-v1' ] 
 
   it "generates the nagios_state field" do
     if ecs_compatibility?
-      expect(grok).to include("nagios" => hash_including("log" => hash_including("status" => "CRITICAL")))
+      expect(grok).to include("service" => hash_including("state" => "CRITICAL"))
     else
       expect(grok).to include("nagios_state" => "CRITICAL")
     end
