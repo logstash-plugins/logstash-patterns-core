@@ -2,8 +2,8 @@ HTTPDUSER %{EMAILADDRESS}|%{USER}
 HTTPDERROR_DATE %{DAY} %{MONTH} %{MONTHDAY} %{TIME} %{YEAR}
 
 # Log formats
-HTTPD_COMMONLOG %{IPORHOST:[source][address]} %{HTTPDUSER:[apache][access][user][identity]} %{HTTPDUSER:[user][name]} \[%{HTTPDATE:timestamp}\] "(?:%{WORD:[http][request][method]} %{NOTSPACE:[url][original]}(?: HTTP/%{NUMBER:[http][version]})?|%{DATA})" (?:-|%{INT:[http][response][status_code]:int}) (?:-|%{INT:[http][response][body][bytes]:int})
-HTTPD_COMBINEDLOG %{HTTPD_COMMONLOG} %{QS:[http][request][referrer]} %{QS:[user_agent][original]}
+HTTPD_COMMONLOG %{IPORHOST:[source][address]} (?:-|%{HTTPDUSER:[apache][access][user][identity]}) (?:-|%{HTTPDUSER:[user][name]}) \[%{HTTPDATE:timestamp}\] "(?:%{WORD:[http][request][method]} %{NOTSPACE:[url][original]}(?: HTTP/%{NUMBER:[http][version]})?|%{DATA})" (?:-|%{INT:[http][response][status_code]:int}) (?:-|%{INT:[http][response][body][bytes]:int})
+HTTPD_COMBINEDLOG %{HTTPD_COMMONLOG} "(?:-|%{DATA:[http][request][referrer]})" "(?:-|%{DATA:[user_agent][original]})"
 
 # Error logs
 HTTPD20_ERRORLOG \[%{HTTPDERROR_DATE:timestamp}\] \[%{LOGLEVEL:[log][level]}\] (?:\[client %{IPORHOST:[source][address]}\] ){0,1}%{GREEDYDATA:message}
