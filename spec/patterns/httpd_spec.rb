@@ -110,7 +110,7 @@ describe_pattern "HTTPD_ERRORLOG", ['legacy', 'ecs-v1'] do
         expect(grok).to include("error" => { "code" => 'AH01075' })
         expect(grok).to include("apache" => { "error" => {
             "module" => "proxy_fcgi",
-            "proxy" => { "error_code" => '70008', "message" => "Partial results are valid but processing is incomplete" }}
+            "proxy" => { "error" => { "code" => '70008', "message" => "Partial results are valid but processing is incomplete" }}}
         })
       else
         expect(grok).to include(
