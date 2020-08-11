@@ -7,7 +7,7 @@ HTTPD_COMBINEDLOG %{HTTPD_COMMONLOG} "(?:-|%{DATA:[http][request][referrer]})" "
 
 # Error logs
 HTTPD20_ERRORLOG \[%{HTTPDERROR_DATE:timestamp}\] \[%{LOGLEVEL:[log][level]}\] (?:\[client %{IPORHOST:[source][address]}\] ){0,1}%{GREEDYDATA:message}
-HTTPD24_ERRORLOG \[%{HTTPDERROR_DATE:timestamp}\] \[%{WORD:[apache][error][module]}:%{LOGLEVEL:[log][level]}\] \[pid %{POSINT:[process][pid]:int}(:tid %{INT:[process][thread][id]:int})?\]( \(%{POSINT:[apache][error][proxy][error_code]?}\)%{DATA:[apache][error][proxy][message]}:)?( \[client %{IPORHOST:[source][address]}:%{POSINT:[source][port]:int}\])?( %{DATA:[apache][error][error_code]}:)? %{GREEDYDATA:message}
+HTTPD24_ERRORLOG \[%{HTTPDERROR_DATE:timestamp}\] \[%{WORD:[apache][error][module]}:%{LOGLEVEL:[log][level]}\] \[pid %{POSINT:[process][pid]:int}(:tid %{INT:[process][thread][id]:int})?\](:? \(%{POSINT:[apache][error][proxy][error_code]?}\)%{DATA:[apache][error][proxy][message]}:)?(:? \[client %{IPORHOST:[source][address]}:%{POSINT:[source][port]:int}\])?(:? %{DATA:[error][code]}:)? %{GREEDYDATA:message}
 HTTPD_ERRORLOG %{HTTPD20_ERRORLOG}|%{HTTPD24_ERRORLOG}
 
 # Deprecated
