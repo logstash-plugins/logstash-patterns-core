@@ -4,12 +4,15 @@ require "logstash/patterns/core"
 
 describe "HTTPD_COMBINEDLOG" do
 
-  context "HTTPD_COMBINEDLOG", "Typical test case" do
+  let(:pattern) { 'HTTPD_COMBINEDLOG' }
+  let(:grok) { grok_match(pattern, message) }
 
-    let(:value) { '83.149.9.216 - - [24/Feb/2015:23:13:42 +0000] "GET /presentations/logstash-monitorama-2013/images/kibana-search.png HTTP/1.1" 200 203023 "http://semicomplete.com/presentations/logstash-monitorama-2013/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36"'}
+  context "typical test case" do
 
-    it "generates the clientip field" do
-      expect(grok_match(subject, value)).to include(
+    let(:message) { '83.149.9.216 - - [24/Feb/2015:23:13:42 +0000] "GET /presentations/logstash-monitorama-2013/images/kibana-search.png HTTP/1.1" 200 203023 "http://semicomplete.com/presentations/logstash-monitorama-2013/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36"'}
+
+    it "matches" do
+      expect(grok).to include(
         'clientip' => '83.149.9.216',
         'verb' => 'GET',
         'request' => '/presentations/logstash-monitorama-2013/images/kibana-search.png',
@@ -21,14 +24,32 @@ describe "HTTPD_COMBINEDLOG" do
       )
     end
 
+    it "does not capture 'null' fields" do
+      expect(grok).to include('auth' => '-', 'ident' => '-')
+    end
+
   end
 
-  context "HTTPD_COMBINEDLOG", "Email address in auth field" do
+  context "email address in auth field" do
 
-    let(:value) { '10.0.0.1 - username@example.com [07/Apr/2016:18:42:24 +0000] "GET /bar/foo/users/1/username%40example.com/authenticate?token=blargh&client_id=15 HTTP/1.1" 400 75 "" "Mozilla/5.0 (iPad; CPU OS 9_3_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13E238 Safari/601.1"'}
+    let(:message) { '10.0.0.1 - username@example.com [07/Apr/2016:18:42:24 +0000] "GET /bar/foo/users/1/username%40example.com/authenticate?token=blargh&client_id=15 HTTP/1.1" 400 75 "" "Mozilla/5.0 (iPad; CPU OS 9_3_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13E238 Safari/601.1"'}
 
-    it "generates the clientip field" do
-      expect(grok_match(subject, value)).to include("auth" => "username@example.com")
+    it "gets captured" do
+      expect(grok).to include("auth" => "username@example.com")
+    end
+
+  end
+
+  context 'sample OPTIONS line' do
+
+    let(:message) { '83.149.9.216 - a.user [11/Jan/2020:23:05:27 +0100] "OPTIONS /remote.php/ HTTP/1.1" - 7908 "-" "monitoring-client (v2.2)"' }
+
+    it 'matches' do
+      expect(grok).to include("verb" => "OPTIONS", 'request' => '/remote.php/', 'httpversion' => '1.1', "bytes" => '7908')
+    end
+
+    it 'does not capture optional response code' do
+      expect(grok.keys).to_not include("response")
     end
 
   end
@@ -37,13 +58,16 @@ end
 
 describe "HTTPD_ERRORLOG" do
 
-  context "HTTPD_ERRORLOG", "matches a full httpd 2.4 message" do
-    let(:value) {
+  let(:pattern) { 'HTTPD_ERRORLOG' }
+  let(:grok) { grok_match(pattern, message) }
+
+  context "matches a full httpd 2.4 message" do
+    let(:message) do
       "[Mon Aug 31 09:30:48.958285 2015] [proxy_fcgi:error] [pid 28787:tid 140169587934976] (70008)Partial results are valid but processing is incomplete: [client 58.13.45.166:59307] AH01075: Error dispatching request to : (reading input brigade), referer: http://example.com/index.php?id_product=11&controller=product"
-    }
+    end
     it "generates the fields" do
 
-      expect(grok_match(subject, value)).to include(
+      expect(grok).to include(
         'timestamp' => 'Mon Aug 31 09:30:48.958285 2015',
         'module' => 'proxy_fcgi',
         'loglevel' => 'error',
@@ -54,26 +78,26 @@ describe "HTTPD_ERRORLOG" do
         'clientip' => '58.13.45.166',
         'clientport' => '59307',
         'errorcode' => 'AH01075',
-        'message' => [ value, 'Error dispatching request to : (reading input brigade), referer: http://example.com/index.php?id_product=11&controller=product' ],
+        'message' => [ message, 'Error dispatching request to : (reading input brigade), referer: http://example.com/index.php?id_product=11&controller=product' ],
       )
     end
   end
 
   context "HTTPD_ERRORLOG", "matches a httpd 2.2 log message" do
-    let(:value) {
+    let(:message) do
       "[Mon Aug 31 16:27:04 2015] [error] [client 10.17.42.3] Premature end of script headers: example.com"
-    }
+    end
     it "generates the fields" do
-      expect(grok_match(subject, value)).to include(
+      expect(grok).to include(
         'timestamp' => 'Mon Aug 31 16:27:04 2015',
         'loglevel' => 'error',
         'clientip' => '10.17.42.3',
-        'message' => [ value, 'Premature end of script headers: example.com' ]
+        'message' => [ message, 'Premature end of script headers: example.com' ]
       )
     end
   end
 
-  context "HTTPD_ERRORLOG", "matches a short httpd 2.4 message" do
+  context "HTTPD_ERRORLOG", "a short httpd 2.4 message" do
     let(:value1) {
       "[Mon Aug 31 07:15:38.664897 2015] [proxy_fcgi:error] [pid 28786:tid 140169629898496] [client 81.139.1.34:52042] AH01071: Got error 'Primary script unknown\n'"
     }
@@ -107,7 +131,7 @@ describe "HTTPD_ERRORLOG" do
     end
   end
 
-  context "HTTPD_ERRORLOG", "matches an httpd 2.4 restart" do
+  context "HTTPD_ERRORLOG", "a httpd 2.4 restart message" do
     let(:value1) {
       "[Mon Aug 31 06:29:47.406518 2015] [mpm_event:notice] [pid 24968:tid 140169861986176] AH00489: Apache/2.4.16 (Ubuntu) configured -- resuming normal operations"
     }
@@ -139,5 +163,22 @@ describe "HTTPD_ERRORLOG" do
     end
   end
 
+  context 'a debug message' do
+    let(:message) do
+      '[Fri Feb 01 22:03:08.319124 2019] [authz_core:debug] [pid 9:tid 140597881775872] mod_authz_core.c(820): [client 172.17.0.1:50752] AH01626: authorization result of <RequireAny>: granted'
+    end
+
+    it 'matches imperfectly (legacy)' do
+      expect(grok).to include({
+                                  "timestamp"=>"Fri Feb 01 22:03:08.319124 2019",
+                                  "module"=>"authz_core",
+                                  "loglevel"=>"debug",
+                                  "pid"=>"9",
+                                  "tid"=>"140597881775872",
+                                  "errorcode"=>"mod_authz_core.c(820)",
+                                  "message"=>[message, "[client 172.17.0.1:50752] AH01626: authorization result of <RequireAny>: granted"]
+                              })
+    end
+  end
   
 end
