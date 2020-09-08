@@ -219,12 +219,3 @@ describe_pattern "MONGO_SLOWQUERY", ['legacy', 'ecs-v1'] do
   end
 
 end
-
-
-# context 'another log' do
-#
-#   let(:message) do
-#
-#   end
-#
-# end
