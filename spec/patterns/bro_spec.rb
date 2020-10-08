@@ -2,41 +2,34 @@
 require "spec_helper"
 require "logstash/patterns/core"
 
-describe "HTTP" do
+describe_pattern "BRO_HTTP", ['legacy'] do
 
-  let(:value)   { "1432555199.633017	COpk6E3vkURP8QQNKl	192.168.9.35	55281	178.236.7.146	80	4	POST	www.amazon.it	/xa/dealcontent/v2/GetDeals?nocache=1432555199326	http://www.amazon.it/	Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36	223	1859	200	OK	-	-	-	(empty)	-	-	-	FrLEcY3AUPKdcYGf29	text/plain	FOJpbGzIMh9syPxH8	text/plain" }
-  let(:grok)    { grok_match(subject, value) }
-
-  it "a pattern pass the grok expression" do
-    expect(grok).to pass
+  let(:message) do
+    "1432555199.633017	COpk6E3vkURP8QQNKl	192.168.9.35	55281	178.236.7.146	80	4	POST	www.amazon.it	/xa/dealcontent/v2/GetDeals?nocache=1432555199326	http://www.amazon.it/	Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36	223	1859	200	OK	-	-	-	(empty)	-	-	-	FrLEcY3AUPKdcYGf29	text/plain	FOJpbGzIMh9syPxH8	text/plain"
   end
 
   it "matches a simple message" do
-    expect(subject).to match(value)
+    expect(pattern).to match(message)
   end
   
   it "generates the ts field" do
-    expect(grok).to include("ts" => "1432555199.633017")
+    if ecs_compatibility?
+      expect(grok).to include("timestamp" => "1432555199.633017")
+    else
+      expect(grok).to include("ts" => "1432555199.633017")
+    end
   end
 
   it "generates the uid field" do
     expect(grok).to include("uid" => "COpk6E3vkURP8QQNKl")
   end
 
-  it "generates the orig_h field" do
-    expect(grok).to include("orig_h" => "192.168.9.35")
+  it "generates the orig_ fields" do
+    expect(grok).to include("orig_h" => "192.168.9.35", "orig_p" => "55281")
   end
 
-  it "generates the orig_p field" do
-    expect(grok).to include("orig_p" => "55281")
-  end
-
-  it "generates the resp_h field" do
-    expect(grok).to include("resp_h" => "178.236.7.146")
-  end
-
-  it "generates the resp_p field" do
-    expect(grok).to include("resp_p" => "80")
+  it "generates the resp_ fields" do
+    expect(grok).to include("resp_h" => "178.236.7.146", "resp_p" => "80")
   end
 
   it "generates the trans_depth field" do
@@ -63,28 +56,17 @@ describe "HTTP" do
     expect(grok).to include("user_agent" => "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36")
   end
 
-  it "generates the request_body_len field" do
+  it "generates the request_body_len/response_body_len fields" do
     expect(grok).to include("request_body_len" => "223")
-  end
-
-  it "generates the response_body_len field" do
     expect(grok).to include("response_body_len" => "1859")
   end
 
-  it "generates the status_code field" do
-    expect(grok).to include("status_code" => "200")
+  it "generates the status_ fields" do
+    expect(grok).to include("status_code" => "200", "status_msg" => "OK")
   end
 
-  it "generates the status_msg field" do
-    expect(grok).to include("status_msg" => "OK")
-  end
-
-  it "generates the info_code field" do
-    expect(grok).to include("info_code" => "-")
-  end
-
-  it "generates the info_msg field" do
-    expect(grok).to include("info_msg" => "-")
+  it "generates the info_ fields" do
+    expect(grok).to include("info_code" => "-", "info_msg" => "-")
   end
 
   it "generates the filename field" do
@@ -95,11 +77,8 @@ describe "HTTP" do
     expect(grok).to include("bro_tags" => "(empty)")
   end
 
-  it "generates the username field" do
+  it "generates the username/password fields" do
     expect(grok).to include("username" => "-")
-  end
-
-  it "generates the password field" do
     expect(grok).to include("password" => "-")
   end
 
@@ -107,19 +86,13 @@ describe "HTTP" do
     expect(grok).to include("proxied" => "-")
   end
 
-  it "generates the orig_fuids field" do
+  it "generates the orig_ fields" do
     expect(grok).to include("orig_fuids" => "FrLEcY3AUPKdcYGf29")
-  end
-
-  it "generates the orig_mime_types field" do
     expect(grok).to include("orig_mime_types" => "text/plain")
   end
 
-  it "generates the resp_fuids field" do
+  it "generates the resp_ fields" do
     expect(grok).to include("resp_fuids" => "FOJpbGzIMh9syPxH8")
-  end
-
-  it "generates the resp_mime_types field" do
     expect(grok).to include("resp_mime_types" => "text/plain")
   end
 
