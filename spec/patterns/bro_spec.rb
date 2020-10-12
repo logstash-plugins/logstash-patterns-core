@@ -366,14 +366,14 @@ end
 describe_pattern 'BRO_CONN', ['legacy', 'ecs-v1'] do
 
   let(:message) do
-    "1541350796.901974	C54zqz17PXuBv3HkLg	192.168.0.26	54855	54.85.115.89	443	tcp	ssl	0.153642	1147	589	SF	T	F0	ShADadfF	7	1439	8	921	(empty)"
+    "1541350796.901974	C54zqz17PXuBv3HkLg	192.168.0.26	54855	54.85.115.89	443	tcp	ssl	0.153642	1147	589	SF	T	0	ShADadfF	7	1439	8	921	(empty)"
   end
 
   it 'matches' do
     if ecs_compatibility?
       expect(grok).to include("timestamp"=>"1541350796.901974")
       expect(grok).to include("zeek" => hash_including("session_id" => "C54zqz17PXuBv3HkLg"))
-      expect(grok).to include("network"=>{"protocol"=>"ssl", "transport"=>"tcp"})
+      expect(grok).to include("network"=>{"transport"=>"tcp", "protocol"=>"ssl"})
       expect(grok).to include("source"=>{
           "ip"=>"192.168.0.26", "port"=>54855,
           "packets"=>7, "bytes"=>1439
@@ -408,6 +408,39 @@ describe_pattern 'BRO_CONN', ['legacy', 'ecs-v1'] do
                           "resp_pkts"=>"8", "resp_ip_bytes"=>"921",
                           "tunnel_parents"=>"(empty)",
                           )
+    end
+  end
+
+  context 'updated log format' do # up to version 3.3
+    let(:message) do
+      "1300475168.853899	C4J4Th3PJpwUYZZ6gc	141.142.220.118	43927	141.142.2.2	53	udp	dns	0.000435	38	89	SF	-	-	0	Dd	1	66	1	117	(empty)"
+    end
+
+    it 'matches' do
+      if ecs_compatibility?
+        expect(grok).to include("zeek" => hash_including("session_id" => "C4J4Th3PJpwUYZZ6gc"))
+        expect(grok).to include("network"=>{"transport"=>"udp", "protocol"=>"dns"})
+        expect(grok).to include("source"=>{
+            "ip"=>"141.142.220.118", "port"=>43927,
+            "packets"=>1, "bytes"=>66
+        })
+        expect(grok).to include("destination"=>{
+            "ip"=>"141.142.2.2", "port"=>53,
+            "packets"=>1, "bytes"=>117
+        })
+        expect(grok).to include("zeek" => hash_including(
+            "connection" => {
+                "duration"=>0.000435,
+                "orig_bytes"=>38, "resp_bytes"=>89,
+                "state"=>"SF",
+                "missed_bytes"=>0,
+                "history"=>"Dd",
+            }
+        ))
+      else
+        expect(grok).to include("ts"=>"1300475168.853899")
+        expect(grok).to include("conn_state"=>"SF\t-") # matches incorrectly
+      end
     end
   end
 
