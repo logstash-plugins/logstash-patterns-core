@@ -446,3 +446,32 @@ describe_pattern 'BRO_CONN', ['legacy', 'ecs-v1'] do
 
 end
 
+describe_pattern 'ZEEK_CONN', ['ecs-v1'] do
+
+  let(:message) do
+    "1602165198.216970	CfVl4yNLJ4U3ptL12	192.168.122.59	47340	143.204.201.102	443	tcp	-	115.669583	0	6238	SHR	T	F	0	^hCadcCfA	1	52	21	5091	-"
+  end
+
+  it 'matches' do
+    expect(grok).to include("timestamp" => "1602165198.216970")
+    expect(grok).to include("zeek" => hash_including("session_id" => "CfVl4yNLJ4U3ptL12"))
+    expect(grok).to include("network" => { "transport" => "tcp" })
+    expect(grok).to include("source" => {"ip"=>"192.168.122.59", "port"=>47340, "packets"=>1, "bytes"=>52})
+    expect(grok).to include("destination"=>{ "ip"=>"143.204.201.102", "port"=>443, "packets"=>21, "bytes"=>5091})
+
+    expect(grok).to include("zeek"=>{
+        "connection"=>{
+            "duration"=>115.669583,
+            "orig_bytes"=>0,
+            "resp_bytes"=>6238,
+            "state"=>"SHR",
+            "local_orig"=>"T",
+            "local_resp"=>"F",
+            "missed_bytes"=>0,
+            "history"=>"^hCadcCfA"
+        },
+        "session_id"=>"CfVl4yNLJ4U3ptL12"
+    })
+  end
+
+end
