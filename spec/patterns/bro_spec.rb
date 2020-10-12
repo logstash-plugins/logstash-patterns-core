@@ -362,3 +362,54 @@ describe_pattern "ZEEK_DNS", ['ecs-v1'] do
   end
 
 end
+
+describe_pattern 'BRO_CONN', ['legacy', 'ecs-v1'] do
+
+  let(:message) do
+    "1541350796.901974	C54zqz17PXuBv3HkLg	192.168.0.26	54855	54.85.115.89	443	tcp	ssl	0.153642	1147	589	SF	T	F0	ShADadfF	7	1439	8	921	(empty)"
+  end
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(grok).to include("timestamp"=>"1541350796.901974")
+      expect(grok).to include("zeek" => hash_including("session_id" => "C54zqz17PXuBv3HkLg"))
+      expect(grok).to include("network"=>{"protocol"=>"ssl", "transport"=>"tcp"})
+      expect(grok).to include("source"=>{
+          "ip"=>"192.168.0.26", "port"=>54855,
+          "packets"=>7, "bytes"=>1439
+      })
+      expect(grok).to include("destination"=>{
+          "ip"=>"54.85.115.89", "port"=>443,
+          "packets"=>8, "bytes"=>921
+      })
+      expect(grok).to include("zeek" => hash_including(
+          "connection" => {
+              "duration"=>0.153642,
+              "orig_bytes"=>1147, "resp_bytes"=>589,
+              "state"=>"SF",
+              "local_orig"=>"T", "missed_bytes"=>0,
+              "history"=>"ShADadfF",
+          }
+      ))
+    else
+      expect(grok).to include(
+                          "ts"=>"1541350796.901974", "uid"=>"C54zqz17PXuBv3HkLg",
+                          "orig_h"=>"192.168.0.26", "orig_p"=>"54855",
+                          "resp_h" => "54.85.115.89", "resp_p"=>"443",
+                          "proto"=>"tcp",
+                          "service"=>"ssl",
+                          "duration"=>"0.153642",
+                          "orig_bytes"=>"1147", "resp_bytes"=>"589",
+                          "conn_state"=>"SF",
+                          "local_orig"=>"T",
+                          "missed_bytes"=>"0",
+                          "history"=>"ShADadfF",
+                          "orig_pkts"=>"7", "orig_ip_bytes"=>"1439",
+                          "resp_pkts"=>"8", "resp_ip_bytes"=>"921",
+                          "tunnel_parents"=>"(empty)",
+                          )
+    end
+  end
+
+end
+
