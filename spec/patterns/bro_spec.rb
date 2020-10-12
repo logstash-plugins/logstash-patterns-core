@@ -4,7 +4,7 @@ require "logstash/patterns/core"
 
 describe_pattern "BRO_HTTP", ['legacy', 'ecs-v1'] do
 
-  let(:message) do
+  let(:message) do # old BRO logging format
     "1432555199.633017	COpk6E3vkURP8QQNKl	192.168.9.35	55281	178.236.7.146	80	4	POST	www.amazon.it	/xa/dealcontent/v2/GetDeals?nocache=1432555199326	http://www.amazon.it/	Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36	223	1859	200	OK	-	-	-	(empty)	kares	-	-	FrLEcY3AUPKdcYGf29	text/plain	FOJpbGzIMh9syPxH8	text/plain"
   end
 
@@ -257,3 +257,52 @@ describe_pattern "ZEEK_HTTP", ['ecs-v1'] do
   end
 
 end
+
+describe_pattern 'BRO_DNS', ['legacy', 'ecs-v1'] do
+
+  let(:message) do # old BRO logging format
+    "1359565680.761790	UWkUyAuUGXf	192.168.6.10	53209	192.168.129.36	53	udp	41477	paypal.com	1	C_INTERNET	48	DNSKEY	0	NOERROR	F	F	T	F	1	-	-	F"
+  end
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(grok).to include("timestamp"=>"1359565680.761790")
+      expect(grok).to include("zeek" => hash_including("session_id"=>"UWkUyAuUGXf"))
+      expect(grok).to include("source" => { "ip"=>"192.168.6.10", "port"=>53209 }, "destination" => { "ip"=>"192.168.129.36", "port"=>53 })
+      expect(grok).to include("network" => { "transport"=>"udp" })
+      expect(grok).to include("dns" => {
+          "id" => 41477,
+          "question" => { "name" => "paypal.com", "type" => "DNSKEY" },
+          "response_code" => "NOERROR",
+      })
+      expect(grok['zeek']).to include("dns" => hash_including("qclass" => 1, "qclass_name" => "C_INTERNET"))
+      expect(grok['zeek']).to include("dns" => hash_including("qtype" => 48)) # beats compatibility
+      expect(grok['zeek']).to include("dns" => hash_including("rcode" => 0)) # beats compatibility
+      # TODO :bool type-casting would be nice
+      expect(grok['zeek']).to include("dns" => hash_including("AA"=>"F", "TC"=>"F", "RD"=>"T", "RA"=>"F"))
+      expect(grok['zeek']).to include("dns" => hash_including("Z" => "1")) # beats drops this field
+      expect(grok['zeek']).to include("dns" => hash_including("rejected" => "F"))
+      expect(grok['zeek']['dns'].keys).to_not include 'TTLs', 'answers'
+    else
+      expect(grok).to include(
+                          "ts"=>"1359565680.761790", "uid"=>"UWkUyAuUGXf",
+                          "orig_h"=>"192.168.6.10", "orig_p"=>"53209",
+                          "resp_h" => "192.168.129.36", "resp_p"=>"53",
+                          "proto"=>"udp",
+                          "trans_id"=>"41477",
+                          "query"=>"paypal.com",
+                          "qclass"=>"1", "qclass_name"=>"C_INTERNET",
+                          "qtype"=>"48", "qtype_name"=>"DNSKEY",
+                          "rcode"=>"0", "rcode_name"=>"NOERROR",
+                          "AA"=>"F", "TC"=>"F",
+                          "RD"=>"T", "RA"=>"F",
+                          "Z"=>"1",
+                          "answers"=>"-",
+                          "TTLs"=>"-",
+                          "rejected"=>"F",
+                          )
+    end
+  end
+
+end
+
