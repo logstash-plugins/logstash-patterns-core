@@ -266,10 +266,10 @@ describe_pattern 'BRO_DNS', ['legacy', 'ecs-v1'] do
 
   it 'matches' do
     if ecs_compatibility?
-      expect(grok).to include("timestamp"=>"1359565680.761790")
-      expect(grok).to include("zeek" => hash_including("session_id"=>"UWkUyAuUGXf"))
+      expect(grok).to include("timestamp" => "1359565680.761790")
+      expect(grok).to include("zeek" => hash_including("session_id" => "UWkUyAuUGXf"))
       expect(grok).to include("source" => { "ip"=>"192.168.6.10", "port"=>53209 }, "destination" => { "ip"=>"192.168.129.36", "port"=>53 })
-      expect(grok).to include("network" => { "transport"=>"udp" })
+      expect(grok).to include("network" => { "transport" => "udp" })
       expect(grok).to include("dns" => {
           "id" => 41477,
           "question" => { "name" => "paypal.com", "type" => "DNSKEY" },
@@ -280,7 +280,7 @@ describe_pattern 'BRO_DNS', ['legacy', 'ecs-v1'] do
       expect(grok['zeek']).to include("dns" => hash_including("rcode" => 0)) # beats compatibility
       # TODO :bool type-casting would be nice
       expect(grok['zeek']).to include("dns" => hash_including("AA"=>"F", "TC"=>"F", "RD"=>"T", "RA"=>"F"))
-      expect(grok['zeek']).to include("dns" => hash_including("Z" => "1")) # beats drops this field
+      expect(grok['zeek']).to include("dns" => hash_including("Z" => 1)) # beats drops this field
       expect(grok['zeek']).to include("dns" => hash_including("rejected" => "F"))
       expect(grok['zeek']['dns'].keys).to_not include 'TTLs', 'answers'
     else
@@ -304,5 +304,61 @@ describe_pattern 'BRO_DNS', ['legacy', 'ecs-v1'] do
     end
   end
 
+  context 'optional fields' do
+
+    let(:message) do
+      "1359565680.761790	UWkUyAuUGXf	192.168.6.10	53209	192.168.129.36	53	udp	-	-	-	-	-	-	-	-	F	F	F	F	0	-	-	-"
+      # AA/TC/RD/RA are optional with a F default, Z is optional with a 0 default
+    end
+
+    it 'matches (only) fields present' do
+      if ecs_compatibility?
+        expect(grok).to include("timestamp" => "1359565680.761790")
+        expect(grok).to include("source" => { "ip"=>"192.168.6.10", "port"=>53209 }, "destination" => { "ip"=>"192.168.129.36", "port"=>53 })
+        expect(grok).to include("network" => { "transport"=>"udp" })
+        expect(grok).to include("zeek" => { "session_id" => "UWkUyAuUGXf", "dns" => { "AA"=>"F", "TC"=>"F", "RD"=>"F", "RA"=>"F", "Z"=>0 } })
+        expect(grok.keys).to_not include('dns')
+      end
+    end
+
+  end
+
+  context '(zeek) updated log format' do
+
+    let(:message) do
+      "1359565680.761790	CHhAvVGS1DHFjwGM9	192.168.6.10	53209	192.168.129.36	53	udp	41477	0.075138	paypal.com	1	C_INTERNET	48	DNSKEY	0	NOERROR	F	F	T	T	1	DNSKEY 5,DNSKEY 5,RRSIG 48 paypal.com,RRSIG 48 paypal.com	455.000000,455.000000,455.000000,455.000000	F"
+    end
+
+    it 'no longer matches in ecs mode' do
+      expect(grok['tags']).to include("_grokparsefailure") if ecs_compatibility?
+    end
+
+  end
+
 end
 
+describe_pattern "ZEEK_DNS", ['ecs-v1'] do
+
+  let(:message) do
+    "1359565680.761790	CHhAvVGS1DHFjwGM9	192.168.6.10	53209	192.168.129.36	53	udp	41477	0.075138	paypal.com	1	C_INTERNET	48	DNSKEY	0	NOERROR	F	F	T	T	1	DNSKEY 5,DNSKEY 5,RRSIG 48 paypal.com,RRSIG 48 paypal.com	455.000000,455.000000,455.000000,455.000000	F"
+  end
+
+  it 'matches' do
+    expect(grok).to include("timestamp" => "1359565680.761790")
+    expect(grok).to include("destination"=>{"ip"=>"192.168.129.36", "port"=>53}, "source"=>{"ip"=>"192.168.6.10", "port"=>53209})
+    expect(grok).to include("network" => {"transport"=>"udp"})
+    expect(grok).to include("dns"=>{"question"=>{"type"=>"DNSKEY", "name"=>"paypal.com"}, "response_code"=>"NOERROR", "id"=>41477})
+    expect(grok).to include("zeek"=>{
+        "session_id"=>"CHhAvVGS1DHFjwGM9",
+        "dns"=>{
+            "rtt" => 0.075138 ,
+            "qclass"=>1, "qclass_name"=>"C_INTERNET", "qtype"=>48,
+            "rcode"=>0,
+            "RA"=>"T", "RD"=>"T", "TC"=>"F", "rejected"=>"F", "AA"=>"F", "Z"=>1,
+            "answers"=>"DNSKEY 5,DNSKEY 5,RRSIG 48 paypal.com,RRSIG 48 paypal.com",
+            "TTLs"=>"455.000000,455.000000,455.000000,455.000000"
+        }
+    })
+  end
+
+end
