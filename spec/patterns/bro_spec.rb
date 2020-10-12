@@ -5,7 +5,7 @@ require "logstash/patterns/core"
 describe_pattern "BRO_HTTP", ['legacy', 'ecs-v1'] do
 
   let(:message) do
-    "1432555199.633017	COpk6E3vkURP8QQNKl	192.168.9.35	55281	178.236.7.146	80	4	POST	www.amazon.it	/xa/dealcontent/v2/GetDeals?nocache=1432555199326	http://www.amazon.it/	Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36	223	1859	200	OK	-	-	-	(empty)	-	-	-	FrLEcY3AUPKdcYGf29	text/plain	FOJpbGzIMh9syPxH8	text/plain"
+    "1432555199.633017	COpk6E3vkURP8QQNKl	192.168.9.35	55281	178.236.7.146	80	4	POST	www.amazon.it	/xa/dealcontent/v2/GetDeals?nocache=1432555199326	http://www.amazon.it/	Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36	223	1859	200	OK	-	-	-	(empty)	kares	-	-	FrLEcY3AUPKdcYGf29	text/plain	FOJpbGzIMh9syPxH8	text/plain"
   end
 
   it "matches a simple message" do
@@ -67,12 +67,13 @@ describe_pattern "BRO_HTTP", ['legacy', 'ecs-v1'] do
       expect(grok).to include("url" => hash_including("domain" => "www.amazon.it"))
       expect(grok).to include("url" => hash_including("original" => "/xa/dealcontent/v2/GetDeals?nocache=1432555199326"))
 
-      expect(grok['url'].keys).to_not include("username", "password")
+      expect(grok).to include("url" => hash_including("username" => "kares"))
+      expect(grok['url'].keys).to_not include("password")
     else
       expect(grok).to include("domain" => "www.amazon.it")
       expect(grok).to include("uri" => "/xa/dealcontent/v2/GetDeals?nocache=1432555199326")
 
-      expect(grok).to include("username" => "-")
+      expect(grok).to include("username" => "kares")
       expect(grok).to include("password" => "-")
     end
   end
@@ -156,6 +157,24 @@ describe_pattern "BRO_HTTP", ['legacy', 'ecs-v1'] do
     end
   end
 
+  context '(zeek) updated log format' do
+
+    let(:message) do # ZEEK
+      '1602164975.587600	Ct73QY3M7T5dikxggf	192.168.122.59	55240	93.184.220.29	80	1	-	-	-	-	1.1	-	-	0	471	200	OK	-	-	(empty)	-	-	-	-	-	-	FPGXN33wAFL8MPKJXl	-	application/ocsp-response'
+    end
+
+    it 'matches in legacy mode' do
+      unless ecs_compatibility? # wrong but backwards compatibility
+        expect(grok).to include("domain" => "1.1") # due GREEDYDATA: "method" => "-\t-\t-\t-"
+      end
+    end
+
+    it 'no longer matches in ecs mode' do
+      expect(grok['tags']).to include("_grokparsefailure") if ecs_compatibility?
+    end
+
+  end
+
 end
 
 describe_pattern "ZEEK_HTTP", ['ecs-v1'] do
@@ -209,6 +228,30 @@ describe_pattern "ZEEK_HTTP", ['ecs-v1'] do
               "status_msg"=>"Moved Permanently",
               "resp_fuids"=>"FeJ7iiVorMXoLlRK"}
       })
+    end
+
+  end
+
+  context 'old (bro) message' do
+
+    let(:message) do
+      "1432555199.633017	COpk6E3vkURP8QQNKl	192.168.9.35	55281	178.236.7.146	80	4	POST	www.amazon.it	/xa/dealcontent/v2/GetDeals?nocache=1432555199326	http://www.amazon.it/	Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36	223	1859	200	OK	-	-	-	(empty)	kares	-	-	FrLEcY3AUPKdcYGf29	text/plain	FOJpbGzIMh9syPxH8	text/plain"
+    end
+
+    it 'does not match' do
+      expect(grok['tags']).to include("_grokparsefailure") if ecs_compatibility?
+    end
+
+  end
+
+  context 'old empty (bro) message' do
+
+    let(:message) do # theoretically everything except these is optional:
+      "1432555199.633017	COpk6E3vkURP8QQNKl	192.168.9.35	55281	178.236.7.146	80	0	-	-	-	-	-	-	-	-	-	-	-	-	(empty)	-	-	-	-	-	-	-"
+    end
+
+    it 'does not match' do
+      expect(grok['tags']).to include("_grokparsefailure") if ecs_compatibility?
     end
 
   end
