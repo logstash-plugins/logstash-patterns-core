@@ -454,10 +454,9 @@ describe_pattern 'ZEEK_CONN', ['ecs-v1'] do
 
   it 'matches' do
     expect(grok).to include("timestamp" => "1602165198.216970")
-    expect(grok).to include("zeek" => hash_including("session_id" => "CfVl4yNLJ4U3ptL12"))
     expect(grok).to include("network" => { "transport" => "tcp" })
-    expect(grok).to include("source" => {"ip"=>"192.168.122.59", "port"=>47340, "packets"=>1, "bytes"=>52})
-    expect(grok).to include("destination"=>{ "ip"=>"143.204.201.102", "port"=>443, "packets"=>21, "bytes"=>5091})
+    expect(grok).to include("source" => { "ip"=>"192.168.122.59", "port"=>47340, "packets"=>1, "bytes"=>52 })
+    expect(grok).to include("destination" => { "ip"=>"143.204.201.102", "port"=>443, "packets"=>21, "bytes"=>5091 })
 
     expect(grok).to include("zeek"=>{
         "connection"=>{
@@ -472,6 +471,24 @@ describe_pattern 'ZEEK_CONN', ['ecs-v1'] do
         },
         "session_id"=>"CfVl4yNLJ4U3ptL12"
     })
+  end
+
+  context 'with mac adresses' do
+
+    let(:message) do
+      "1128727435.633408	CHhAvVGS1DHFjwGM9	141.42.64.125	56730	125.190.109.199	80	tcp	http	1.550793	98	9417	SF	-	-	0	^hADdFaf	11	670	10	9945	-	00:d0:03:3b:f4:00	00:b0:c2:86:ec:00"
+    end
+
+    it 'matches' do
+      expect(grok).to include("timestamp" => "1128727435.633408")
+      expect(grok).to include("zeek" => hash_including("session_id" => "CHhAvVGS1DHFjwGM9"))
+      expect(grok).to include("network" => { "transport" => "tcp", "protocol" => "http" })
+      expect(grok).to include("source" => { "mac"=>"00:d0:03:3b:f4:00", "ip"=>"141.42.64.125", "port"=>56730, "packets"=>11, "bytes"=>670 })
+      expect(grok).to include("destination" => { "mac"=>"00:b0:c2:86:ec:00", "ip"=>"125.190.109.199", "port"=>80, "packets"=>10, "bytes"=>9945 })
+
+      expect(grok).to include("zeek"=>hash_including("connection" => hash_including("duration"=>1.550793)))
+    end
+
   end
 
 end
