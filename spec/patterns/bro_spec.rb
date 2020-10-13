@@ -601,8 +601,8 @@ describe_pattern 'ZEEK_FILES', ['ecs-v1'] do
 
     it 'matches host(s)' do
       expect(grok).to include("server"=>{"ip" => '10.1.1.2'}) # tx_host
+      expect(grok).to include("client"=>{"ip" => '192.168.1.105'}) # rx_host
       expect(grok).to include("zeek"=>{"files" => hash_including("tx_hosts" => '10.1.1.2 10.1.1.1')})
-      expect(grok).to include("zeek"=>{"files" => hash_including("rx_host" => '192.168.1.105')})
       expect(grok).to include("zeek"=>{"files" => hash_including("rx_hosts" => '192.168.1.105,192.168.1.10,192.168.1.11')})
     end
 
