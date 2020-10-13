@@ -577,10 +577,11 @@ describe_pattern 'ZEEK_FILES', ['ecs-v1'] do
     "1258867934.558264	F2xow8TIkvHG4Zz41	198.189.255.75	192.168.1.105	CHhAvVGS1DHFjwGM9	HTTP	0	EXTRACT	-	-	0.046240	-	F	54229	605292323	4244449	0	T	-	-	-	-	extract-1258867934.558264-HTTP-F2xow8TIkvHG4Zz41	T	4000"
   end
 
-  it 'matches (extracted fields at the end)' do
+  it 'matches' do
     expect(grok).to include("timestamp"=>"1258867934.558264")
+    expect(grok).to include("server"=>{"ip"=>'198.189.255.75'}) # tx_host
     expect(grok).to include("zeek"=>{"files"=>hash_including(
-        "fuid"=>"F2xow8TIkvHG4Zz41", "rx_host"=>"192.168.1.105", "tx_host"=>"198.189.255.75",
+        "fuid"=>"F2xow8TIkvHG4Zz41", "rx_host"=>"192.168.1.105",
         "session_ids"=>"CHhAvVGS1DHFjwGM9",
         "source"=>"HTTP", "analyzers"=>"EXTRACT",
         "timedout"=>"T",
@@ -589,6 +590,22 @@ describe_pattern 'ZEEK_FILES', ['ecs-v1'] do
         "extracted_size"=>4000, "extracted_cutoff"=>"T"
         )})
     expect(grok).to include("file"=>{"size"=>605292323})
+  end
+
+  context 'multiple hosts' do
+
+    let(:message) do
+      # NOTE: Zeek sometimes treats set[ip/string] types as ',' separated other times as ' ' separated
+      "1258867934.558264	F2xow8TIkvHG4Zz41	10.1.1.2 10.1.1.1	192.168.1.105,192.168.1.10,192.168.1.11	-	-	0	-	-	-	0.01234	-	F	-	-	-	0	T	-	-	-	-	-	-	-"
+    end
+
+    it 'matches host(s)' do
+      expect(grok).to include("server"=>{"ip" => '10.1.1.2'}) # tx_host
+      expect(grok).to include("zeek"=>{"files" => hash_including("tx_hosts" => '10.1.1.2 10.1.1.1')})
+      expect(grok).to include("zeek"=>{"files" => hash_including("rx_host" => '192.168.1.105')})
+      expect(grok).to include("zeek"=>{"files" => hash_including("rx_hosts" => '192.168.1.105,192.168.1.10,192.168.1.11')})
+    end
+
   end
 
 end
