@@ -571,3 +571,24 @@ describe_pattern 'BRO_FILES', ['legacy', 'ecs-v1'] do
 
 end
 
+describe_pattern 'ZEEK_FILES', ['ecs-v1'] do
+
+  let(:message) do
+    "1258867934.558264	F2xow8TIkvHG4Zz41	198.189.255.75	192.168.1.105	CHhAvVGS1DHFjwGM9	HTTP	0	EXTRACT	-	-	0.046240	-	F	54229	605292323	4244449	0	T	-	-	-	-	extract-1258867934.558264-HTTP-F2xow8TIkvHG4Zz41	T	4000"
+  end
+
+  it 'matches (extracted fields at the end)' do
+    expect(grok).to include("timestamp"=>"1258867934.558264")
+    expect(grok).to include("zeek"=>{"files"=>hash_including(
+        "fuid"=>"F2xow8TIkvHG4Zz41", "rx_host"=>"192.168.1.105", "tx_host"=>"198.189.255.75",
+        "session_ids"=>"CHhAvVGS1DHFjwGM9",
+        "source"=>"HTTP", "analyzers"=>"EXTRACT",
+        "timedout"=>"T",
+
+        "extracted"=>"extract-1258867934.558264-HTTP-F2xow8TIkvHG4Zz41",
+        "extracted_size"=>4000, "extracted_cutoff"=>"T"
+        )})
+    expect(grok).to include("file"=>{"size"=>605292323})
+  end
+
+end
