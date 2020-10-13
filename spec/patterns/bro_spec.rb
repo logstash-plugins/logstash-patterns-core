@@ -492,3 +492,82 @@ describe_pattern 'ZEEK_CONN', ['ecs-v1'] do
   end
 
 end
+
+describe_pattern 'BRO_FILES', ['legacy', 'ecs-v1'] do
+
+  let(:message) do
+    "1362692527.009512	FakNcS1Jfe01uljb3	192.150.187.43	141.142.228.5	CXWv6p3arKYeMETxOg	HTTP	0	MD5,SHA1	text/plain	-	0.000263	-	F	4705	4705	0	0	F	-	397168fd09991a0e712254df7bc639ac	1dd7ac0398df6cbc0696445a91ec681facf4dc47	-	-"
+  end
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(grok).to include("timestamp"=>"1362692527.009512")
+      expect(grok).to include("zeek"=>{ "files" => {
+          "fuid"=>"FakNcS1Jfe01uljb3",
+          "tx_host"=>"192.150.187.43", "rx_host"=>"141.142.228.5",
+          "session_ids"=>"CXWv6p3arKYeMETxOg",
+          "source"=>"HTTP", "depth"=>0, "analyzers"=>"MD5,SHA1",
+          "duration"=>0.000263,
+          "is_orig"=>"F",
+          "overflow_bytes"=>0, "missing_bytes"=>0, "seen_bytes"=>4705,
+          "timedout"=>"F"
+      }})
+      expect(grok).to include("file"=>{
+          "size"=>4705, "mime_type"=>"text/plain",
+          "hash"=>{"sha1"=>"1dd7ac0398df6cbc0696445a91ec681facf4dc47", "md5"=>"397168fd09991a0e712254df7bc639ac"}
+      })
+    else
+      expect(grok).to include("ts"=>"1362692527.009512", "fuid"=>"FakNcS1Jfe01uljb3")
+      expect(grok).to include("tx_hosts"=>"192.150.187.43", "rx_hosts"=>"141.142.228.5")
+      expect(grok).to include("conn_uids"=>"CXWv6p3arKYeMETxOg")
+      expect(grok).to include("source"=>"HTTP", "depth"=>"0", "analyzers"=>"MD5,SHA1", "mime_type"=>"text/plain")
+      expect(grok).to include("filename"=>"-")
+      expect(grok).to include("duration"=>"0.000263")
+      expect(grok).to include("local_orig"=>"-", "is_orig"=>"F",
+                              "seen_bytes"=>"4705", "total_bytes"=>"4705", "missing_bytes"=>"0", "overflow_bytes"=>"0",
+                              "timedout"=>"F",
+                              "parent_fuid"=>"-",
+                              "md5"=>"397168fd09991a0e712254df7bc639ac", "sha1"=>"1dd7ac0398df6cbc0696445a91ec681facf4dc47", "sha256"=>"-",
+                              "extracted"=>"-"
+      )
+    end
+  end
+
+  context 'new (zeek) message format' do
+
+    let(:message) do
+      "1602576142.884704	Frp9wcpqbDl991Zh7	151.101.112.204	192.168.122.59	C3v3ce39xvI63Tn2E5	HTTP	0	SHA1,MD5	text/plain	-	0.000000	F	F	3707	51901	0	0	F	-	995875a72487a52a657b94e3857ac4fe	00c45f6771d0006029a8ced68bf2a41ca3060e69	-	-	-	-"
+    end
+
+    it 'matches (incorrectly) in legacy mode' do
+      unless ecs_compatibility?
+        expect(grok).to include("ts"=>"1602576142.884704", "fuid"=>"Frp9wcpqbDl991Zh7")
+        expect(grok).to include("source"=>"HTTP\t0\tSHA1,MD5") # BOGUS
+      end
+    end
+
+    it '~~does not match in ecs mode~~ matches (correctly) in ECS mode' do # since new format changes are additions at the end
+      if ecs_compatibility?
+        expect(grok).to include("timestamp"=>"1602576142.884704")
+        expect(grok).to include("zeek"=>{"files"=>{
+            "fuid"=>"Frp9wcpqbDl991Zh7",
+            "tx_host"=>"151.101.112.204", "rx_host"=>"192.168.122.59",
+            "session_ids"=>"C3v3ce39xvI63Tn2E5",
+            "source"=>"HTTP", "depth"=>0, "analyzers"=>"SHA1,MD5",
+            "duration"=>0.0,
+            "local_orig"=>"F", "is_orig"=>"F",
+            "missing_bytes"=>0,
+            "timedout"=>"F",
+            "overflow_bytes"=>0, "seen_bytes"=>3707
+        }})
+        expect(grok).to include("file"=>{
+            "size"=>51901, "mime_type"=>"text/plain",
+            "hash"=>{"md5"=>"995875a72487a52a657b94e3857ac4fe", "sha1"=>"00c45f6771d0006029a8ced68bf2a41ca3060e69"}
+        })
+      end
+    end
+
+  end
+
+end
+
