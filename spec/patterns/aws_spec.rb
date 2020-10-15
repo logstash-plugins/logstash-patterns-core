@@ -122,6 +122,41 @@ describe_pattern "S3_ACCESS_LOG", ['legacy'] do
     end
 
   end
+
+  context 'a long line' do
+
+    let(:message) do
+      '79a59df900b949e55d96a1e698fbacedfd6e09d98eacf8f8d5218e7cd47ef2be awsexamplebucket1 [06/Feb/2019:00:00:38 +0000] ' +
+      '192.0.2.3 arn:aws:iam::123456:user/test@elastic.co A1206F460EXAMPLE REST.GET.BUCKETPOLICY - ' +
+      '"GET /awsexamplebucket1?policy HTTP/1.1" 404 NoSuchBucketPolicy 297 - 38 12 "-" ' +
+      '"AWS-Support-TrustedAdvisor, aws-internal/3 aws-sdk-java/1.11.590 Linux/4.9.137-0.1.ac.218.74.329.metal1.x86_64" - ' +
+      'BNaBsXZQQDbssi6xMBdBU2sLt+Yf5kZDmeBUP35sFoKa3sLLeMC78iwEIWxs99CRUrbS4n11234= SigV2 ECDHE-RSA-AES128-GCM-SHA256 ' +
+      'AuthHeader awsexamplebucket1.s3.us-west-1.amazonaws.com TLSV1.1'
+    end
+
+    it 'matches' do
+      expect(grok).to include("owner"=>"79a59df900b949e55d96a1e698fbacedfd6e09d98eacf8f8d5218e7cd47ef2be",
+                              "bucket"=>"awsexamplebucket1",
+                              "timestamp"=>"06/Feb/2019:00:00:38 +0000",
+                              "clientip"=>"192.0.2.3",
+                              "requester"=>"arn:aws:iam::123456:user/test@elastic.co",
+                              "request_id"=>"A1206F460EXAMPLE",
+                              "operation"=>"REST.GET.BUCKETPOLICY",
+                              "key"=>"-",
+                              "verb"=>"GET",
+                              "request"=>"/awsexamplebucket1?policy",
+                              "httpversion"=>"1.1",
+                              "response"=>404,
+                              "error_code"=>"NoSuchBucketPolicy",
+                              "bytes"=>297,
+                              # object_size nil
+                              "request_time_ms"=>38,
+                              "turnaround_time_ms"=>12,
+                              "referrer"=>"\"-\"",
+                              "agent"=>"\"AWS-Support-TrustedAdvisor, aws-internal/3 aws-sdk-java/1.11.590 Linux/4.9.137-0.1.ac.218.74.329.metal1.x86_64\"")
+    end
+
+  end
 end
 
 describe_pattern "CLOUDFRONT_ACCESS_LOG", ['legacy'] do
