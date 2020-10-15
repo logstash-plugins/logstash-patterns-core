@@ -1,8 +1,8 @@
-S3_REQUEST_LINE (?:%{WORD:verb} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?|%{DATA:rawrequest})
+S3_REQUEST_LINE (?:%{WORD:[http][request][method]} %{NOTSPACE:[url][original]}(?: HTTP/%{NUMBER:[http][version]})?)
 
-S3_ACCESS_LOG %{WORD:owner} %{NOTSPACE:bucket} \[%{HTTPDATE:timestamp}\] %{IP:clientip} %{NOTSPACE:requester} %{NOTSPACE:request_id} %{NOTSPACE:operation} %{NOTSPACE:key} (?:"%{S3_REQUEST_LINE}"|-) (?:%{INT:response:int}|-) (?:-|%{NOTSPACE:error_code}) (?:%{INT:bytes:int}|-) (?:%{INT:object_size:int}|-) (?:%{INT:request_time_ms:int}|-) (?:%{INT:turnaround_time_ms:int}|-) (?:%{QS:referrer}|-) (?:"?%{QS:agent}"?|-) (?:-|%{NOTSPACE:version_id})
 
 ELB_URIPATHPARAM %{URIPATH:path}(?:%{URIPARAM:params})?
+S3_ACCESS_LOG %{WORD:[aws][s3access][bucket_owner]} %{NOTSPACE:[aws][s3access][bucket]} \[%{HTTPDATE:timestamp}\] %{IP:[client][ip]} (?:-|%{NOTSPACE:[client][user][id]}) %{NOTSPACE:[aws][s3access][request_id]} %{NOTSPACE:[aws][s3access][operation]} (?:-|%{NOTSPACE:[aws][s3access][key]}) (?:-|"%{S3_REQUEST_LINE:[aws][s3access][request_uri]}") (?:-|%{INT:[http][response][status_code]:int}) (?:-|%{NOTSPACE:[aws][s3access][error_code]}) (?:-|%{INT:[aws][s3access][bytes_sent]:int}) (?:-|%{INT:[aws][s3access][object_size]:int}) (?:-|%{INT:[event][duration]:int}) (?:-|%{INT:[aws][s3access][turn_around_time]:int}) "(?:-|%{DATA:[http][request][referrer]})" "(?:-|%{DATA:[user_agent][original]})" (?:-|%{NOTSPACE:[aws][s3access][version_id]})(?: (?:-|%{NOTSPACE:[aws][s3access][host_id]}) (?:-|%{NOTSPACE:[aws][s3access][signature_version]}) (?:-|%{NOTSPACE:[aws][s3access][cipher_suite]}) (?:-|%{NOTSPACE:[aws][s3access][authentication_type]}) (?:-|%{NOTSPACE:[aws][s3access][host_header]}) (?:-|%{NOTSPACE:[aws][s3access][tls_version]}))?
 
 ELB_URI %{URIPROTO:proto}://(?:%{USER}(?::[^@]*)?@)?(?:%{URIHOST:urihost})?(?:%{ELB_URIPATHPARAM})?
 

@@ -55,7 +55,7 @@ describe_pattern "ELB_ACCESS_LOG", ['legacy', 'ecs-v1'] do
   end
 end
 
-describe_pattern "S3_ACCESS_LOG", ['legacy'] do
+describe_pattern "S3_ACCESS_LOG", ['legacy', 'ecs-v1'] do
 
   context "parsing GET.VERSIONING message" do
 
@@ -96,14 +96,31 @@ describe_pattern "S3_ACCESS_LOG", ['legacy'] do
       "79a5 mybucket [12/May/2014:07:54:01 +0000] 10.0.1.2 - 7ACC4BE89EXAMPLE REST.GET.OBJECT foo/bar.html \"GET /foo/bar.html HTTP/1.1\" 304 - - 1718 10 - \"-\" \"Mozilla/5.0\" -"
     end
 
-    it { should include("owner" => "79a5" ) unless ecs_compatibility? }
+    it do
+      if ecs_compatibility?
+        should include("aws"=>{"s3access"=>hash_including("bucket_owner" => "79a5")})
+      else
+        should include("owner" => "79a5")
+      end
+    end
+
     it { should include("bucket" => "mybucket" ) unless ecs_compatibility? }
-    it { should include("timestamp" => "12/May/2014:07:54:01 +0000" ) unless ecs_compatibility? }
+    it { should include("timestamp" => "12/May/2014:07:54:01 +0000" ) }
+
     it { should include("clientip" => "10.0.1.2" ) unless ecs_compatibility? }
     it { should include("requester" => "-" ) unless ecs_compatibility? }
+    it { should include("client" => { 'ip' => '10.0.1.2' } ) if ecs_compatibility? }
+
     it { should include("request_id" => "7ACC4BE89EXAMPLE" ) unless ecs_compatibility? }
     it { should include("operation" => "REST.GET.OBJECT" ) unless ecs_compatibility? }
-    it { should include("key" => "foo/bar.html" ) unless ecs_compatibility? }
+
+    it do
+      if ecs_compatibility?
+        should include("aws"=>{"s3access"=>hash_including("key" => "foo/bar.html")})
+      else
+        should include("key" => "foo/bar.html")
+      end
+    end
 
     it { should include("verb" => "GET" ) unless ecs_compatibility? }
     it { should include("request" => "/foo/bar.html" ) unless ecs_compatibility? }
@@ -113,7 +130,9 @@ describe_pattern "S3_ACCESS_LOG", ['legacy'] do
 
     it { should include("request_time_ms" => 10 ) unless ecs_compatibility? }
     it { should include("referrer" => "\"-\"" ) unless ecs_compatibility? }
+
     it { should include("agent" => "\"Mozilla/5.0\"" ) unless ecs_compatibility? }
+    it { should include("user_agent"=>{"original"=>"Mozilla/5.0"}) if ecs_compatibility? }
 
     ["tags", "error_code", "turnaround_time_ms", "version_id", "bytes"].each do |attribute|
       it "have #{attribute} as nil" do
@@ -135,25 +154,53 @@ describe_pattern "S3_ACCESS_LOG", ['legacy'] do
     end
 
     it 'matches' do
-      expect(grok).to include("owner"=>"79a59df900b949e55d96a1e698fbacedfd6e09d98eacf8f8d5218e7cd47ef2be",
-                              "bucket"=>"awsexamplebucket1",
-                              "timestamp"=>"06/Feb/2019:00:00:38 +0000",
-                              "clientip"=>"192.0.2.3",
-                              "requester"=>"arn:aws:iam::123456:user/test@elastic.co",
-                              "request_id"=>"A1206F460EXAMPLE",
-                              "operation"=>"REST.GET.BUCKETPOLICY",
-                              "key"=>"-",
-                              "verb"=>"GET",
-                              "request"=>"/awsexamplebucket1?policy",
-                              "httpversion"=>"1.1",
-                              "response"=>404,
-                              "error_code"=>"NoSuchBucketPolicy",
-                              "bytes"=>297,
-                              # object_size nil
-                              "request_time_ms"=>38,
-                              "turnaround_time_ms"=>12,
-                              "referrer"=>"\"-\"",
-                              "agent"=>"\"AWS-Support-TrustedAdvisor, aws-internal/3 aws-sdk-java/1.11.590 Linux/4.9.137-0.1.ac.218.74.329.metal1.x86_64\"")
+      if ecs_compatibility?
+        expect(grok).to include("client"=>{"ip"=>"192.0.2.3", "user"=>{"id"=>"arn:aws:iam::123456:user/test@elastic.co"}})
+        expect(grok).to include("http"=>{"request"=>{"method"=>"GET"}, "version"=>"1.1", "response"=>{"status_code"=>404}})
+        expect(grok).to include("url"=>{"original"=>"/awsexamplebucket1?policy"})
+        expect(grok).to include("event"=>{"duration"=>38})
+        expect(grok).to include("aws"=>{"s3access"=>{
+            "bucket_owner"=>"79a59df900b949e55d96a1e698fbacedfd6e09d98eacf8f8d5218e7cd47ef2be",
+            "bucket"=>"awsexamplebucket1",
+            "request_id"=>"A1206F460EXAMPLE",
+            "operation"=>"REST.GET.BUCKETPOLICY",
+            "turn_around_time"=>12,
+            "bytes_sent"=>297,
+            "request_uri"=>"GET /awsexamplebucket1?policy HTTP/1.1", # NOTE: redundant (beats compatibility)
+            "error_code"=>"NoSuchBucketPolicy",
+            # these fields weren't matched in legacy mode:
+            # Host Id -> Signature Version -> Cipher Suite -> Authentication Type -> Host Header -> TLS version
+            "host_id" => "BNaBsXZQQDbssi6xMBdBU2sLt+Yf5kZDmeBUP35sFoKa3sLLeMC78iwEIWxs99CRUrbS4n11234=",
+            "signature_version" => "SigV2",
+            "cipher_suite" => "ECDHE-RSA-AES128-GCM-SHA256",
+            "authentication_type" => "AuthHeader",
+            "host_header" => "awsexamplebucket1.s3.us-west-1.amazonaws.com",
+            "tls_version" => "TLSV1.1"
+        }})
+        expect(grok).to include("user_agent"=>{
+            "original"=>"AWS-Support-TrustedAdvisor, aws-internal/3 aws-sdk-java/1.11.590 Linux/4.9.137-0.1.ac.218.74.329.metal1.x86_64"
+        })
+      else
+        expect(grok).to include("owner"=>"79a59df900b949e55d96a1e698fbacedfd6e09d98eacf8f8d5218e7cd47ef2be",
+                                "bucket"=>"awsexamplebucket1",
+                                "timestamp"=>"06/Feb/2019:00:00:38 +0000",
+                                "clientip"=>"192.0.2.3",
+                                "requester"=>"arn:aws:iam::123456:user/test@elastic.co",
+                                "request_id"=>"A1206F460EXAMPLE",
+                                "operation"=>"REST.GET.BUCKETPOLICY",
+                                "key"=>"-",
+                                "verb"=>"GET",
+                                "request"=>"/awsexamplebucket1?policy",
+                                "httpversion"=>"1.1",
+                                "response"=>404,
+                                "error_code"=>"NoSuchBucketPolicy",
+                                "bytes"=>297,
+                                # object_size nil
+                                "request_time_ms"=>38,
+                                "turnaround_time_ms"=>12,
+                                "referrer"=>"\"-\"",
+                                "agent"=>"\"AWS-Support-TrustedAdvisor, aws-internal/3 aws-sdk-java/1.11.590 Linux/4.9.137-0.1.ac.218.74.329.metal1.x86_64\"")
+      end
     end
 
   end
