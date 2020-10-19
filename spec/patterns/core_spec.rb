@@ -498,11 +498,35 @@ end
 
 describe "EMAILADDRESS" do
 
-  it "matches e-mail address" do
-    expect(grok_match(subject, 'hello.world@123.net')).to pass
+  [
+      'hello.world@123.net',
+      'a@example.com',
+      'a{b}@example.com',
+      'Foo+Bar@x.exposed',
+  ].each do |valid_email|
+    it "matches #{valid_email.inspect} address" do
+      expect(grok_match_exact(valid_email)).to pass
+    end
+  end
+
+  [
+      'a:b@example.com',
+      'x y@example.com',
+      'a..b@example.com',
+  ].each do |invalid_email|
+    it "does not match #{invalid_email.inspect} address" do
+      expect(grok_match_exact(invalid_email)).to_not pass
+    end
   end
 
   it "matches e-mail with digits only local-part" do
-    expect(grok_match(subject, '00@q.ro')).to pass
+    expect(grok_match_exact('00@q.ro')).to pass
   end
+
+  private
+
+  def grok_match_exact(email)
+    grok_match(subject, email, true)
+  end
+
 end
