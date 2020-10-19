@@ -523,6 +523,17 @@ describe "EMAILADDRESS" do
     expect(grok_match_exact('00@q.ro')).to pass
   end
 
+  it "matches e-mail with 64 chars in local-part" do
+    expect(grok_match_exact(('ab' * 32) + '@root.cz')).to pass
+    expect(grok_match_exact(('a.bc' * 16) + '@00.cz')).to pass
+  end
+
+  it "does not match e-mail with more than 64 char length local-part" do
+    expect(grok_match_exact(('ab' * 32) + 'a' + '@root.cz')).to_not pass
+    # NOTE: we allow longer with '.' but at least we limit "too long" :
+    expect(grok_match_exact(('a.bc' * 64) + '@00.cz')).to_not pass
+  end
+
   private
 
   def grok_match_exact(email)
