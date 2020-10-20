@@ -10,25 +10,50 @@ describe_pattern "ELB_ACCESS_LOG", ['legacy', 'ecs-v1'] do
       "2014-02-15T23:39:43.945958Z my-test-loadbalancer 192.168.131.39:2817 10.0.0.1:80 0.000073 0.001048 0.000057 200 200 0 29 \"GET http://www.example.com:80/ HTTP/1.1\""
     end
 
-    it { should include("timestamp" => "2014-02-15T23:39:43.945958Z" ) }
-    it { should include("elb" => "my-test-loadbalancer" ) }
-    it { should include("clientip" => "192.168.131.39" ) }
-    it { should include("clientport" => 2817 ) }
-    it { should include("backendip" => "10.0.0.1" ) }
-    it { should include("backendport" => 80 ) }
-    it { should include("request_processing_time" => 0.000073 ) }
-    it { should include("backend_processing_time" => 0.001048 ) }
-    it { should include("response_processing_time" => 0.000057 ) }
-    it { should include("response" => 200 ) }
-    it { should include("backend_response" => 200 ) }
-    it { should include("received_bytes" => 0 ) }
-    it { should include("bytes" => 29 ) }
-    it { should include("verb" => "GET" ) }
-    it { should include("request" => "http://www.example.com:80/" ) }
-    it { should include("proto" => "http" ) }
-    it { should include("httpversion" => "1.1" ) }
-    it { should include("urihost" => "www.example.com:80" ) }
-    it { should include("path" => "/" ) }
+    it 'matches' do
+      should include("timestamp" => "2014-02-15T23:39:43.945958Z" )
+      if ecs_compatibility?
+        expect(grok).to include("aws" => { "elb" => {
+            "name"=>"my-test-loadbalancer",
+            "request_processing_time"=>{"sec"=>0.000073},
+            "response_processing_time"=>{"sec"=>0.000057},
+            "backend_processing_time"=>{"sec"=>0.001048},
+            "backend"=>{
+                "ip"=>"10.0.0.1", "port"=>80,
+                "http"=>{"response"=>{"status_code"=>200}}
+            }
+        }})
+        expect(grok).to include("http"=>{
+            "request"=>{"body"=>{"bytes"=>0}, "method"=>"GET"},
+            "response"=>{"body"=>{"bytes"=>29}, "status_code"=>200},
+            "version"=>"1.1"
+        })
+        expect(grok).to include("source"=>{"ip"=>"192.168.131.39", "port"=>2817})
+        expect(grok).to include("url"=>{
+            "original"=>"http://www.example.com:80/",
+            "port"=>80, "path"=>"/", "domain"=>"www.example.com", "scheme"=>"http"
+        })
+      else
+        should include("elb" => "my-test-loadbalancer" )
+        should include("clientip" => "192.168.131.39" )
+        should include("clientport" => 2817 )
+        should include("backendip" => "10.0.0.1" )
+        should include("backendport" => 80 )
+        should include("request_processing_time" => 0.000073 )
+        should include("backend_processing_time" => 0.001048 )
+        should include("response_processing_time" => 0.000057 )
+        should include("response" => 200 )
+        should include("backend_response" => 200 )
+        should include("received_bytes" => 0 )
+        should include("bytes" => 29 )
+        should include("verb" => "GET" )
+        should include("request" => "http://www.example.com:80/" )
+        should include("proto" => "http" )
+        should include("httpversion" => "1.1" )
+        should include("urihost" => "www.example.com:80" )
+        should include("path" => "/" )
+      end
+    end
 
     ["tags", "params"].each do |attribute|
       it "have #{attribute} as nil" do
