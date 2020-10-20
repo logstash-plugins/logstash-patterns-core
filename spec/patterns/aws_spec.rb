@@ -68,7 +68,7 @@ describe_pattern "ELB_ACCESS_LOG", ['legacy', 'ecs-v1'] do
       '2015-04-10T08:11:09.865823Z us-west-1-production-media 49.150.87.133:55128 - -1 -1 -1 408 - 1294336 0 "PUT https://media.xxxyyyzzz.com:443/videos/F4_M-T4X0MM6Hvy1PFHesw HTTP/1.1"'
     end
 
-    it "a pattern pass the grok expression" do
+    it "matches" do
       expect(grok).to include("timestamp"=>"2015-04-10T08:11:09.865823Z")
       if ecs_compatibility?
         expect(grok).to include("url"=>{
@@ -100,6 +100,22 @@ describe_pattern "ELB_ACCESS_LOG", ['legacy', 'ecs-v1'] do
             "httpversion"=>"1.1")
 
         expect(grok.keys).to_not include("backendip", "backendport", "backendresponse")
+      end
+    end
+
+  end
+
+  context '(new) https format' do
+
+    let(:message) do
+      '2015-05-13T23:39:43.945958Z my-loadbalancer 192.168.131.39:2817 10.0.0.1:80 0.000086 0.001048 0.001337 200 200 0 57 "GET https://www.example.com:443/ HTTP/1.1" "curl/7.38.0 (#56-0ef1d4a5)" DHE-RSA-AES128-SHA TLSv1.2'
+    end
+
+    it 'matches (new) suffix fields' do
+      if ecs_compatibility?
+        expect(grok).to include "tls" => { "cipher" => "DHE-RSA-AES128-SHA" }
+        expect(grok).to include "aws" => { "elb" => hash_including("ssl_protocol" => 'TLSv1.2')}
+        expect(grok).to include "user_agent"=>{"original"=>"curl/7.38.0 (#56-0ef1d4a5)"}
       end
     end
 
