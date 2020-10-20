@@ -65,7 +65,7 @@ describe_pattern "ELB_ACCESS_LOG", ['legacy', 'ecs-v1'] do
   context "parsing a PUT request access log with missing backend info" do
 
     let(:message) do
-      '2015-04-10T08:11:09.865823Z us-west-1-production-media 49.150.87.133:55128 - -1 -1 -1 408 0 1294336 0 "PUT https://media.xxxyyyzzz.com:443/videos/F4_M-T4X0MM6Hvy1PFHesw HTTP/1.1"'
+      '2015-04-10T08:11:09.865823Z us-west-1-production-media 49.150.87.133:55128 - -1 -1 -1 408 - 1294336 0 "PUT https://media.xxxyyyzzz.com:443/videos/F4_M-T4X0MM6Hvy1PFHesw HTTP/1.1"'
     end
 
     it "a pattern pass the grok expression" do
@@ -91,7 +91,7 @@ describe_pattern "ELB_ACCESS_LOG", ['legacy', 'ecs-v1'] do
             "response_processing_time"=>-1.0,
             "request_processing_time"=>-1.0,
             "backend_processing_time"=>-1.0,
-            "response"=>408, "backend_response"=>0,
+            "response"=>408,
             "received_bytes"=>1294336,
             "bytes"=>0,
             "verb"=>"PUT",
@@ -99,7 +99,7 @@ describe_pattern "ELB_ACCESS_LOG", ['legacy', 'ecs-v1'] do
             "port"=>"443", "proto"=>"https", "path"=>"/videos/F4_M-T4X0MM6Hvy1PFHesw", "urihost"=>"media.xxxyyyzzz.com:443",
             "httpversion"=>"1.1")
 
-        expect(grok.keys).to_not include("backendip", "backendport")
+        expect(grok.keys).to_not include("backendip", "backendport", "backendresponse")
       end
     end
 
