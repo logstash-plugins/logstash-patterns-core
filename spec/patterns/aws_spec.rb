@@ -69,14 +69,40 @@ describe_pattern "ELB_ACCESS_LOG", ['legacy', 'ecs-v1'] do
     end
 
     it "a pattern pass the grok expression" do
-      expect(subject).to pass
-    end
+      expect(grok).to include("timestamp"=>"2015-04-10T08:11:09.865823Z")
+      if ecs_compatibility?
+        expect(grok).to include("url"=>{
+            "original"=>"https://media.xxxyyyzzz.com:443/videos/F4_M-T4X0MM6Hvy1PFHesw",
+            "scheme"=>"https", "port"=>443, "path"=>"/videos/F4_M-T4X0MM6Hvy1PFHesw", "domain"=>"media.xxxyyyzzz.com"
+        })
+        expect(grok).to include("source"=>{"port"=>55128, "ip"=>"49.150.87.133"})
+        expect(grok).to include("http"=>{
+            "request"=>{"method"=>"PUT", "body"=>{"bytes"=>1294336}}, "version"=>"1.1",
+            "response"=>{"body"=>{"bytes"=>0}, "status_code"=>408}
+        })
+        # no backend.ip and backend.port
+        # no backend.http.status.code
+        # no request_processing_time.sec and friends
+        expect(grok).to include("aws"=>{"elb"=>{"name"=>"us-west-1-production-media"}})
+      else
+        expect(grok).to include(
+            "elb"=>"us-west-1-production-media",
+            "clientip"=>"49.150.87.133", "clientport"=>55128,
+            "response_processing_time"=>-1.0,
+            "request_processing_time"=>-1.0,
+            "backend_processing_time"=>-1.0,
+            "response"=>408, "backend_response"=>0,
+            "received_bytes"=>1294336,
+            "bytes"=>0,
+            "verb"=>"PUT",
+            "request"=>"https://media.xxxyyyzzz.com:443/videos/F4_M-T4X0MM6Hvy1PFHesw",
+            "port"=>"443", "proto"=>"https", "path"=>"/videos/F4_M-T4X0MM6Hvy1PFHesw", "urihost"=>"media.xxxyyyzzz.com:443",
+            "httpversion"=>"1.1")
 
-    ["backendip", "backendport"].each do |attribute|
-      it "have #{attribute} as nil" do
-        expect(subject[attribute]).to be_nil
+        expect(grok.keys).to_not include("backendip", "backendport")
       end
     end
+
   end
 end
 
