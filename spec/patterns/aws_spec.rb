@@ -273,41 +273,61 @@ describe_pattern "S3_ACCESS_LOG", ['legacy', 'ecs-v1'] do
   end
 end
 
-describe_pattern "CLOUDFRONT_ACCESS_LOG", ['legacy'] do
+describe_pattern "CLOUDFRONT_ACCESS_LOG", ['legacy', 'ecs-v1'] do
 
-  context "parsing a cloudfront access log" do
+  let(:message) do
+    "2016-06-10	18:41:39	IAD53	224281	192.168.1.1	GET	d27enomp470abc.cloudfront.net	/content/sample/thing.pdf	200	https://example.com/	Mozilla/5.0%2520(Windows%2520NT%25206.1;%2520WOW64)%2520AppleWebKit/537.36%2520(KHTML,%2520like%2520Gecko)%2520Chrome/51.0.2704.79%2520Safari/537.36	-	-	Miss	UGskZ6dUKY7b4C6Pt7wAWVsU2KO-vTRe-mR4r9H-WQMjhNvY6w1Xcg==	host.example.com	https	883	0.036	-	TLSv1.2	ECDHE-RSA-AES128-GCM-SHA256	RefreshHit"
+  end
 
-    let(:message) do
-      "2016-06-10	18:41:39	IAD53	224281	192.168.1.1	GET	d27enomp470abc.cloudfront.net	/content/sample/thing.pdf	200	https://example.com/	Mozilla/5.0%2520(Windows%2520NT%25206.1;%2520WOW64)%2520AppleWebKit/537.36%2520(KHTML,%2520like%2520Gecko)%2520Chrome/51.0.2704.79%2520Safari/537.36	-	-	Miss	UGskZ6dUKY7b4C6Pt7wAWVsU2KO-vTRe-mR4r9H-WQMjhNvY6w1Xcg==	host.example.com	https	883	0.036	-	TLSv1.2	ECDHE-RSA-AES128-GCM-SHA256	Miss"
+  it 'matches' do
+    should include("timestamp" => "2016-06-10	18:41:39" )
+
+    if ecs_compatibility?
+      should include("aws"=>{"cloudfront"=>hash_including("x_edge_location"=>"IAD53")})
+      should include("destination"=>{"bytes"=>224281})
+      should include("source"=>{"ip"=>"192.168.1.1", "bytes"=>883})
+      should include("http"=>{
+          "request"=>{"method"=>"GET", "referrer"=>"https://example.com/"},
+          "response"=>{"status_code"=>200}
+      })
+      should include("user_agent"=>{"original"=>"Mozilla/5.0%2520(Windows%2520NT%25206.1;%2520WOW64)%2520AppleWebKit/537.36%2520(KHTML,%2520like%2520Gecko)%2520Chrome/51.0.2704.79%2520Safari/537.36"})
+      should include("url"=>{"domain"=>"d27enomp470abc.cloudfront.net", "path"=>"/content/sample/thing.pdf"})
+      should include("aws"=>{"cloudfront"=>hash_including("x_edge_result_type"=>"Miss")})
+      should include("event"=>{"id"=>"UGskZ6dUKY7b4C6Pt7wAWVsU2KO-vTRe-mR4r9H-WQMjhNvY6w1Xcg=="}) # TODO rather aws.cloudfront.http.request.id ?
+      should include("network"=>{"protocol"=>"https"})
+      should include("aws"=>{"cloudfront"=>hash_including("http"=>{"request"=>{"host"=>"host.example.com"}})})
+      should include("aws"=>{"cloudfront"=>hash_including("time_taken"=>0.036)})
+      should include("aws"=>{"cloudfront"=>hash_including("ssl_protocol"=>"TLSv1.2")})
+      should include("tls"=>{"cipher"=>"ECDHE-RSA-AES128-GCM-SHA256"})
+      should include("aws"=>{"cloudfront"=>hash_including("x_edge_response_result_type"=>"RefreshHit")})
+    else
+      should include("x_edge_location" => "IAD53" )
+      should include("sc_bytes" => 224281 )
+      should include("clientip" => "192.168.1.1" )
+      should include("cs_method" =>  "GET" )
+      should include("cs_host" => "d27enomp470abc.cloudfront.net" )
+      should include("cs_uri_stem" => "/content/sample/thing.pdf" )
+      should include("sc_status" => 200 )
+      should include("referrer" => "https://example.com/" )
+      should include("agent" => "Mozilla/5.0%2520(Windows%2520NT%25206.1;%2520WOW64)%2520AppleWebKit/537.36%2520(KHTML,%2520like%2520Gecko)%2520Chrome/51.0.2704.79%2520Safari/537.36" )
+      should include("cs_uri_query" => "-" )
+      should include("cookies" => "-" )
+      should include("x_edge_result_type" => "Miss" )
+      should include("x_edge_request_id" => "UGskZ6dUKY7b4C6Pt7wAWVsU2KO-vTRe-mR4r9H-WQMjhNvY6w1Xcg==" )
+      should include("x_host_header" => "host.example.com" )
+      should include("cs_protocol" => "https" )
+      should include("cs_bytes" => 883 )
+      should include("time_taken" => 0.036 )
+      should include("x_forwarded_for" => "-" )
+      should include("ssl_protocol" => "TLSv1.2" )
+      should include("ssl_cipher" => "ECDHE-RSA-AES128-GCM-SHA256" )
+      should include("x_edge_response_result_type" => "RefreshHit" )
     end
+  end
 
-    it { should include("timestamp" => "2016-06-10	18:41:39" ) }
-    it { should include("x_edge_location" => "IAD53" ) }
-    it { should include("sc_bytes" => 224281 ) }
-    it { should include("clientip" => "192.168.1.1" ) }
-    it { should include("cs_method" =>  "GET" ) }
-    it { should include("cs_host" => "d27enomp470abc.cloudfront.net" ) }
-    it { should include("cs_uri_stem" => "/content/sample/thing.pdf" ) }
-    it { should include("sc_status" => 200 ) }
-    it { should include("referrer" => "https://example.com/" ) }
-    it { should include("agent" => "Mozilla/5.0%2520(Windows%2520NT%25206.1;%2520WOW64)%2520AppleWebKit/537.36%2520(KHTML,%2520like%2520Gecko)%2520Chrome/51.0.2704.79%2520Safari/537.36" ) }
-    it { should include("cs_uri_query" => "-" ) }
-    it { should include("cookies" => "-" ) }
-    it { should include("x_edge_result_type" => "Miss" ) }
-    it { should include("x_edge_request_id" => "UGskZ6dUKY7b4C6Pt7wAWVsU2KO-vTRe-mR4r9H-WQMjhNvY6w1Xcg==" ) }
-    it { should include("x_host_header" => "host.example.com" ) }
-    it { should include("cs_protocol" => "https" ) }
-    it { should include("cs_bytes" => 883 ) }
-    it { should include("time_taken" => 0.036 ) }
-    it { should include("x_forwarded_for" => "-" ) }
-    it { should include("ssl_protocol" => "TLSv1.2" ) }
-    it { should include("ssl_cipher" => "ECDHE-RSA-AES128-GCM-SHA256" ) }
-    it { should include("x_edge_response_result_type" => "Miss" ) }
-
-    ["tags", "params"].each do |attribute|
-      it "have #{attribute} as nil" do
-        expect(subject[attribute]).to be_nil
-      end
+  ["tags", "params"].each do |attribute|
+    it "have #{attribute} as nil" do
+      expect(subject[attribute]).to be_nil
     end
   end
 
