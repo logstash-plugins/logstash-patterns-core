@@ -11,7 +11,10 @@ ELB_URI %{URIPROTO:[url][scheme]}://(?:%{USER:[url][username]}(?::[^@]*)?@)?(?:%
 
 ELB_REQUEST_LINE (?:%{WORD:[http][request][method]} %{ELB_URI:[url][original]}(?: HTTP/%{NUMBER:[http][version]})?)
 
-ELB_ACCESS_LOG %{TIMESTAMP_ISO8601:timestamp} %{NOTSPACE:[aws][elb][name]} %{IP:[source][ip]}:%{INT:[source][port]:int} (?:-|(?:%{IP:[aws][elb][backend][ip]}:%{INT:[aws][elb][backend][port]:int})) (?:-1|%{NUMBER:[aws][elb][request_processing_time][sec]:float}) (?:-1|%{NUMBER:[aws][elb][backend_processing_time][sec]:float}) (?:-1|%{NUMBER:[aws][elb][response_processing_time][sec]:float}) %{INT:[http][response][status_code]:int} (?:-|%{INT:[aws][elb][backend][http][response][status_code]:int}) %{INT:[http][request][body][bytes]:int} %{INT:[http][response][body][bytes]:int} "%{ELB_REQUEST_LINE}"(?: "(?:-|%{DATA:[user_agent][original]})" (?:-|%{NOTSPACE:[tls][cipher]}) (?:-|%{NOTSPACE:[aws][elb][ssl_protocol]}))?
 
 CLOUDFRONT_ACCESS_LOG (?<timestamp>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}\t%{TIME})\t%{WORD:x_edge_location}\t(?:%{NUMBER:sc_bytes:int}|-)\t%{IPORHOST:clientip}\t%{WORD:cs_method}\t%{HOSTNAME:cs_host}\t%{NOTSPACE:cs_uri_stem}\t%{NUMBER:sc_status:int}\t%{GREEDYDATA:referrer}\t%{GREEDYDATA:agent}\t%{GREEDYDATA:cs_uri_query}\t%{GREEDYDATA:cookies}\t%{WORD:x_edge_result_type}\t%{NOTSPACE:x_edge_request_id}\t%{HOSTNAME:x_host_header}\t%{URIPROTO:cs_protocol}\t%{INT:cs_bytes:int}\t%{GREEDYDATA:time_taken:float}\t%{GREEDYDATA:x_forwarded_for}\t%{GREEDYDATA:ssl_protocol}\t%{GREEDYDATA:ssl_cipher}\t%{GREEDYDATA:x_edge_response_result_type}
+# pattern supports 'regular' HTTP ELB format
+ELB_HTTP_LOG %{TIMESTAMP_ISO8601:timestamp} %{NOTSPACE:[aws][elb][name]} %{IP:[source][ip]}:%{INT:[source][port]:int} (?:-|(?:%{IP:[aws][elb][backend][ip]}:%{INT:[aws][elb][backend][port]:int})) (?:-1|%{NUMBER:[aws][elb][request_processing_time][sec]:float}) (?:-1|%{NUMBER:[aws][elb][backend_processing_time][sec]:float}) (?:-1|%{NUMBER:[aws][elb][response_processing_time][sec]:float}) %{INT:[http][response][status_code]:int} (?:-|%{INT:[aws][elb][backend][http][response][status_code]:int}) %{INT:[http][request][body][bytes]:int} %{INT:[http][response][body][bytes]:int} "%{ELB_REQUEST_LINE}"(?: "(?:-|%{DATA:[user_agent][original]})" (?:-|%{NOTSPACE:[tls][cipher]}) (?:-|%{NOTSPACE:[aws][elb][ssl_protocol]}))?
+
+ELB_ACCESS_LOG %{ELB_HTTP_LOG}
 
