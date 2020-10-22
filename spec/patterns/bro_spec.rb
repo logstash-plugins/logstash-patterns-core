@@ -140,7 +140,7 @@ describe_pattern "BRO_HTTP", ['legacy', 'ecs-v1'] do
   it "generates the orig_ fields" do
     if ecs_compatibility?
       expect(grok).to include("zeek" => hash_including("http" => hash_including("orig_fuids" => "FrLEcY3AUPKdcYGf29")))
-      expect(grok).to include("zeek" => hash_including("http" => hash_including("orig_mime_types" => "text/plain")))
+      expect(grok).to include("http" => hash_including("request" => hash_including("mime_type" => "text/plain")))
     else
       expect(grok).to include("orig_fuids" => "FrLEcY3AUPKdcYGf29")
       expect(grok).to include("orig_mime_types" => "text/plain")
@@ -150,7 +150,7 @@ describe_pattern "BRO_HTTP", ['legacy', 'ecs-v1'] do
   it "generates the resp_ fields" do
     if ecs_compatibility?
       expect(grok).to include("zeek" => hash_including("http" => hash_including("resp_fuids" => "FOJpbGzIMh9syPxH8")))
-      expect(grok).to include("zeek" => hash_including("http" => hash_including("resp_mime_types" => "text/plain")))
+      expect(grok).to include("http" => hash_including("response" => hash_including("mime_type" => "text/plain")))
     else
       expect(grok).to include("resp_fuids" => "FOJpbGzIMh9syPxH8")
       expect(grok).to include("resp_mime_types" => "text/plain")
@@ -215,7 +215,7 @@ describe_pattern "ZEEK_HTTP", ['ecs-v1'] do
       expect(grok).to include("user_agent"=>{"original"=>"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:81.0) Gecko/20100101 Firefox/81.0"})
       expect(grok).to include("http" => {
           "request" => { "body" => {"bytes" => 0 } },
-          "response" => { "status_code" => 301, "body" =>{ "bytes" => 219 } },
+          "response" => { "status_code" => 301, "body" =>{ "bytes" => 219 }, "mime_type" => 'text/html' },
           "version"=>"1.1"
       })
       expect(grok).to include("zeek" => {
@@ -224,7 +224,6 @@ describe_pattern "ZEEK_HTTP", ['ecs-v1'] do
               "trans_depth"=>1,
               "origin"=>"https://example.com",
               "tags"=>"FOO,BAR",
-              "resp_mime_types"=>"text/html",
               "status_msg"=>"Moved Permanently",
               "resp_fuids"=>"FeJ7iiVorMXoLlRK"}
       })
