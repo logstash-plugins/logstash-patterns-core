@@ -105,7 +105,7 @@ describe_pattern "ELB_ACCESS_LOG", ['legacy', 'ecs-v1'] do
 
   end
 
-  context '(new) https format' do
+  context '(new) https format' do # slightly longer - 3 fields added at the end
 
     let(:message) do
       '2015-05-13T23:39:43.945958Z my-loadbalancer 192.168.131.39:2817 10.0.0.1:80 0.000086 0.001048 0.001337 200 200 0 57 "GET https://www.example.com:443/ HTTP/1.1" "curl/7.38.0 (#56-0ef1d4a5)" DHE-RSA-AES128-SHA TLSv1.2'
@@ -117,6 +117,22 @@ describe_pattern "ELB_ACCESS_LOG", ['legacy', 'ecs-v1'] do
         expect(grok).to include "aws" => { "elb" => hash_including("ssl_protocol" => 'TLSv1.2')}
         expect(grok).to include "user_agent"=>{"original"=>"curl/7.38.0 (#56-0ef1d4a5)"}
       end
+    end
+
+    context 'with optional fields' do
+
+      let(:message) do
+        '2015-05-13T23:39:43.945958Z my-loadbalancer 192.168.131.39:2817 10.0.0.1:80 0.000086 0.001048 0.001337 200 200 0 57 "GET https://www.example.com:443/ HTTP/1.1" "-" - -'
+      end
+
+      it 'matches (new) suffix fields' do
+        if ecs_compatibility?
+          expect(grok.keys).to_not include "tls"
+          expect(grok['aws']['elb'].keys).to_not include "ssl_protocol"
+          expect(grok.keys).to_not include "user_agent"
+        end
+      end
+
     end
 
   end
