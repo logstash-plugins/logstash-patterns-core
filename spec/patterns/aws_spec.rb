@@ -347,4 +347,47 @@ describe_pattern "CLOUDFRONT_ACCESS_LOG", ['legacy', 'ecs-v1'] do
     end
   end
 
+  context 'version 1.0' do # more fields at the end
+
+    let(:message) do
+      # Version: 1.0  -  https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/AccessLogs.html
+      # Fields: date time x-edge-location sc-bytes c-ip cs-method cs(Host) cs-uri-stem sc-status cs(Referer) cs(User-Agent) cs-uri-query cs(Cookie) x-edge-result-type x-edge-request-id x-host-header cs-protocol cs-bytes time-taken x-forwarded-for ssl-protocol ssl-cipher x-edge-response-result-type cs-protocol-version fle-status fle-encrypted-fields c-port time-to-first-byte x-edge-detailed-result-type sc-content-type sc-content-len sc-range-start sc-range-end
+      "2019-12-04	21:02:31	LAX1	392	192.0.2.100	GET	d111111abcdef8.cloudfront.net	/index.html	200	-	Mozilla/5.0%20(Windows%20NT%2010.0;%20Win64;%20x64)%20AppleWebKit/537.36%20(KHTML,%20like%20Gecko)%20Chrome/78.0.3904.108%20Safari/537.36	-	-	Hit	SOX4xwn4XV6Q4rgb7XiVGOHms_BGlTAC4KyHmureZmBNrjGdRLiNIQ==	d111111abcdef8.cloudfront.net	https	23	0.001	-	TLSv1.2	ECDHE-RSA-AES128-GCM-SHA256	Hit	HTTP/2.0	-	-	11040	0.001	Hit	text/html	78	-	-"
+    end
+
+    it 'matches' do
+      should include("timestamp" => "2019-12-04\t21:02:31")
+
+      if ecs_compatibility?
+        should include("destination"=>{"bytes"=>392}, "source"=>{"ip"=>"192.0.2.100", "bytes"=>23, "port"=>11040}) # source.port not matched in legacy mode
+        should include("url"=>{"domain"=>"d111111abcdef8.cloudfront.net", "path"=>"/index.html"})
+        should include("http"=>hash_including("request"=>{"mime_type"=>"text/html", "method"=>"GET"}, "response"=>{"status_code"=>200})) # mime_type not matched in legacy mode
+        should include("user_agent"=>{"original"=>"Mozilla/5.0%20(Windows%20NT%2010.0;%20Win64;%20x64)%20AppleWebKit/537.36%20(KHTML,%20like%20Gecko)%20Chrome/78.0.3904.108%20Safari/537.36"})
+        should include("tls"=>{"cipher"=>"ECDHE-RSA-AES128-GCM-SHA256"})
+        should include("network"=>{"protocol"=>"https"})
+
+        should include("http"=>hash_including("version"=>"2.0"))
+        should include("aws"=>{"cloudfront"=>{
+            "x_edge_location"=>"LAX1",
+            "x_edge_result_type"=>"Hit",
+            "x_edge_response_result_type"=>"Hit",
+            "x_edge_detailed_result_type"=>"Hit", # not captured in legacy mode
+            "time_taken"=>0.001,
+            "time_to_first_byte"=>0.001, # not captured in legacy mode
+            "http"=>{"request"=>{"host"=>"d111111abcdef8.cloudfront.net", "size"=>78}}, # http.request.size not captured in legacy mode
+            "ssl_protocol"=>"TLSv1.2",
+        }})
+      else
+        should include("cs_method"=>"GET", "cs_host"=>"d111111abcdef8.cloudfront.net", "cs_uri_stem"=>"/index.html", "cs_protocol"=>"https", "cs_bytes"=>23)
+        should include("x_host_header"=>"d111111abcdef8.cloudfront.net")
+        should include("time_taken"=>0.001)
+        should include("x_edge_request_id"=>"SOX4xwn4XV6Q4rgb7XiVGOHms_BGlTAC4KyHmureZmBNrjGdRLiNIQ==")
+        should include("agent"=>"Mozilla/5.0%20(Windows%20NT%2010.0;%20Win64;%20x64)%20AppleWebKit/537.36%20(KHTML,%20like%20Gecko)%20Chrome/78.0.3904.108%20Safari/537.36")
+
+        should include("x_forwarded_for"=>"text/html") # TODO the legacy pattern does not handle the long(er) format correctly
+      end
+    end
+
+  end
+
 end
