@@ -501,9 +501,10 @@ describe_pattern 'BRO_FILES', ['legacy', 'ecs-v1'] do
   it 'matches' do
     if ecs_compatibility?
       expect(grok).to include("timestamp"=>"1362692527.009512")
+      expect(grok).to include("server"=>{"ip"=>"192.150.187.43"})
+      expect(grok).to include("client"=>{"ip"=>"141.142.228.5"})
       expect(grok).to include("zeek"=>{ "files" => {
           "fuid"=>"FakNcS1Jfe01uljb3",
-          "tx_host"=>"192.150.187.43", "rx_host"=>"141.142.228.5",
           "session_ids"=>"CXWv6p3arKYeMETxOg",
           "source"=>"HTTP", "depth"=>0, "analyzers"=>"MD5,SHA1",
           "duration"=>0.000263,
@@ -548,9 +549,10 @@ describe_pattern 'BRO_FILES', ['legacy', 'ecs-v1'] do
     it '~~does not match in ecs mode~~ matches (correctly) in ECS mode' do # since new format changes are additions at the end
       if ecs_compatibility?
         expect(grok).to include("timestamp"=>"1602576142.884704")
+        expect(grok).to include("server"=>{"ip"=>"151.101.112.204"})
+        expect(grok).to include("client"=>{"ip"=>"192.168.122.59"})
         expect(grok).to include("zeek"=>{"files"=>{
             "fuid"=>"Frp9wcpqbDl991Zh7",
-            "tx_host"=>"151.101.112.204", "rx_host"=>"192.168.122.59",
             "session_ids"=>"C3v3ce39xvI63Tn2E5",
             "source"=>"HTTP", "depth"=>0, "analyzers"=>"SHA1,MD5",
             "duration"=>0.0,
