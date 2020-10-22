@@ -580,8 +580,9 @@ describe_pattern 'ZEEK_FILES', ['ecs-v1'] do
   it 'matches' do
     expect(grok).to include("timestamp"=>"1258867934.558264")
     expect(grok).to include("server"=>{"ip"=>'198.189.255.75'}) # tx_host
+    expect(grok).to include("client"=>{"ip"=>'192.168.1.105'}) # rx_host
     expect(grok).to include("zeek"=>{"files"=>hash_including(
-        "fuid"=>"F2xow8TIkvHG4Zz41", "rx_host"=>"192.168.1.105",
+        "fuid"=>"F2xow8TIkvHG4Zz41",
         "session_ids"=>"CHhAvVGS1DHFjwGM9",
         "source"=>"HTTP", "analyzers"=>"EXTRACT",
         "timedout"=>"T",
