@@ -309,7 +309,7 @@ describe_pattern "CLOUDFRONT_ACCESS_LOG", ['legacy', 'ecs-v1'] do
       should include("user_agent"=>{"original"=>"Mozilla/5.0%2520(Windows%2520NT%25206.1;%2520WOW64)%2520AppleWebKit/537.36%2520(KHTML,%2520like%2520Gecko)%2520Chrome/51.0.2704.79%2520Safari/537.36"})
       should include("url"=>{"domain"=>"d27enomp470abc.cloudfront.net", "path"=>"/content/sample/thing.pdf"})
       should include("aws"=>{"cloudfront"=>hash_including("x_edge_result_type"=>"Miss")})
-      should include("event"=>{"id"=>"UGskZ6dUKY7b4C6Pt7wAWVsU2KO-vTRe-mR4r9H-WQMjhNvY6w1Xcg=="}) # TODO rather aws.cloudfront.http.request.id ?
+      should include("aws"=>{"cloudfront"=>hash_including("x_edge_request_id"=>'UGskZ6dUKY7b4C6Pt7wAWVsU2KO-vTRe-mR4r9H-WQMjhNvY6w1Xcg==')})
       should include("network"=>{"protocol"=>"https"})
       should include("aws"=>{"cloudfront"=>hash_including("http"=>{"request"=>{"host"=>"host.example.com"}})})
       should include("aws"=>{"cloudfront"=>hash_including("time_taken"=>0.036)})
@@ -369,6 +369,7 @@ describe_pattern "CLOUDFRONT_ACCESS_LOG", ['legacy', 'ecs-v1'] do
         should include("http"=>hash_including("version"=>"2.0"))
         should include("aws"=>{"cloudfront"=>{
             "x_edge_location"=>"LAX1",
+            "x_edge_request_id"=>"SOX4xwn4XV6Q4rgb7XiVGOHms_BGlTAC4KyHmureZmBNrjGdRLiNIQ==", # event.id
             "x_edge_result_type"=>"Hit",
             "x_edge_response_result_type"=>"Hit",
             "x_edge_detailed_result_type"=>"Hit", # not captured in legacy mode
