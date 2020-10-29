@@ -49,6 +49,12 @@ CISCOFW106100 access-list %{NOTSPACE:policy_id} %{CISCO_ACTION:action} %{WORD:pr
 CISCOFW304001 %{IP:src_ip}(\(%{DATA:src_fwuser}\))? Accessed URL %{IP:dst_ip}:%{GREEDYDATA:dst_url}
 # ASA-6-110002
 CISCOFW110002 %{CISCO_REASON:reason} for %{WORD:protocol} from %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{IP:dst_ip}/%{INT:dst_port}
+# ASA-5-111008
+CISCOFW111008 User '%{DATA:user}' executed the '%{GREEDYDATA:cmd}' command\.
+# ASA-7-111009
+CISCOFW111009 User '%{DATA:user}' executed cmd: %{GREEDYDATA:cmd}
+# ASA-5-111010
+CISCOFW111010 User '%{DATA:user}', running '%{WORD:application_name}' from IP %{IPORHOST:src_ip}, executed '%{GREEDYDATA:cmd}'
 # ASA-6-302010
 CISCOFW302010 %{INT:connection_count} in use, %{INT:connection_count_max} most used
 # ASA-6-302013, ASA-6-302014, ASA-6-302015, ASA-6-302016
