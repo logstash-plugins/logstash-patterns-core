@@ -255,11 +255,12 @@ describe_pattern "S3_ACCESS_LOG", ['legacy', 'ecs-v1'] do
             # Host Id -> Signature Version -> Cipher Suite -> Authentication Type -> Host Header -> TLS version
             "host_id" => "BNaBsXZQQDbssi6xMBdBU2sLt+Yf5kZDmeBUP35sFoKa3sLLeMC78iwEIWxs99CRUrbS4n11234=",
             "signature_version" => "SigV2",
-            "cipher_suite" => "ECDHE-RSA-AES128-GCM-SHA256",
+            #"cipher_suite" => "ECDHE-RSA-AES128-GCM-SHA256", # tls.cipher
             "authentication_type" => "AuthHeader",
             "host_header" => "awsexamplebucket1.s3.us-west-1.amazonaws.com",
             "tls_version" => "TLSV1.1"
         }})
+        expect(grok).to include("tls"=>{"cipher"=>"ECDHE-RSA-AES128-GCM-SHA256"})
         expect(grok).to include("user_agent"=>{
             "original"=>"AWS-Support-TrustedAdvisor, aws-internal/3 aws-sdk-java/1.11.590 Linux/4.9.137-0.1.ac.218.74.329.metal1.x86_64"
         })
