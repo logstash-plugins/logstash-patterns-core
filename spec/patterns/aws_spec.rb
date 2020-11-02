@@ -241,7 +241,6 @@ describe_pattern "S3_ACCESS_LOG", ['legacy', 'ecs-v1'] do
         expect(grok).to include("client"=>{"ip"=>"192.0.2.3", "user"=>{"id"=>"arn:aws:iam::123456:user/test@elastic.co"}})
         expect(grok).to include("http"=>{"request"=>{"method"=>"GET"}, "version"=>"1.1", "response"=>{"status_code"=>404}})
         expect(grok).to include("url"=>{"original"=>"/awsexamplebucket1?policy"})
-        expect(grok).to include("event"=>{"duration"=>38})
         expect(grok).to include("aws"=>{"s3access"=>{
             "bucket_owner"=>"79a59df900b949e55d96a1e698fbacedfd6e09d98eacf8f8d5218e7cd47ef2be",
             "bucket"=>"awsexamplebucket1",
@@ -251,6 +250,7 @@ describe_pattern "S3_ACCESS_LOG", ['legacy', 'ecs-v1'] do
             "bytes_sent"=>297,
             "request_uri"=>"GET /awsexamplebucket1?policy HTTP/1.1", # NOTE: redundant (beats compatibility)
             "error_code"=>"NoSuchBucketPolicy",
+            "total_time" => 38,
             # these fields weren't matched in legacy mode:
             # Host Id -> Signature Version -> Cipher Suite -> Authentication Type -> Host Header -> TLS version
             "host_id" => "BNaBsXZQQDbssi6xMBdBU2sLt+Yf5kZDmeBUP35sFoKa3sLLeMC78iwEIWxs99CRUrbS4n11234=",
