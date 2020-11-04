@@ -170,21 +170,28 @@ describe_pattern "HAPROXYHTTPBASE", ['ecs-v1', 'legacy'] do
   context "log line without syslog specific entries" do # This mimics an event coming from a syslog input.
 
     let(:message) do
-      '127.0.0.1:39759 [09/Dec/2013:12:59:46.633] loadbalancer default/instance8 0/51536/1/48082/99627 200 83285 - - ---- 87/87/87/1/0 0/67 {77.24.148.74} "GET / HTTP/1.1"'
+      '127.0.0.1:39759 [09/Dec/2013:12:59:46.633] loadbalancer default/instance8 0/51536/1/48082/+99627 200 83285 - - ---- 87/87/87/1/0 0/67 {77.24.148.74} "GET / HTTP/1.1"'
     end
 
     it 'matches' do
       if ecs_compatibility?
         should include("source"=>{"port"=>39759, "address"=>"127.0.0.1"})
-        should include("haproxy"=>hash_including("server_queue"=>0, "http"=>{
-            "request"=>{"time_wait_ms"=>0, "captured_headers"=>"77.24.148.74", "time_wait_without_data_ms"=>48082}
-        }))
+        should include("haproxy"=>hash_including("server_queue"=>0,
+                                  "http"=>{
+                                      "request"=>{"time_wait_ms"=>0, "captured_headers"=>"77.24.148.74", "time_wait_without_data_ms"=>48082}
+                                  },
+
+                                  # NOTE: this is why we do not type-cast to :int
+                                  # a '+' sign is prepended before the value, indicating that the final one will be larger
+                                  "total_time_ms" => "+99627"
+        ))
         should include("url"=>{"path"=>"/", "original"=>"/"})
       else
         # Assume 'program' would be matched by the syslog input.
         should include("client_ip" => "127.0.0.1")
         should include("server_name" => "instance8")
         should include("http_verb" => "GET", "http_request"=>"/", "http_version" => '1.1')
+        should include("time_duration" => "+99627")
       end
     end
 
