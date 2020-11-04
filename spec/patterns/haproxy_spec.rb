@@ -239,3 +239,48 @@ describe_pattern "HAPROXYHTTPBASE", ['ecs-v1', 'legacy'] do
   end
 
 end
+
+describe_pattern "HAPROXYTCP", ['legacy', 'ecs-v1'] do
+
+  let(:message) do
+    'Sep 20 15:44:23 127.0.0.1 haproxy[25457]: 127.0.0.1:40962 [20/Sep/2018:15:44:23.285] main app/<NOSRV> -1/-1/1 212 SC 1/1/0/0/0 0/0'
+  end
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect( grok ).to include(
+                            "timestamp"=>"Sep 20 15:44:23",
+                            "host"=>{"hostname"=>"127.0.0.1"},
+                            "process"=>{"pid"=>25457, "name"=>"haproxy"},
+                            "source"=>{"port"=>40962, "address"=>"127.0.0.1"},
+                            "haproxy"=>{
+                                "request_date"=>"20/Sep/2018:15:44:23.285",
+                                "frontend_name"=>"main", "backend_name"=>"app",
+                                "total_time_ms"=>"1",
+                                "bytes_read"=>212,
+                                "termination_state"=>"SC",
+                                "connections"=>{"active"=>1, "backend"=>0, "retries"=>0, "server"=>0, "frontend"=>1},
+                                "server_queue"=>0, "backend_queue"=>0
+                            })
+    else
+      expect(grok).to include(
+                            "syslog_timestamp"=>"Sep 20 15:44:23",
+                            "syslog_server"=>"127.0.0.1",
+                            "program"=>"haproxy", "pid"=>"25457",
+                            "client_ip"=>"127.0.0.1", "client_port"=>"40962",
+                            "accept_date"=>"20/Sep/2018:15:44:23.285",
+                            "frontend_name"=>"main",
+                            "backend_name"=>"app",
+                            "server_name"=>"<NOSRV>",
+                            "time_backend_connect"=>"-1",
+                            "time_queue"=>"-1",
+                            "time_duration"=>"1",
+                            "bytes_read"=>"212",
+                            "termination_state"=>"SC",
+                            "actconn"=>"1", "feconn"=>"1", "beconn"=>"0", "backend_queue"=>"0", "retries"=>"0",
+                            "srv_queue"=>"0", "srvconn"=>"0",
+                            )
+    end
+  end
+
+end
