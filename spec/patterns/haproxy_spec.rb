@@ -165,39 +165,68 @@ describe_pattern "HAPROXYHTTP", ['legacy', 'ecs-v1'] do
 
 end
 
-describe_pattern "HAPROXYHTTPBASE" do
+describe_pattern "HAPROXYHTTPBASE", ['ecs-v1', 'legacy'] do
 
-  context "log line without syslog specific enteries" do # This mimics an event coming from a syslog input.
+  context "log line without syslog specific entries" do # This mimics an event coming from a syslog input.
 
     let(:message) do
-      '127.0.0.1:39759 [09/Dec/2013:12:59:46.633] loadbalancer default/instance8 0/51536/1/48082/99627 200 83285 - - ---- 87/87/87/1/0 0/67 {77.24.148.74} "GET /path/to/image HTTP/1.1"'
+      '127.0.0.1:39759 [09/Dec/2013:12:59:46.633] loadbalancer default/instance8 0/51536/1/48082/99627 200 83285 - - ---- 87/87/87/1/0 0/67 {77.24.148.74} "GET / HTTP/1.1"'
     end
 
-    # Assume 'program' would be matched by the syslog input.
-    it { should include("client_ip" => "127.0.0.1") }
-    it { should include("http_verb" => "GET") }
-    it { should include("server_name" => "instance8") }
-
-    it "generates a message field" do
-      expect(subject["message"]).to include("loadbalancer default/instance8")
+    it 'matches' do
+      if ecs_compatibility?
+        should include("source"=>{"port"=>39759, "address"=>"127.0.0.1"})
+        should include("haproxy"=>hash_including("server_queue"=>0, "http"=>{
+            "request"=>{"time_wait_ms"=>0, "captured_headers"=>"77.24.148.74", "time_wait_without_data_ms"=>48082}
+        }))
+        should include("url"=>{"path"=>"/", "original"=>"/"})
+      else
+        # Assume 'program' would be matched by the syslog input.
+        should include("client_ip" => "127.0.0.1")
+        should include("server_name" => "instance8")
+        should include("http_verb" => "GET", "http_request"=>"/", "http_version" => '1.1')
+      end
     end
 
   end
 
-  context "log line that is truncated and thus not ending with a double quote or HTTP version" do
+  context "(incomplete) log line that is truncated and thus not ending with a double quote or HTTP version" do
 
     let(:message) do
       'Jul 31 22:20:22 loadbalancer haproxy[1190]: 203.0.113.54:59968 [31/Jul/2017:22:20:22.447] loadbalancer default/instance8 135/0/1/19/156 200 1015 - - --VR 8/8/0/0/0 0/0 "GET /path/to/request/that/exceeds/more/than/1024/characterssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss'
     end
 
-    it { should include("client_ip" => "203.0.113.54") }
-    it { should include("http_verb" => "GET") }
-    it { should include("server_name" => "instance8") }
-    it { should include("http_request" => "/path/to/request/that/exceeds/more/than/1024/characterssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss") }
-    it { should_not have_key("http_version") }
+    it 'matches' do
+      if ecs_compatibility?
+        # due compatibility with the legacy pattern we match the incomplete "REQUEST LINE ... (wout the ending '"')
+        should include("http"=>{"response"=>{"status_code"=>200}, "request"=>{"method"=>"GET"}})
+        should include("url"=>hash_including("original"=>"/path/to/request/that/exceeds/more/than/1024/characterssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"))
+      else
+        should include("client_ip" => "203.0.113.54")
+        should include("http_verb" => "GET")
+        should include("server_name" => "instance8")
+        should include("http_request" => "/path/to/request/that/exceeds/more/than/1024/characterssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
+        should_not have_key("http_version")
+      end
+    end
 
-    it "generates a message field" do
-      expect(subject["message"]).to include("loadbalancer default/instance8")
+  end
+
+
+  context "connect line with host:port url" do
+
+    let(:message) do
+      'Nov  4 08:32:18 debian10 haproxy[3666]: 127.0.0.1:34500 [04/Nov/2020:08:32:18.194] samplefrontend backendnodes/node1 0/0/0/0/0 405 501 - - ---- 1/1/0/1/0 0/0 "CONNECT localhost:8080 HTTP/1.1"'
+    end
+
+    it 'matches' do
+      if ecs_compatibility?
+        should include("http"=>hash_including("request"=>{"method"=>"CONNECT"}))
+        should include("url"=>{"port"=>8080, "original"=>"localhost:8080", "domain"=>"localhost"})
+      else
+        should include("http_verb" => "CONNECT")
+        should include("http_host" => "localhost:8080")
+      end
     end
 
   end
