@@ -88,14 +88,14 @@ IPTABLES_TCP_FLAGS (CWR |ECE |URG |ACK |PSH |RST |SYN |FIN )*
 IPTABLES_TCP_PART (?:SEQ=%{INT:[iptables][tcp][seq]:int}\s+)?(?:ACK=%{INT:[iptables][tcp][ack]:int}\s+)?WINDOW=%{INT:[iptables][tcp][window]:int}\s+RES=0x%{BASE16NUM:[iptables][tcp_reserved_bits]}\s+%{IPTABLES_TCP_FLAGS:[iptables][tcp][flags]}
 
 IPTABLES4_FRAG (?:(?<= )(?:CE|DF|MF))*
-IPTABLES4_PART SRC=%{IPV4:[source][ip]}\s+DST=%{IPV4:[destination][ip]}\s+LEN=(?:%{INT:[iptables][length]:int})?\s+TOS=(?:0x%{BASE16NUM:[iptables][tos]})?\s+PREC=(?:0x%{BASE16NUM:[iptables][precedence_bits]})?\s+TTL=(?:%{INT:[iptables][ttl]:int})?\s+ID=(?:%{INT:[iptables][id]})?\s+(?:%{IPTABLES4_FRAG:[iptables][fragment_flags]})?(?:\s+FRAG: %{INT:[iptables][fragment_offset]:int})?
-IPTABLES6_PART SRC=%{IPV6:[source][ip]}\s+DST=%{IPV6:[destination][ip]}\s+LEN=(?:%{INT:[iptables][length]:int})?\s+TC=(?:0x%{BASE16NUM:[iptables][tos]})?\s+HOPLIMIT=(?:%{INT:[iptables][ttl]:int})?\s+FLOWLBL=(?:%{INT:[iptables][flow_label]})?
+IPTABLES4_PART SRC=%{IPV4:[source][ip]}\s+DST=%{IPV4:[destination][ip]}\s+LEN=(?:%{INT:[iptables][length]:int})?\s+TOS=(?:0|0x%{BASE16NUM:[iptables][tos]})?\s+PREC=(?:0x%{BASE16NUM:[iptables][precedence_bits]})?\s+TTL=(?:%{INT:[iptables][ttl]:int})?\s+ID=(?:%{INT:[iptables][id]})?\s+(?:%{IPTABLES4_FRAG:[iptables][fragment_flags]})?(?:\s+FRAG: %{INT:[iptables][fragment_offset]:int})?
+IPTABLES6_PART SRC=%{IPV6:[source][ip]}\s+DST=%{IPV6:[destination][ip]}\s+LEN=(?:%{INT:[iptables][length]:int})?\s+TC=(?:0|0x%{BASE16NUM:[iptables][tos]})?\s+HOPLIMIT=(?:%{INT:[iptables][ttl]:int})?\s+FLOWLBL=(?:%{INT:[iptables][flow_label]})?
 
-IPTABLES IN=(?:%{NOTSPACE:[iptables][input_interface]})?\s+OUT=(?:%{NOTSPACE:[iptables][output_interface]})?\s+(?:MAC=(?:%{COMMONMAC:[destination][mac]})(?::%{COMMONMAC:[source][mac]})?(?::[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2})?\s+)?(:?%{IPTABLES4_PART}|%{IPTABLES6_PART}).*?PROTO=(?:%{WORD:[network][transport]})?\s+SPT=(?:%{INT:[source][port]:int})?\s+DPT=(?:%{INT:[destination][port]:int})?\s+(?:%{IPTABLES_TCP_PART})?
+IPTABLES IN=(?:%{NOTSPACE:[iptables][input_interface]})?\s+OUT=(?:%{NOTSPACE:[iptables][output_interface]})?\s+(?:MAC=(?:%{COMMONMAC:[destination][mac]})?(?::%{COMMONMAC:[source][mac]})?(?::[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2})?\s+)?(:?%{IPTABLES4_PART}|%{IPTABLES6_PART}).*?PROTO=(?:%{WORD:[network][transport]})?\s+SPT=(?:%{INT:[source][port]:int})?\s+DPT=(?:%{INT:[destination][port]:int})?\s+(?:%{IPTABLES_TCP_PART})?
 
 # Shorewall firewall logs
 SHOREWALL (?:%{SYSLOGTIMESTAMP:timestamp}) (?:%{WORD:[host][hostname]}) .*Shorewall:(?:%{WORD:[shorewall][firewall][type]})?:(?:%{WORD:[shorewall][firewall][action]})?.*%{IPTABLES}
 #== End Shorewall
 #== SuSE Firewall 2 ==
-SFW2 ((%{SYSLOGTIMESTAMP})|(%{TIMESTAMP_ISO8601}))\s*%{HOSTNAME}\s*kernel\S+\s*%{NAGIOSTIME}\s*SFW2\-INext\-%{NOTSPACE:nf_action}\s*IN=%{USERNAME:nf_in_interface}.*OUT=((\s*%{USERNAME:nf_out_interface})|(\s*))MAC=((%{COMMONMAC:nf_dst_mac}:%{COMMONMAC:nf_src_mac})|(\s*)).*SRC=%{IP:nf_src_ip}\s*DST=%{IP:nf_dst_ip}.*PROTO=%{WORD:nf_protocol}((.*SPT=%{INT:nf_src_port}.*DPT=%{INT:nf_dst_port}.*)|())
+SFW2 ((?:%{SYSLOGTIMESTAMP:timestamp})|(?:%{TIMESTAMP_ISO8601:timestamp}))\s*%{HOSTNAME:[host][hostname]}.*?SFW2\-INext\-%{NOTSPACE:[suse][firewall][action]}\s*%{IPTABLES}
 #== End SuSE ==
