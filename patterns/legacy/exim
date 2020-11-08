@@ -11,6 +11,9 @@ EXIM_MSG_SIZE (S=%{NUMBER:exim_msg_size})
 EXIM_HEADER_ID (id=%{NOTSPACE:exim_header_id})
 EXIM_SUBJECT (T=%{QS:exim_subject})
 
-EXIM_MESSAGE_ARRIVAL %{EXIM_DATE:timestamp} (?:%{EXIM_PID} )?%{EXIM_MSGID:exim_msgid} (?<exim_flags><=) (?:%{EXIM_FLAGS:exim_flags} )?(?<exim_status>[a-z:] )?%{EMAILADDRESS:exim_sender_email}(?: (?:%{EXIM_REMOTE_HOST}|%{EXIM_INTERFACE}|%{EXIM_PROTOCOL}|%{EXIM_MSG_SIZE}|%{EXIM_HEADER_ID}|%{EXIM_SUBJECT}|(?:[A-Za-z]{1,4}=%{NOTSPACE})))*(?: for %{EMAILADDRESS:exim_recipient_email})?
+EXIM_UNKNOWN_FIELD (?:[A-Za-z]{1,4}=%{NOTSPACE})
+EXIM_NAMED_FIELDS (?: (?:%{EXIM_REMOTE_HOST}|%{EXIM_INTERFACE}|%{EXIM_PROTOCOL}|%{EXIM_MSG_SIZE}|%{EXIM_HEADER_ID}|%{EXIM_SUBJECT}|%{EXIM_UNKNOWN_FIELD}))*
+
+EXIM_MESSAGE_ARRIVAL %{EXIM_DATE:timestamp} (?:%{EXIM_PID} )?%{EXIM_MSGID:exim_msgid} (?<exim_flags><=) (?:%{EXIM_FLAGS:exim_flags} )?(?<exim_status>[a-z:] )?%{EMAILADDRESS:exim_sender_email}%{EXIM_NAMED_FIELDS}(?: for %{EMAILADDRESS:exim_recipient_email})?
 
 EXIM %{EXIM_MESSAGE_ARRIVAL}
