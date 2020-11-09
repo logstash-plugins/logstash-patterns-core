@@ -15,7 +15,7 @@ EXIM_INTERFACE (I=\[%{IP:[exim][log][host][ip]}\](?::%{NUMBER:[exim][log][host][
 EXIM_PROTOCOL (P=%{NOTSPACE:[network][protocol]})
 EXIM_MSG_SIZE (S=%{NUMBER:[exim][log][message][size]:int})
 EXIM_HEADER_ID (id=%{NOTSPACE:[exim][log][header_id]})
-EXIM_SUBJECT (T="%{DATA:[exim][log][message][subject]}")
+EXIM_SUBJECT (T="%{GREEDYDATA:[exim][log][message][subject]}")
 
 EXIM_UNKNOWN_FIELD (?:[A-Za-z0-9]{1,4}=%{NOTSPACE})
 EXIM_NAMED_FIELDS (?: (?:%{EXIM_REMOTE_HOST}|%{EXIM_INTERFACE}|%{EXIM_PROTOCOL}|%{EXIM_MSG_SIZE}|%{EXIM_HEADER_ID}|%{EXIM_SUBJECT}|%{EXIM_UNKNOWN_FIELD}))*
