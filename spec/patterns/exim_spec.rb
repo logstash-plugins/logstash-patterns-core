@@ -164,7 +164,7 @@ describe_pattern 'EXIM', ['legacy', 'ecs-v1'] do
             "host"=>{"ip"=>"127.0.0.1", "port"=>25}
         )})
         expect(grok).to include("exim"=>{"log"=>hash_including(
-            "sender"=>{"email"=>"aaron@domain.com"}
+            "sender"=>{"email"=>"aaron@domain.com", 'original'=>'<aaron@domain.com>'}
         )})
         expect(grok).to include("exim"=>{"log"=>hash_including("recipient"=>{"email"=>"aaron+forward@domain.com"})})
         expect(grok).to include("client"=>{"address"=>"localhost", "ip"=>"127.0.0.1", "port"=>39753})
