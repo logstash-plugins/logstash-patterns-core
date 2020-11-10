@@ -20,6 +20,6 @@ EXIM_SUBJECT (T="%{GREEDYDATA:[exim][log][message][subject]}")
 EXIM_UNKNOWN_FIELD (?:[A-Za-z0-9]{1,4}=%{NOTSPACE})
 EXIM_NAMED_FIELDS (?: (?:%{EXIM_REMOTE_HOST}|%{EXIM_INTERFACE}|%{EXIM_PROTOCOL}|%{EXIM_MSG_SIZE}|%{EXIM_HEADER_ID}|%{EXIM_SUBJECT}|%{EXIM_UNKNOWN_FIELD}))*
 
-EXIM_MESSAGE_ARRIVAL %{EXIM_DATE:timestamp} (?:%{EXIM_PID} )?%{EXIM_MSGID:[exim][log][message][id]} (?<[exim][log][flags]><=) (?<[exim][log][status]>[a-z:] )?%{EMAILADDRESS:[exim][log][sender][email]}%{EXIM_NAMED_FIELDS}(?:(?: from %{DATA:[exim][log][sender][original]})? for %{EMAILADDRESS:[exim][log][recipient][email]})?
+EXIM_MESSAGE_ARRIVAL %{EXIM_DATE:timestamp} (?:%{EXIM_PID} )?%{EXIM_MSGID:[exim][log][message][id]} (?<[exim][log][flags]><=) (?<[exim][log][status]>[a-z:] )?%{EMAILADDRESS:[exim][log][sender][email]}%{EXIM_NAMED_FIELDS}(?:(?: from <?%{DATA:[exim][log][sender][original]}>?)? for %{EMAILADDRESS:[exim][log][recipient][email]})?
 
 EXIM %{EXIM_MESSAGE_ARRIVAL}
