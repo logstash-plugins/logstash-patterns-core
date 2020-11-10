@@ -154,8 +154,7 @@ describe_pattern 'EXIM', ['legacy', 'ecs-v1'] do
       '2014-08-10 11:18:35 [28107] 1gsu1C-003dCu-Hb <= aaron@domain.com ' +
           'H=localhost (10.5.40.204) [127.0.0.1]:39753 I=[127.0.0.1]:25 ' +
           'P=esmtpa A=dovecot_plain:aaron@domain.com S=4315 M8S=0 id=d2b648f00f1a1b0813c483d552778dc6@domain.com ' +
-          "T=\"what's up?!? ;-)\" for aaron+forward@domain.com"
-      # from <aaron@domain.com> for aaron+forward@domain.com
+          "T=\"what's up?!? ;-)\" from <aaron@domain.com> for aaron+forward@domain.com"
     end
 
     it "matches" do
