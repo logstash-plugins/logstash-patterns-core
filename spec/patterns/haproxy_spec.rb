@@ -15,7 +15,7 @@ describe_pattern "HAPROXYHTTP", ['legacy', 'ecs-v1'] do
         should include("timestamp"=>"Dec  9 13:01:26")
         should include("host"=>{"hostname"=>"localhost"})
         should include("process"=>{"pid"=>28029, "name"=>"haproxy"})
-        should include("source"=>{"port"=>39759, "address"=>"127.0.0.1"})
+        should include("source"=>{"port"=>39759, "address"=>"127.0.0.1", "bytes"=>83285})
         should include("haproxy" => hash_including("request_date"=>"09/Dec/2013:12:59:46.633"))
         should include("haproxy" => hash_including("frontend_name"=>"loadbalancer", "backend_name"=>"default", "server_name"=>"instance8"))
         should include("haproxy" => hash_including(
@@ -23,7 +23,6 @@ describe_pattern "HAPROXYHTTP", ['legacy', 'ecs-v1'] do
             "http" => hash_including("request"=>hash_including("time_wait_ms"=>0, "time_wait_without_data_ms"=>48082))
         ))
         should include("http" => hash_including("response"=>{"status_code"=>200}))
-        should include("haproxy" => hash_including("bytes_read"=>83285))
 
         should include("haproxy" => hash_including("termination_state"=>"----"))
 
@@ -148,7 +147,7 @@ describe_pattern "HAPROXYHTTP", ['legacy', 'ecs-v1'] do
         should include("http"=>{"response"=>{"status_code"=>408}})
         expect( grok['haproxy'].keys ).to_not include("total_waiting_time_ms", "connection_wait_time_ms")
         should include("haproxy" => hash_including("total_time_ms"=>"6001"))
-        should include("haproxy" => hash_including("bytes_read"=>212))
+        should include("source" => hash_including("bytes"=>212))
         should include("haproxy" => hash_including("termination_state"=>"cR--"))
         expect( grok.keys ).to_not include("url")
       else
@@ -175,7 +174,7 @@ describe_pattern "HAPROXYHTTPBASE", ['ecs-v1', 'legacy'] do
 
     it 'matches' do
       if ecs_compatibility?
-        should include("source"=>{"port"=>39759, "address"=>"127.0.0.1"})
+        should include("source"=>{"port"=>39759, "address"=>"127.0.0.1", "bytes"=>83285})
         should include("haproxy"=>hash_including("server_queue"=>0,
                                   "http"=>{
                                       "request"=>{"time_wait_ms"=>0, "captured_headers"=>"77.24.148.74", "time_wait_without_data_ms"=>48082}
@@ -252,12 +251,11 @@ describe_pattern "HAPROXYTCP", ['legacy', 'ecs-v1'] do
                             "timestamp"=>"Sep 20 15:44:23",
                             "host"=>{"hostname"=>"127.0.0.1"},
                             "process"=>{"pid"=>25457, "name"=>"haproxy"},
-                            "source"=>{"port"=>40962, "address"=>"127.0.0.1"},
+                            "source"=>{"port"=>40962, "address"=>"127.0.0.1", "bytes"=>212},
                             "haproxy"=>{
                                 "request_date"=>"20/Sep/2018:15:44:23.285",
                                 "frontend_name"=>"main", "backend_name"=>"app",
                                 "total_time_ms"=>"1",
-                                "bytes_read"=>212,
                                 "termination_state"=>"SC",
                                 "connections"=>{"active"=>1, "backend"=>0, "retries"=>0, "server"=>0, "frontend"=>1},
                                 "server_queue"=>0, "backend_queue"=>0
