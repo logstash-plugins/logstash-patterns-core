@@ -114,6 +114,29 @@ describe "UNIXPATH" do
       expect(grok_match(pattern,value)).to pass
     end
   end
+
+  context "long path" do
+
+    let(:grok) do
+      grok = LogStash::Filters::Grok.new("match" => ["message", '%{UNIXPATH:path} '], 'timeout_millis' => 1500)
+      grok.register
+      grok
+    end
+
+    let(:value) { '/opt/abcdef/1/.22/3:3+3/foo@BAR/X-Y+Z/~Sample_l_SUBc b' }
+
+    it "should match the path" do
+      event = build_event(value)
+      grok.filter(event)
+      expect( event.to_hash['path'] ).to eql '/opt/abcdef/1/.22/3:3+3/foo@BAR/X-Y+Z/~Sample_l_SUBc'
+    end
+
+    it "should not match with invalid chars (or cause DoS)" do
+      event = build_event(value.sub('SUB', '&^_'))
+      grok.filter(event) # used to call a looong looop (DoS) despite the timeout guard
+      expect( event.to_hash['tags'] ).to include '_grokparsefailure'
+    end
+  end
 end
 
 describe "URIPROTO" do
