@@ -108,11 +108,23 @@ describe "UNIXPATH" do
 
   context "when using comma separators and other regexp" do
 
+    let(:pattern) { '((a=(?<a>%{UNIXPATH})?|b=(?<b>%{UNIXPATH})?)(,\s)?)+' }
+
+    let(:grok) do
+      grok = LogStash::Filters::Grok.new("match" => ["message", pattern])
+      grok.register
+      grok
+    end
+
     let(:value) { 'a=/some/path, b=/some/other/path' }
 
-    it "should match the path" do
-      expect(grok_match(pattern,value)).to pass
+    it "should match both paths" do # but does not
+      event = build_event(value)
+      grok.filter(event)
+      expect( event.to_hash['a'] ).to eql '/some/path,'
+      expect( event.to_hash['b'] ).to be nil
     end
+
   end
 
   context "dotted path" do
