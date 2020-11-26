@@ -118,7 +118,7 @@ describe "UNIXPATH" do
   context "dotted path" do
 
     it "should match path containing ." do
-      expect(grok_match(pattern, '/some/./path')).to pass
+      expect(grok_match(pattern, '/some/./path/')).to pass
       expect(grok_match(pattern, '/some/../path')).to pass
       expect(grok_match(pattern, '/../.')).to pass
       expect(grok_match(pattern, '/.')).to pass
@@ -153,15 +153,18 @@ describe "UNIXPATH" do
 
   context "separators" do
 
-    it "should match" do
+    it "should match root" do
       expect(grok_match(pattern, '/')).to pass
     end
 
-    it "should not match" do
-      expect(grok_match(pattern, '//')).to_not pass
-      expect(grok_match(pattern, '/a//')).to_not pass
-      expect(grok_match(pattern, '/a/b//')).to_not pass
-      expect(grok_match(pattern, '/a//b')).to_not pass
+    it "should match" do # NOTE: we did not match these in < 4.2.0
+      expect(grok_match(pattern, '//')).to pass
+      expect(grok_match(pattern, '//00')).to pass
+      expect(grok_match(pattern, '///a')).to pass
+      expect(grok_match(pattern, '/a//')).to pass
+      expect(grok_match(pattern, '~/b//')).to pass
+      expect(grok_match(pattern, 'a//b')).to pass
+      expect(grok_match(pattern, '///a//b/c///')).to pass
     end
 
   end
