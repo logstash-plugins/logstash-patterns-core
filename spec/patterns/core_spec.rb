@@ -115,6 +115,57 @@ describe "UNIXPATH" do
     end
   end
 
+  context "dotted path" do
+
+    it "should match path containing ." do
+      expect(grok_match(pattern, '/some/./path')).to pass
+      expect(grok_match(pattern, '/some/../path')).to pass
+      expect(grok_match(pattern, '/../.')).to pass
+      expect(grok_match(pattern, '/.')).to pass
+      expect(grok_match(pattern, '/..')).to pass
+      expect(grok_match(pattern, '/...')).to pass
+
+      expect(grok_match(pattern, 'a/./b/c')).to pass
+      expect(grok_match(pattern, ',/.')).to pass
+      expect(grok_match(pattern, '+/.../')).to pass
+    end
+
+    it "should match path starting with ." do
+      expect(grok_match(pattern, '../0')).to pass
+      expect(grok_match(pattern, './~')).to pass
+      expect(grok_match(pattern, '.../-')).to pass
+      expect(grok_match(pattern, './')).to pass
+      expect(grok_match(pattern, './,')).to pass
+      expect(grok_match(pattern, '../')).to pass
+      expect(grok_match(pattern, '.a/')).to pass
+      expect(grok_match(pattern, '.~/')).to pass
+    end
+
+    it "should not match if there's no separator" do
+      expect(grok_match(pattern, '.')).to_not pass
+      expect(grok_match(pattern, '..')).to_not pass
+      expect(grok_match(pattern, '...')).to_not pass
+      expect(grok_match(pattern, '.,')).to_not pass
+      expect(grok_match(pattern, '.-')).to_not pass
+    end
+
+  end
+
+  context "separators" do
+
+    it "should match" do
+      expect(grok_match(pattern, '/')).to pass
+    end
+
+    it "should not match" do
+      expect(grok_match(pattern, '//')).to_not pass
+      expect(grok_match(pattern, '/a//')).to_not pass
+      expect(grok_match(pattern, '/a/b//')).to_not pass
+      expect(grok_match(pattern, '/a//b')).to_not pass
+    end
+
+  end
+
   context "long path" do
 
     let(:grok) do
