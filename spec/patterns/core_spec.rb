@@ -204,6 +204,12 @@ describe "UNIXPATH" do
       expect(grok_match(pattern, '///a//b/c///', true)).to pass
     end
 
+    it "should not match windows separator" do
+      expect(grok_match(pattern, "\\a", true)).to_not pass
+      expect(grok_match(pattern, '/0\\', true)).to_not pass
+      expect(grok_match(pattern, "/a\\b", true)).to_not pass
+    end
+
   end
 
   context "long path" do
@@ -229,6 +235,65 @@ describe "UNIXPATH" do
     end
   end
 end
+
+describe "WINPATH" do
+
+  let(:pattern) { 'WINPATH' }
+  let(:value)   { 'C:\\foo\\bar' }
+
+  it "should match the path" do
+    expect(grok_match(pattern, value, true)).to pass
+  end
+
+  it "should match root path" do
+    expect(grok_match(pattern, 'C:\\', true)).to pass
+    expect(grok_match(pattern, 'C:\\\\', true)).to pass
+    expect(grok_match(pattern, 'a:\\', true)).to pass
+    expect(grok_match(pattern, 'x:\\\\', true)).to pass
+  end
+
+  it "should match paths with spaces" do
+    expect(grok_match(pattern, 'C:\\Documents and Settings\\Public', true)).to pass
+    expect(grok_match(pattern, 'C:\\\\Users\\\\Public\\\\.Mozilla Firefox', true)).to pass
+  end
+
+  it "should not match unix-style paths" do
+    expect(grok_match(pattern, '/foo', true)).to_not pass
+    expect(grok_match(pattern, '//C/path', true)).to_not pass
+    expect(grok_match(pattern, '/', true)).to_not pass
+    expect(grok_match(pattern, '/foo/bar', true)).to_not pass
+    expect(grok_match(pattern, '/..', true)).to_not pass
+    expect(grok_match(pattern, 'C://', true)).to_not pass
+  end
+
+  context 'relative paths' do
+
+    it "should not match" do
+      expect(grok_match(pattern, 'a\\bar', true)).to_not pass
+      expect(grok_match(pattern, 'foo\\bar', true)).to_not pass
+      expect(grok_match(pattern, 'C\\A\\B', true)).to_not pass
+      expect(grok_match(pattern, 'C\\\\0', true)).to_not pass
+      expect(grok_match(pattern, '.\\0', true)).to_not pass
+      expect(grok_match(pattern, '..\\', true)).to_not pass
+      expect(grok_match(pattern, '...\\-', true)).to_not pass
+      expect(grok_match(pattern, '.\\', true)).to_not pass
+      expect(grok_match(pattern, '.\\,', true)).to_not pass
+      expect(grok_match(pattern, '..\\', true)).to_not pass
+      expect(grok_match(pattern, '.a\\', true)).to_not pass
+    end
+
+    it "should not match expression wout separator" do
+      expect(grok_match(pattern, '.')).to_not pass
+      expect(grok_match(pattern, '..')).to_not pass
+      expect(grok_match(pattern, '...')).to_not pass
+      expect(grok_match(pattern, 'C:')).to_not pass
+      expect(grok_match(pattern, 'C')).to_not pass
+    end
+
+  end
+
+end
+
 
 describe "URIPROTO" do
   let(:pattern) { 'URIPROTO' }
