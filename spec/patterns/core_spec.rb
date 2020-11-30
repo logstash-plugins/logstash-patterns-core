@@ -127,7 +127,7 @@ describe "UNIXPATH" do
 
   end
 
-  context "dotted path" do
+  context 'relative path' do
 
     let(:path_matcher) do # non-exact matcher
       grok = LogStash::Filters::Grok.new("match" => ["message", '%{UNIXPATH:path}'])
@@ -135,14 +135,7 @@ describe "UNIXPATH" do
       lambda { |msg| event = build_event(msg); grok.filter(event); event }
     end
 
-    it "should match path containing ." do
-      expect(grok_match(pattern, '/some/./path/', true)).to pass
-      expect(grok_match(pattern, '/some/../path', true)).to pass
-      expect(grok_match(pattern, '/../.', true)).to pass
-      expect(grok_match(pattern, '/.', true)).to pass
-      expect(grok_match(pattern, '/..', true)).to pass
-      expect(grok_match(pattern, '/...', true)).to pass
-
+    it "should not match (only partially)" do
       expect(grok_match(pattern, 'a/./b/c', true)).to_not pass
       event = path_matcher.('a/./b/c')
       expect( event.to_hash['path'] ).to eql '/./b/c'
@@ -158,6 +151,9 @@ describe "UNIXPATH" do
       expect(grok_match(pattern, '~/b/', true)).to_not pass
       event = path_matcher.('~/b/')
       expect( event.to_hash['path'] ).to eql '/b/'
+
+      expect(grok_match(pattern, './b//', true)).to_not pass
+      expect(grok_match(pattern, 'a//b', true)).to_not pass
     end
 
     it "should not match paths starting with ." do
@@ -171,12 +167,25 @@ describe "UNIXPATH" do
       expect(grok_match(pattern, '.~/', true)).to_not pass
     end
 
-    it "should not match if there's no separator" do
+    it "should not match expression wout separator" do
       expect(grok_match(pattern, '.')).to_not pass
       expect(grok_match(pattern, '..')).to_not pass
       expect(grok_match(pattern, '...')).to_not pass
       expect(grok_match(pattern, '.,')).to_not pass
       expect(grok_match(pattern, '.-')).to_not pass
+    end
+
+  end
+
+  context "dotted path" do
+
+    it "should match path containing ." do
+      expect(grok_match(pattern, '/some/./path/', true)).to pass
+      expect(grok_match(pattern, '/some/../path', true)).to pass
+      expect(grok_match(pattern, '/../.', true)).to pass
+      expect(grok_match(pattern, '/.', true)).to pass
+      expect(grok_match(pattern, '/..', true)).to pass
+      expect(grok_match(pattern, '/...', true)).to pass
     end
 
   end
@@ -193,8 +202,6 @@ describe "UNIXPATH" do
       expect(grok_match(pattern, '///a', true)).to pass
       expect(grok_match(pattern, '/a//', true)).to pass
       expect(grok_match(pattern, '///a//b/c///', true)).to pass
-      expect(grok_match(pattern, './b//', true)).to_not pass
-      expect(grok_match(pattern, 'a//b', true)).to_not pass
     end
 
   end
