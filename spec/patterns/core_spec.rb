@@ -103,7 +103,7 @@ describe "UNIXPATH" do
   let(:value)   { '/foo/bar' }
 
   it "should match the path" do
-    expect(grok_match(pattern,value)).to pass
+    expect(grok_match(pattern, value, true)).to pass
   end
 
   context "when using comma separators and other regexp" do
@@ -118,7 +118,7 @@ describe "UNIXPATH" do
 
     let(:value) { 'a=/some/path, b=/some/other/path' }
 
-    it "should match both paths" do # but does not
+    it "was expected to extract both but never really did" do # or maybe on JRuby 1.7
       event = build_event(value)
       grok.filter(event)
       expect( event.to_hash['a'] ).to eql '/some/path,'
@@ -129,28 +129,46 @@ describe "UNIXPATH" do
 
   context "dotted path" do
 
-    it "should match path containing ." do
-      expect(grok_match(pattern, '/some/./path/')).to pass
-      expect(grok_match(pattern, '/some/../path')).to pass
-      expect(grok_match(pattern, '/../.')).to pass
-      expect(grok_match(pattern, '/.')).to pass
-      expect(grok_match(pattern, '/..')).to pass
-      expect(grok_match(pattern, '/...')).to pass
-
-      expect(grok_match(pattern, 'a/./b/c')).to pass
-      expect(grok_match(pattern, ',/.')).to pass
-      expect(grok_match(pattern, '+/.../')).to pass
+    let(:path_matcher) do # non-exact matcher
+      grok = LogStash::Filters::Grok.new("match" => ["message", '%{UNIXPATH:path}'])
+      grok.register
+      lambda { |msg| event = build_event(msg); grok.filter(event); event }
     end
 
-    it "should match path starting with ." do
-      expect(grok_match(pattern, '../0')).to pass
-      expect(grok_match(pattern, './~')).to pass
-      expect(grok_match(pattern, '.../-')).to pass
-      expect(grok_match(pattern, './')).to pass
-      expect(grok_match(pattern, './,')).to pass
-      expect(grok_match(pattern, '../')).to pass
-      expect(grok_match(pattern, '.a/')).to pass
-      expect(grok_match(pattern, '.~/')).to pass
+    it "should match path containing ." do
+      expect(grok_match(pattern, '/some/./path/', true)).to pass
+      expect(grok_match(pattern, '/some/../path', true)).to pass
+      expect(grok_match(pattern, '/../.', true)).to pass
+      expect(grok_match(pattern, '/.', true)).to pass
+      expect(grok_match(pattern, '/..', true)).to pass
+      expect(grok_match(pattern, '/...', true)).to pass
+
+      expect(grok_match(pattern, 'a/./b/c', true)).to_not pass
+      event = path_matcher.('a/./b/c')
+      expect( event.to_hash['path'] ).to eql '/./b/c'
+
+      expect(grok_match(pattern, ',/.', true)).to_not pass
+      event = path_matcher.(',/.')
+      expect( event.to_hash['path'] ).to eql '/.'
+
+      expect(grok_match(pattern, '+/.../', true)).to_not pass
+      event = path_matcher.('+/.../')
+      expect( event.to_hash['path'] ).to eql '/.../'
+
+      expect(grok_match(pattern, '~/b/', true)).to_not pass
+      event = path_matcher.('~/b/')
+      expect( event.to_hash['path'] ).to eql '/b/'
+    end
+
+    it "should not match paths starting with ." do
+      expect(grok_match(pattern, '../0', true)).to_not pass
+      expect(grok_match(pattern, './~', true)).to_not pass
+      expect(grok_match(pattern, '.../-', true)).to_not pass
+      expect(grok_match(pattern, './', true)).to_not pass
+      expect(grok_match(pattern, './,', true)).to_not pass
+      expect(grok_match(pattern, '../', true)).to_not pass
+      expect(grok_match(pattern, '.a/', true)).to_not pass
+      expect(grok_match(pattern, '.~/', true)).to_not pass
     end
 
     it "should not match if there's no separator" do
@@ -166,17 +184,17 @@ describe "UNIXPATH" do
   context "separators" do
 
     it "should match root" do
-      expect(grok_match(pattern, '/')).to pass
+      expect(grok_match(pattern, '/', true)).to pass
     end
 
-    it "should match" do # NOTE: we did not match these in < 4.2.0
-      expect(grok_match(pattern, '//')).to pass
-      expect(grok_match(pattern, '//00')).to pass
-      expect(grok_match(pattern, '///a')).to pass
-      expect(grok_match(pattern, '/a//')).to pass
-      expect(grok_match(pattern, '~/b//')).to pass
-      expect(grok_match(pattern, 'a//b')).to pass
-      expect(grok_match(pattern, '///a//b/c///')).to pass
+    it "should match" do
+      expect(grok_match(pattern, '//', true)).to pass
+      expect(grok_match(pattern, '//00', true)).to pass
+      expect(grok_match(pattern, '///a', true)).to pass
+      expect(grok_match(pattern, '/a//', true)).to pass
+      expect(grok_match(pattern, '///a//b/c///', true)).to pass
+      expect(grok_match(pattern, './b//', true)).to_not pass
+      expect(grok_match(pattern, 'a//b', true)).to_not pass
     end
 
   end
