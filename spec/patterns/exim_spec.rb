@@ -21,7 +21,7 @@ describe_pattern 'EXIM', ['legacy', 'ecs-v1'] do
             "message"=>{"id"=>"0tACW1-0005MB-00", "size"=>5678},
             "header_id"=>"f828ca60127d8646a0fa75cbf8db9ba3@dwarf.fict.example"
         }})
-        expect(grok).to include("client"=>{"address"=>"mailer.fict.example", "ip"=>"192.168.123.123"})
+        expect(grok).to include("source"=>{"address"=>"mailer.fict.example", "ip"=>"192.168.123.123"})
         expect(grok).to include("network"=>{"protocol"=>"smtp"})
       else
         expect(grok).to include("exim_year" => "1995", "exim_month" => "10", "exim_day" => "31", "@version" => "1", "exim_time" => "08:57:53")
@@ -59,8 +59,8 @@ describe_pattern 'EXIM', ['legacy', 'ecs-v1'] do
             "sender"=>{"email"=>"mailling.list@domain.com"},
             "recipient"=>{"email"=>"user@example.com"},
         )})
-        expect(grok).to include("client"=>{"address"=>"mailhost.domain.com", "ip"=>"208.42.54.2", "port"=>51792})
-        expect(grok).to include("exim"=>{"log"=>hash_including("host"=>{"ip"=>"67.215.162.175", "port"=>25})})
+        expect(grok).to include("source"=>{"address"=>"mailhost.domain.com", "ip"=>"208.42.54.2", "port"=>51792})
+        expect(grok).to include("destination"=>{"ip"=>"67.215.162.175", "port"=>25})
       else
 
         expect(grok).to include("exim_year" => "2010", "exim_month" => "09", "exim_day" => "13", "exim_time" => "05:00:13")
@@ -127,7 +127,7 @@ describe_pattern 'EXIM', ['legacy', 'ecs-v1'] do
             "message"=>{ "id"=>"1UIIN7-0004t9-8R", "size"=>811 },
             "header_id"=>"201303201244.r2KCi11V018784@hostname.example.com",
             "remote_address"=>"hostname.example.com")})
-        expect(grok).to include("client"=>{"address"=>"localhost", "ip"=>"127.0.0.1"})
+        expect(grok).to include("source"=>{"address"=>"localhost", "ip"=>"127.0.0.1"})
         expect(grok).to include("network"=>{"protocol"=>"esmtps"})
       else
         expect(grok).to include(
@@ -161,13 +161,13 @@ describe_pattern 'EXIM', ['legacy', 'ecs-v1'] do
       if ecs_compatibility?
         expect(grok).to include("exim"=>{"log"=>hash_including(
             "message"=>hash_including("id"=>"1gsu1C-003dCu-Hb", "subject"=>"what's up?!? ;-)"),
-            "host"=>{"ip"=>"127.0.0.1", "port"=>25}
         )})
+        expect(grok).to include("destination"=>{"ip"=>"127.0.0.1", "port"=>25})
         expect(grok).to include("exim"=>{"log"=>hash_including(
             "sender"=>{"email"=>"aaron@domain.com", 'original'=>'aaron@domain.com'}
         )})
         expect(grok).to include("exim"=>{"log"=>hash_including("recipient"=>{"email"=>"aaron+forward@domain.com"})})
-        expect(grok).to include("client"=>{"address"=>"localhost", "ip"=>"127.0.0.1", "port"=>39753})
+        expect(grok).to include("source"=>{"address"=>"localhost", "ip"=>"127.0.0.1", "port"=>39753})
         expect(grok).to include("exim"=>{"log" => hash_including("remote_address"=>'10.5.40.204')})
       else
         expect(grok).to include(
