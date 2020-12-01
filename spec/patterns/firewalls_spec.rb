@@ -118,6 +118,8 @@ describe_pattern 'SFW2', ['legacy', 'ecs-v1'] do
   end
 
   it 'matches' do
+    # NOTE: we do not match the second LEN=492 which is the length of the wrapped (UDP in this case) packet
+    # iptables.length (IP packet length) 512 = 492 (UDP/TCP packet length) + 20 (IPv4 header length = 20 bytes)
     if ecs_compatibility?
       expect(grok).to include(
                           "timestamp"=>"Jan 29 00:00:28",
@@ -127,7 +129,7 @@ describe_pattern 'SFW2', ['legacy', 'ecs-v1'] do
                           "destination"=>{"ip"=>"216.58.112.55", "port"=>1026},
                           "iptables"=>{
                               "input_interface"=>"ppp0",
-                              "length"=>512,
+                              "length"=>512, # IP packet length
                               "id"=>"55012",
                               "ttl"=>70,
                               "tos"=>"00",
