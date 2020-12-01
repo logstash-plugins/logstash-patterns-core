@@ -97,5 +97,6 @@ IPTABLES IN=(?:%{NOTSPACE:[iptables][input_interface]})?\s+OUT=(?:%{NOTSPACE:[ip
 SHOREWALL (?:%{SYSLOGTIMESTAMP:timestamp}) (?:%{WORD:[host][hostname]}) .*Shorewall:(?:%{WORD:[shorewall][firewall][type]})?:(?:%{WORD:[shorewall][firewall][action]})?.*%{IPTABLES}
 #== End Shorewall
 #== SuSE Firewall 2 ==
-SFW2 ((?:%{SYSLOGTIMESTAMP:timestamp})|(?:%{TIMESTAMP_ISO8601:timestamp}))\s*%{HOSTNAME:[host][hostname]}.*?SFW2\-INext\-%{NOTSPACE:[suse][firewall][action]}\s*%{IPTABLES}
+SFW2_LOG_PREFIX SFW2\-INext\-%{NOTSPACE:[suse][firewall][action]}
+SFW2 ((?:%{SYSLOGTIMESTAMP:timestamp})|(?:%{TIMESTAMP_ISO8601:timestamp}))\s*%{HOSTNAME:[host][hostname]}.*?%{SFW2_LOG_PREFIX:[suse][firewall][log_prefix]}\s*%{IPTABLES}
 #== End SuSE ==

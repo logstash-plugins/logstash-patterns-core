@@ -114,10 +114,6 @@ end
 describe_pattern 'SFW2', ['legacy', 'ecs-v1'] do
 
   let(:message) do
-    "Mar 8 22:35:42 linux kernel: SuSE-FW-DROP-DEFAULT IN=ppp0 OUT= MAC= SRC=202.175.181.4 DST=64.238.136.187 LEN=48 TOS=0x00 PREC=0x00 TTL=113 ID=31151 DF PROTO=TCP SPT=3360 DPT=3127 WINDOW=65340 RES=0x00 SYN URGP=0 OPT (020405AC01010402)"
-    # ^^^ parse-failure
-    "Jan 15 11:21:13 IKCSWeb kernel: SFW2-IN-ACC-RELATED IN=eth1 OUT= MAC=00:19:bb:2e:85:42:00:17:c5:d8:2e:2c:08:00 SRC=59.64.166.81 DST=207.194.99.122 LEN=40 TOS=0x00 PREC=0x00 TTL=64 ID=48949 DF PROTO=TCP SPT=24093 DPT=22 WINDOW=137 RES=0x00 ACK URGP=0"
-
     "Jan 29 00:00:28 myth kernel: SFW2-INext-DROP-DEFLT IN=ppp0 OUT= MAC= SRC=24.64.208.134 DST=216.58.112.55 LEN=512 TOS=0x00 PREC=0x00 TTL=70 ID=55012 PROTO=UDP SPT=24128 DPT=1026 LEN=492"
   end
 
@@ -126,15 +122,16 @@ describe_pattern 'SFW2', ['legacy', 'ecs-v1'] do
       expect(grok).to include(
                           "timestamp"=>"Jan 29 00:00:28",
                           "host"=>{"hostname"=>"myth"},
-                           "destination"=>{"ip"=>"216.58.112.55", "port"=>1026}, "source"=>{"ip"=>"24.64.208.134", "port"=>24128},
-                           "suse"=>{"firewall"=>{"action"=>"DROP-DEFLT"}},
-                           "iptables"=>{
-                               "input_interface"=>"ppp0",
-                               "length"=>512,
-                               "id"=>"55012",
-                               "ttl"=>70,
-                               "tos"=>"00",
-                               "precedence_bits"=>"00"}, "suse"=>{"firewall"=>{"action"=>"DROP-DEFLT"}}, "host"=>{"hostname"=>"myth"
+                          "suse"=>{"firewall"=>{"action"=>"DROP-DEFLT", "log_prefix"=>"SFW2-INext-DROP-DEFLT"}},
+                          "source"=>{"ip"=>"24.64.208.134", "port"=>24128},
+                          "destination"=>{"ip"=>"216.58.112.55", "port"=>1026},
+                          "iptables"=>{
+                              "input_interface"=>"ppp0",
+                              "length"=>512,
+                              "id"=>"55012",
+                              "ttl"=>70,
+                              "tos"=>"00",
+                              "precedence_bits"=>"00"
                           },
                           "network"=>{"transport"=>"UDP"}
                       )
@@ -160,9 +157,9 @@ describe_pattern 'SFW2', ['legacy', 'ecs-v1'] do
         expect(grok).to include(
                             "timestamp"=>"Mar  8 20:16:44",
                             "host"=>{"hostname"=>"black"},
-                            "suse"=>{"firewall"=>{"action"=>"ACC-TCP"}},
-                            "destination"=>{"mac"=>"28:45:a7:f3:18:00", "ip"=>"192.168.0.100", "port"=>631},
+                            "suse"=>{"firewall"=>{"action"=>"ACC-TCP", "log_prefix"=>"SFW2-INext-ACC-TCP"}},
                             "source"=>{"mac"=>"00:22:15:67:6a:25", "ip"=>"192.168.0.101", "port"=>59282},
+                            "destination"=>{"mac"=>"28:45:a7:f3:18:00", "ip"=>"192.168.0.100", "port"=>631},
                             "iptables"=>{
                                 "input_interface"=>"eth0",
                                 "length"=>60,
@@ -191,6 +188,34 @@ describe_pattern 'SFW2', ['legacy', 'ecs-v1'] do
                             "nf_protocol"=>"TCP"
                         )
       end
+    end
+
+  end
+
+  context 'alternate log-prefixes' do
+
+    describe 'SuSE-FW-DROP-DEFAULT' do # by default we only match SFW2-INext-*
+
+      let(:message) do
+        "Mar 8 22:35:42 linux kernel: SuSE-FW-DROP-DEFAULT IN=ppp0 OUT= MAC= SRC=202.175.181.4 DST=64.238.136.187 LEN=48 TOS=0x00 PREC=0x00 TTL=113 ID=31151 DF PROTO=TCP SPT=3360 DPT=3127 WINDOW=65340 RES=0x00 SYN URGP=0 OPT (020405AC01010402)"
+      end
+
+      it 'does not match' do
+        expect(grok['tags']).to include('_grokparsefailure')
+      end
+
+    end
+
+    describe 'SFW2-IN-ACC-RELATED' do
+
+      let(:message) do
+        "Jan 15 11:21:13 IKCSWeb kernel: SFW2-IN-ACC-RELATED IN=eth1 OUT= MAC=00:19:bb:2e:85:42:00:17:c5:d8:2e:2c:08:00 SRC=59.64.166.81 DST=207.194.99.122 LEN=40 TOS=0x00 PREC=0x00 TTL=64 ID=48949 DF PROTO=TCP SPT=24093 DPT=22 WINDOW=137 RES=0x00 ACK URGP=0"
+      end
+
+      it 'does not match' do
+        expect(grok['tags']).to include('_grokparsefailure')
+      end
+
     end
 
   end
