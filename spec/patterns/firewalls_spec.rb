@@ -230,12 +230,18 @@ describe_pattern 'SFW2', ['legacy', 'ecs-v1'] do
 
     it 'matches' do
       if ecs_compatibility?
-        expect(grok).to include("iptables"=>{"input_interface"=>"eth0", "ttl"=>255, "flow_label"=>"804001", "length"=>527})
+        iptables = grok['iptables']
+        expect(iptables).to include("input_interface"=>"eth0", "flow_label"=>"804001")
+        expect(iptables['ttl'].to_s).to eql('255')
+        expect(iptables['length'].to_s).to eql('527')
         expect(grok).to include(
                             "source"=>{"ip"=>"fe80:0000:0000:0000:16da:e9ff:feec:a04d", "port"=>5353},
                             "destination"=>{"ip"=>"ff02:0000:0000:0000:0000:0000:0000:00fb", "port"=>5353},
                             "network"=>{"transport"=>"UDP"}
                         )
+        pending
+        # TODO hitting a grok type-casting issue https://github.com/logstash-plugins/logstash-filter-grok/issues/165
+        expect(iptables).to include("input_interface"=>"eth0", "ttl"=>255, "flow_label"=>"804001", "length"=>527)
       else
         expect(grok).to include("nf_src_ip"=>"fe80:0000:0000:0000:16da:e9ff:feec:a04d",
                                 "nf_dst_ip"=>"ff02:0000:0000:0000:0000:0000:0000:00fb",
