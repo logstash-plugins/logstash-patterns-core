@@ -123,12 +123,11 @@ describe_pattern 'SFW2', ['legacy', 'ecs-v1'] do
     if ecs_compatibility?
       expect(grok).to include(
                           "timestamp"=>"Jan 29 00:00:28",
-                          "observer"=>{"hostname"=>"myth"},
+                          "observer"=>{"hostname"=>"myth", "ingress"=>{"interface"=>{"name"=>"ppp0"}}},
                           "suse"=>{"firewall"=>{"action"=>"DROP-DEFLT", "log_prefix"=>"SFW2-INext-DROP-DEFLT"}},
                           "source"=>{"ip"=>"24.64.208.134", "port"=>24128},
                           "destination"=>{"ip"=>"216.58.112.55", "port"=>1026},
                           "iptables"=>{
-                              "input_interface"=>"ppp0",
                               "length"=>512, # IP packet length
                               "id"=>"55012",
                               "ttl"=>70,
@@ -158,12 +157,11 @@ describe_pattern 'SFW2', ['legacy', 'ecs-v1'] do
       if ecs_compatibility?
         expect(grok).to include(
                             "timestamp"=>"Mar  8 20:16:44",
-                            "observer"=>{"hostname"=>"black"},
+                            "observer"=>{"hostname"=>"black", "ingress"=>{"interface"=>{"name"=>"eth0"}}},
                             "suse"=>{"firewall"=>{"action"=>"ACC-TCP", "log_prefix"=>"SFW2-INext-ACC-TCP"}},
                             "source"=>{"mac"=>"00:22:15:67:6a:25", "ip"=>"192.168.0.101", "port"=>59282},
                             "destination"=>{"mac"=>"28:45:a7:f3:18:00", "ip"=>"192.168.0.100", "port"=>631},
                             "iptables"=>{
-                                "input_interface"=>"eth0",
                                 "length"=>60,
                                 "id"=>"6429",
                                 "tos"=>"00", "fragment_flags"=>"DF",
@@ -225,15 +223,16 @@ describe_pattern 'SFW2', ['legacy', 'ecs-v1'] do
   context 'IPv6 message' do
 
     let(:message) do
-      "Jan 15 11:21:13 IKCSWeb kernel: SFW2-INext-ACC-RELATED IN=eth0 OUT= MAC= SRC=fe80:0000:0000:0000:16da:e9ff:feec:a04d DST=ff02:0000:0000:0000:0000:0000:0000:00fb LEN=527 TC=0 HOPLIMIT=255 FLOWLBL=804001 PROTO=UDP SPT=5353 DPT=5353 LEN=487"
+      "Jan 15 11:21:13 IKCS-Web kernel: SFW2-INext-ACC-RELATED IN=eth0 OUT=eth1 MAC= SRC=fe80:0000:0000:0000:16da:e9ff:feec:a04d DST=ff02:0000:0000:0000:0000:0000:0000:00fb LEN=527 TC=0 HOPLIMIT=255 FLOWLBL=804001 PROTO=UDP SPT=5353 DPT=5353 LEN=487"
     end
 
     it 'matches' do
       if ecs_compatibility?
         iptables = grok['iptables']
-        expect(iptables).to include("input_interface"=>"eth0", "flow_label"=>"804001")
+        expect(iptables).to include("flow_label"=>"804001")
         expect(iptables['ttl'].to_s).to eql('255')
         expect(iptables['length'].to_s).to eql('527')
+        expect(grok).to include("observer"=>{"hostname"=>"IKCS-Web", "ingress"=>{"interface"=>{"name"=>"eth0"}}, "egress"=>{"interface"=>{"name"=>"eth1"}}})
         expect(grok).to include(
                             "source"=>{"ip"=>"fe80:0000:0000:0000:16da:e9ff:feec:a04d", "port"=>5353},
                             "destination"=>{"ip"=>"ff02:0000:0000:0000:0000:0000:0000:00fb", "port"=>5353},
@@ -241,7 +240,7 @@ describe_pattern 'SFW2', ['legacy', 'ecs-v1'] do
                         )
         pending
         # TODO hitting a grok type-casting issue https://github.com/logstash-plugins/logstash-filter-grok/issues/165
-        expect(iptables).to include("input_interface"=>"eth0", "ttl"=>255, "flow_label"=>"804001", "length"=>527)
+        expect(iptables).to include("ttl"=>255, "flow_label"=>"804001", "length"=>527)
       else
         expect(grok).to include("nf_src_ip"=>"fe80:0000:0000:0000:16da:e9ff:feec:a04d",
                                 "nf_dst_ip"=>"ff02:0000:0000:0000:0000:0000:0000:00fb",

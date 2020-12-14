@@ -91,7 +91,7 @@ IPTABLES4_FRAG (?:(?<= )(?:CE|DF|MF))*
 IPTABLES4_PART SRC=%{IPV4:[source][ip]}\s+DST=%{IPV4:[destination][ip]}\s+LEN=(?:%{INT:[iptables][length]:int})?\s+TOS=(?:0|0x%{BASE16NUM:[iptables][tos]})?\s+PREC=(?:0x%{BASE16NUM:[iptables][precedence_bits]})?\s+TTL=(?:%{INT:[iptables][ttl]:int})?\s+ID=(?:%{INT:[iptables][id]})?\s+(?:%{IPTABLES4_FRAG:[iptables][fragment_flags]})?(?:\s+FRAG: %{INT:[iptables][fragment_offset]:int})?
 IPTABLES6_PART SRC=%{IPV6:[source][ip]}\s+DST=%{IPV6:[destination][ip]}\s+LEN=(?:%{INT:[iptables][length]:int})?\s+TC=(?:0|0x%{BASE16NUM:[iptables][tos]})?\s+HOPLIMIT=(?:%{INT:[iptables][ttl]:int})?\s+FLOWLBL=(?:%{INT:[iptables][flow_label]})?
 
-IPTABLES IN=(?:%{NOTSPACE:[iptables][input_interface]})?\s+OUT=(?:%{NOTSPACE:[iptables][output_interface]})?\s+(?:MAC=(?:%{COMMONMAC:[destination][mac]})?(?::%{COMMONMAC:[source][mac]})?(?::[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2})?\s+)?(:?%{IPTABLES4_PART}|%{IPTABLES6_PART}).*?PROTO=(?:%{WORD:[network][transport]})?\s+SPT=(?:%{INT:[source][port]:int})?\s+DPT=(?:%{INT:[destination][port]:int})?\s+(?:%{IPTABLES_TCP_PART})?
+IPTABLES IN=(?:%{NOTSPACE:[observer][ingress][interface][name]})?\s+OUT=(?:%{NOTSPACE:[observer][egress][interface][name]})?\s+(?:MAC=(?:%{COMMONMAC:[destination][mac]})?(?::%{COMMONMAC:[source][mac]})?(?::[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2})?\s+)?(:?%{IPTABLES4_PART}|%{IPTABLES6_PART}).*?PROTO=(?:%{WORD:[network][transport]})?\s+SPT=(?:%{INT:[source][port]:int})?\s+DPT=(?:%{INT:[destination][port]:int})?\s+(?:%{IPTABLES_TCP_PART})?
 
 # Shorewall firewall logs
 SHOREWALL (?:%{SYSLOGTIMESTAMP:timestamp}) (?:%{WORD:[observer][hostname]}) .*Shorewall:(?:%{WORD:[shorewall][firewall][type]})?:(?:%{WORD:[shorewall][firewall][action]})?.*%{IPTABLES}

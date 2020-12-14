@@ -16,10 +16,9 @@ describe_pattern "SHOREWALL", ['legacy', 'ecs-v1'] do
 
       if ecs_compatibility?
         expect(grok).to include(
-                            "host"=>{"hostname"=>"myHost"},
+                            "observer"=>{"hostname"=>"myHost", "ingress"=>{"interface"=>{"name"=>"eth2"}}, "egress"=>{"interface"=>{"name"=>"eth2"}}},
                             "shorewall"=>{'firewall'=>{"type"=>"FORWARD", "action"=>"REJECT"}},
                             "iptables"=>{
-                                "input_interface"=>"eth2", "output_interface"=>"eth2",
                                 "length"=>141,
                                 "tos"=>"00", "precedence_bits"=>"00",
                                 "ttl"=>63,
@@ -62,10 +61,9 @@ describe_pattern "SHOREWALL", ['legacy', 'ecs-v1'] do
       should include("timestamp" => "May 28 17:31:07")
       if ecs_compatibility?
         expect(grok).to include(
-                            "host"=>{"hostname"=>"server"},
+                            "observer"=>{"hostname"=>"server", "ingress"=>{"interface"=>{"name"=>"eth1"}}}, # no "output_interface"
                             "shorewall"=>{'firewall'=>{"type"=>"net2fw", "action"=>"DROP",}},
                             "iptables"=>{
-                                "input_interface"=>"eth1", # no "output_interface"
                                 "length"=>60,
                                 "tos"=>"00", "precedence_bits"=>"00",
                                 "ttl"=>49,
