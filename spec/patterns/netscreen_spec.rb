@@ -52,6 +52,32 @@ describe_pattern "NETSCREENSESSIONLOG", ['legacy', 'ecs-v1'] do
 
   end
 
+  context "traffic denied (without port/xlated/session_id/reason suffix)" do
+
+    let(:message) do
+      'Mar 18 17:56:52 192.168.56.11 lowly_lizard: NetScreen device_id=netscreen2 [Root]system-notification-00257(traffic): ' +
+          'start_time="2009-03-18 16:07:06" duration=0 policy_id=320001 service=msrpc Endpoint Mapper(tcp) proto=6 ' +
+          'src zone=Null dst zone=self action=Deny sent=0 rcvd=16384 src=21.10.90.125 dst=23.16.1.1'
+    end
+
+    it 'matches in ECS mode' do
+      if ecs_compatibility?
+        should include("timestamp" => "Mar 18 17:56:52")
+        should include("netscreen"=>{
+            "device_id"=>"netscreen2",
+            "policy_id"=>"320001",
+            "service"=>"msrpc Endpoint Mapper(tcp)",
+            "protocol_number"=>6,
+            "session"=>{"start_time"=>"2009-03-18 16:07:06", "type"=>"traffic", "duration"=>0}
+        })
+        should include("source"=>{"address"=>"21.10.90.125", "bytes"=>0})
+        should include("destination"=>{"address"=>"23.16.1.1", "bytes"=>16384})
+      else
+        expect(grok['tags']).to include('_grokparsefailure')
+      end
+    end
+  end
+
   context "'standard' traffic denied" do
 
     let(:message) do
@@ -60,11 +86,11 @@ describe_pattern "NETSCREENSESSIONLOG", ['legacy', 'ecs-v1'] do
           'src=192.168.2.2 dst=1.2.3.4 src_port=53 dst_port=17210'
     end
 
-    it 'does not match' do # NOTE: matching could/should be fixed - this is of a current state of affairs
-      expect(grok['tags']).to include('_grokparsefailure')
+    it 'matches (in ECS mode)' do
       if ecs_compatibility?
-        # no-op
+        should include("event"=>{"action"=>"Deny", "code"=>"00257"})
       else
+        expect(grok['tags']).to include('_grokparsefailure')
         should_not include("date" => "Jun  2 14:53:31")
       end
     end
@@ -75,11 +101,17 @@ describe_pattern "NETSCREENSESSIONLOG", ['legacy', 'ecs-v1'] do
         super + ' session_id=0 reason=Traffic Denied'
       end
 
-      it 'does not match' do # NOTE: matching could/should be fixed - this is of a current state of affairs
-        expect(grok['tags']).to include('_grokparsefailure')
+      it 'matches (in ECS mode)' do
         if ecs_compatibility?
-          # no-op
+          should include("netscreen"=>hash_including("device_id"=>"aka1", "service"=>"udp/port:17210",
+                                                     "session"=>hash_including("reason"=>"Traffic Denied")))
+          should include("observer"=>{
+              "ingress"=>{"zone"=>"Trust"},
+              "egress"=>{"zone"=>"DMZ"}, "hostname"=>"fire00", "name"=>"aka1",
+              "product"=>"NetScreen"
+          })
         else
+          expect(grok['tags']).to include('_grokparsefailure')
           should_not include("date" => "Jun  2 14:53:31")
         end
       end
