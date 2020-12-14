@@ -123,7 +123,7 @@ describe_pattern 'SFW2', ['legacy', 'ecs-v1'] do
     if ecs_compatibility?
       expect(grok).to include(
                           "timestamp"=>"Jan 29 00:00:28",
-                          "host"=>{"hostname"=>"myth"},
+                          "observer"=>{"hostname"=>"myth"},
                           "suse"=>{"firewall"=>{"action"=>"DROP-DEFLT", "log_prefix"=>"SFW2-INext-DROP-DEFLT"}},
                           "source"=>{"ip"=>"24.64.208.134", "port"=>24128},
                           "destination"=>{"ip"=>"216.58.112.55", "port"=>1026},
@@ -158,7 +158,7 @@ describe_pattern 'SFW2', ['legacy', 'ecs-v1'] do
       if ecs_compatibility?
         expect(grok).to include(
                             "timestamp"=>"Mar  8 20:16:44",
-                            "host"=>{"hostname"=>"black"},
+                            "observer"=>{"hostname"=>"black"},
                             "suse"=>{"firewall"=>{"action"=>"ACC-TCP", "log_prefix"=>"SFW2-INext-ACC-TCP"}},
                             "source"=>{"mac"=>"00:22:15:67:6a:25", "ip"=>"192.168.0.101", "port"=>59282},
                             "destination"=>{"mac"=>"28:45:a7:f3:18:00", "ip"=>"192.168.0.100", "port"=>631},

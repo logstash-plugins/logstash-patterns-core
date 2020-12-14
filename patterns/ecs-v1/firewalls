@@ -94,9 +94,9 @@ IPTABLES6_PART SRC=%{IPV6:[source][ip]}\s+DST=%{IPV6:[destination][ip]}\s+LEN=(?
 IPTABLES IN=(?:%{NOTSPACE:[iptables][input_interface]})?\s+OUT=(?:%{NOTSPACE:[iptables][output_interface]})?\s+(?:MAC=(?:%{COMMONMAC:[destination][mac]})?(?::%{COMMONMAC:[source][mac]})?(?::[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2})?\s+)?(:?%{IPTABLES4_PART}|%{IPTABLES6_PART}).*?PROTO=(?:%{WORD:[network][transport]})?\s+SPT=(?:%{INT:[source][port]:int})?\s+DPT=(?:%{INT:[destination][port]:int})?\s+(?:%{IPTABLES_TCP_PART})?
 
 # Shorewall firewall logs
-SHOREWALL (?:%{SYSLOGTIMESTAMP:timestamp}) (?:%{WORD:[host][hostname]}) .*Shorewall:(?:%{WORD:[shorewall][firewall][type]})?:(?:%{WORD:[shorewall][firewall][action]})?.*%{IPTABLES}
+SHOREWALL (?:%{SYSLOGTIMESTAMP:timestamp}) (?:%{WORD:[observer][hostname]}) .*Shorewall:(?:%{WORD:[shorewall][firewall][type]})?:(?:%{WORD:[shorewall][firewall][action]})?.*%{IPTABLES}
 #== End Shorewall
 #== SuSE Firewall 2 ==
 SFW2_LOG_PREFIX SFW2\-INext\-%{NOTSPACE:[suse][firewall][action]}
-SFW2 ((?:%{SYSLOGTIMESTAMP:timestamp})|(?:%{TIMESTAMP_ISO8601:timestamp}))\s*%{HOSTNAME:[host][hostname]}.*?%{SFW2_LOG_PREFIX:[suse][firewall][log_prefix]}\s*%{IPTABLES}
+SFW2 ((?:%{SYSLOGTIMESTAMP:timestamp})|(?:%{TIMESTAMP_ISO8601:timestamp}))\s*%{HOSTNAME:[observer][hostname]}.*?%{SFW2_LOG_PREFIX:[suse][firewall][log_prefix]}\s*%{IPTABLES}
 #== End SuSE ==
