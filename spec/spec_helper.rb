@@ -54,10 +54,14 @@ module GrokHelpers
   end
 
   def grok_match(label, message, exact_match = false)
+    grok_match_event(label, message, exact_match).to_hash
+  end
+
+  def grok_match_event(label, message, exact_match = false)
     grok  = build_grok(label, exact_match)
     event = build_event(message)
     grok.filter(event)
-    event.to_hash
+    event
   end
 
   def build_grok(label, exact_match = false)
@@ -94,7 +98,8 @@ def describe_pattern(name, pattern_modes = [ nil ], &block)
 
       let(:pattern) { name }
       let(:message) { raise 'let(:message) { ... } is missing' }
-      let(:grok) { grok_match(pattern, message) }
+      let(:event) { grok_match_event(pattern, message) }
+      let(:grok) { event.to_hash }
       subject(:grok_result) { grok }
 
       instance_eval(&block)
@@ -117,3 +122,16 @@ RSpec::Matchers.define :match do |value|
   end
 end
 
+RSpec.shared_examples_for 'to-level namespaces' do |namespaces, opts|
+  let(:internal_keys) { ['@timestamp', '@version'] }
+  let(:allowed_keys) { namespaces }
+  it "event is expected to only use namespaces: #{namespaces.inspect}" do
+    if instance_exec &(opts[:if] || -> { true })
+      event_hash = subject.to_hash
+      (event_hash.keys - (internal_keys + ['message'])).each do |top_level_key|
+        fail_msg = "found event.get('#{top_level_key}') : #{event_hash[top_level_key].inspect}"
+        expect(allowed_keys).to include(top_level_key), fail_msg
+      end
+    end
+  end
+end

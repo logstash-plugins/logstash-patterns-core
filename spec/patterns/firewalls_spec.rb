@@ -2,93 +2,212 @@
 require "spec_helper"
 require "logstash/patterns/core"
 
-describe_pattern "CISCOFW104001" do
+CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES = ['event', 'cisco', 'observer', 'source', 'destination'].freeze
+
+describe_pattern "CISCOFW104001", ['legacy', 'ecs-v1'] do
 
   let(:message) { "(Secondary) Switching to ACTIVE - Service card in other unit has failed" }
 
-  it { should include("switch_reason" => "Service card in other unit has failed") }
+  include_examples 'to-level namespaces', ['event'], if: -> { ecs_compatibility? }
 
-  it "generates a message field" do
-    expect(subject["message"]).to include("(Secondary) Switching to ACTIVE - Service card in other unit has failed")
+  it { should include("switch_reason" => "Service card in other unit has failed") unless ecs_compatibility? }
+
+  it "keeps message field" do
+    expect(subject["message"]).to eql message
   end
 
 end
 
-describe_pattern "CISCOFW106015" do
+describe_pattern "CISCOFW106001", ['legacy', 'ecs-v1'] do
 
-  let(:message) { "Deny TCP (no connection) from 192.168.150.65/2278 to 64.101.128.83/80 flags RST on interface inside" }
+  let(:message) { "ASA-2-106001: Inbound TCP connection denied from 192.168.2.2/43803 to 10.10.10.10/14322 flags SYN on interface out111" }
 
-  it { should include("interface" => "inside") }
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
-  it "generates a message field" do
-    expect(subject["message"]).to include("Deny TCP (no connection) from 192.168.150.65/2278 to 64.101.128.83/80 flags RST on interface inside")
+  it 'matches' do
+    if ecs_compatibility?
+      should include "source"=>{"ip"=>"192.168.2.2", "port"=>43803}
+      should include "destination"=>{"ip"=>"10.10.10.10", "port"=>14322}
+      should include "observer"=>{"egress"=>{"interface"=>{"name"=>"out111"}}}
+      should include "cisco"=>{"asa"=>hash_including("network"=>{"transport"=>"TCP", "direction"=>"Inbound"}, "tcp_flags"=>"SYN")}
+    else
+      should include("src_ip"=>"192.168.2.2", "src_port"=>'43803')
+    end
+  end
+
+  it "keeps message field" do
+    expect(subject["message"]).to eql message
   end
 
 end
 
-describe_pattern "CISCOFW106100" do
+describe_pattern "CISCOFW106006_106007_106010", ['legacy', 'ecs-v1'] do
+
+  let(:message) { "ASA-2-106006: Deny inbound UDP from 192.168.2.2/65020 to 10.10.10.10/65021 on interface fw111" }
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      should include "cisco" => {"asa"=>{"network"=>{"direction"=>"inbound", "transport"=>"UDP"}, "outcome"=>"Deny"}}
+      should include "source"=>{"ip"=>"192.168.2.2", "port"=>65020}
+      should include "destination"=>{"ip"=>"10.10.10.10", "port"=>65021}
+      should include "observer"=>{"egress"=>{"interface"=>{"name"=>"fw111"}}}
+    else
+      should include("src_ip"=>"192.168.2.2", "src_port"=>'65020')
+    end
+  end
+
+  it "keeps message field" do
+    expect(subject["message"]).to eql message
+  end
+
+end
+
+describe_pattern "CISCOFW106014", ['legacy', 'ecs-v1'] do
+
+  let(:message) { "ASA-3-106014: Deny inbound icmp src fw111:10.10.10.10 dst fw111:10.10.10.11(type 8, code 0)" }
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      should include "source"=>{"ip"=>"10.10.10.10"}
+      should include "destination"=>{"ip"=>"10.10.10.11"}
+      should include "cisco"=>{"asa"=>{"outcome"=>"Deny", "network"=>{"transport"=>"icmp", "direction"=>"inbound"}, "icmp_code"=>0, "icmp_type"=>8}}
+      should include "observer"=>{"ingress"=>{"interface"=>{"name"=>"fw111"}}, "egress"=>{"interface"=>{"name"=>"fw111"}}}
+    else
+      # NOTE: does not match due expecting space: "10.10.10.11 (type 8, code 0)"
+    end
+  end
+
+  it "keeps message field" do
+    expect(subject["message"]).to eql message
+  end
+
+end
+
+describe_pattern "CISCOFW106015", ['legacy', 'ecs-v1'] do
+
+  let(:message) { "Deny TCP (no connection) from 192.168.150.65/2278 to 64.101.128.83/80 flags RST on interface eth0" }
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      should include "observer"=>{"egress"=>{"interface"=>{"name"=>"eth0"}}}
+    else
+      should include("interface" => "eth0")
+    end
+  end
+
+  it "keeps message field" do
+    expect(subject["message"]).to eql message
+  end
+
+end
+
+describe_pattern "CISCOFW106021", ['legacy', 'ecs-v1'] do
+
+  let(:message) { "ASA-4-106021: Deny TCP reverse path check from 192.168.2.2 to 10.10.10.10 on interface fw111" }
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      should include "source"=>{"ip"=>"192.168.2.2"}, "destination"=>{"ip"=>"10.10.10.10"}
+      should include "cisco"=>{"asa"=>{"network"=>{"transport"=>"TCP"}, "outcome"=>"Deny"}}
+      should include "observer"=>{"egress"=>{"interface"=>{"name"=>"fw111"}}}
+    else
+      should include("interface" => "fw111")
+    end
+  end
+
+  it "keeps message field" do
+    expect(subject["message"]).to eql message
+  end
+
+end
+
+describe_pattern "CISCOFW106100", ['legacy', 'ecs-v1'] do
 
   let(:message) { "access-list inside permitted tcp inside/10.10.123.45(51763) -> outside/192.168.67.89(80) hit-cnt 1 first hit [0x62c4905, 0x0]" }
 
-  it { should include("policy_id" => "inside") }
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
-  it "generates a message field" do
-    expect(subject["message"]).to include("access-list inside permitted tcp inside/10.10.123.45(51763) -> outside/192.168.67.89(80) hit-cnt 1 first hit [0x62c4905, 0x0]")
+  it 'matches' do
+    if ecs_compatibility?
+      should include("cisco"=>{"asa"=>hash_including("rule_name" => "inside")})
+    else
+      should include("policy_id" => "inside")
+    end
+  end
+
+  it "keeps message field" do
+    expect(subject["message"]).to eql message
   end
 
 end
 
-describe_pattern "CISCOFW106100" do
+describe_pattern "CISCOFW106100", ['legacy', 'ecs-v1'] do
 
   let(:message) { "access-list outside-entry permitted tcp outside/10.11.12.13(54726) -> inside/192.168.17.18(80) hit-cnt 1 300-second interval [0x32b3835, 0x0]" }
 
-  it { should include("policy_id" => "outside-entry") }
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
-  it "generates a message field" do
-    expect(subject["message"]).to include("access-list outside-entry permitted tcp outside/10.11.12.13(54726) -> inside/192.168.17.18(80) hit-cnt 1 300-second interval [0x32b3835, 0x0]")
+  it 'matches' do
+    if ecs_compatibility?
+      should include("cisco"=>{"asa"=>hash_including("rule_name" => "outside-entry")})
+    else
+      should include("policy_id" => "outside-entry")
+    end
+  end
+
+  it "keeps message field" do
+    expect(subject["message"]).to eql message
   end
 
 end
 
-describe_pattern "CISCOFW304001" do
-
-  let(:message) { "10.20.30.40(DOMAIN\\login) Accessed URL 10.11.12.13:http://example.org/" }
-
-  it 'should break the message up into fields' do
-    expect(subject['src_ip']).to eq('10.20.30.40')
-    expect(subject['src_fwuser']).to eq('DOMAIN\\login')
-    expect(subject['dst_ip']).to eq('10.11.12.13')
-    expect(subject['dst_url']).to eq('http://example.org/')
-  end
-
-end
-
-describe_pattern "CISCOFW106023" do
+describe_pattern "CISCOFW106023", ['legacy', 'ecs-v1'] do
 
   let(:message) { 'Deny tcp src outside:192.168.1.1/50240 dst inside:192.168.1.2/23 by access-group "S_OUTSIDE_TO_INSIDE" [0x54c7fa80, 0x0]' }
 
-  it 'should break the message up into fields' do
-    expect(subject['action']).to eq('Deny')
-    expect(subject['src_interface']).to eq('outside')
-    expect(subject['dst_interface']).to eq('inside')
-    expect(subject['protocol']).to eq('tcp')
-    expect(subject['src_ip']).to eq('192.168.1.1')
-    expect(subject['dst_ip']).to eq('192.168.1.2')
-    expect(subject['policy_id']).to eq('S_OUTSIDE_TO_INSIDE')
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include "source"=>{"ip"=>"192.168.1.1", "port"=>50240}
+      expect(subject).to include "observer"=>{"egress"=>{"interface"=>{"name"=>"inside"}}, "ingress"=>{"interface"=>{"name"=>"outside"}}}
+      expect(subject).to include "cisco"=>{"asa"=>{"outcome"=>"Deny", "network"=>{"transport"=>"tcp"}, "rule_name"=>"S_OUTSIDE_TO_INSIDE"}}
+    else
+      expect(subject['action']).to eq('Deny')
+      expect(subject['src_interface']).to eq('outside')
+      expect(subject['dst_interface']).to eq('inside')
+      expect(subject['protocol']).to eq('tcp')
+      expect(subject['src_ip']).to eq('192.168.1.1')
+      expect(subject['dst_ip']).to eq('192.168.1.2')
+      expect(subject['policy_id']).to eq('S_OUTSIDE_TO_INSIDE')
+    end
   end
 
   context "a message with a protocol number" do
 
     let(:message) { 'Deny protocol 103 src outside:192.168.1.1/50240 dst inside:192.168.1.2/23 by access-group "S_OUTSIDE_TO_INSIDE" [0x54c7fa80, 0x0]' }
 
-    it 'should break the message up into fields' do
-      expect(subject['action']).to eq('Deny')
-      expect(subject['src_interface']).to eq('outside')
-      expect(subject['dst_interface']).to eq('inside')
-      expect(subject['protocol']).to eq('103')
-      expect(subject['src_ip']).to eq('192.168.1.1')
-      expect(subject['dst_ip']).to eq('192.168.1.2')
-      expect(subject['policy_id']).to eq('S_OUTSIDE_TO_INSIDE')
+    it 'matches' do
+      if ecs_compatibility?
+        expect(subject).to include "destination"=>{"ip"=>"192.168.1.2", "port"=>23},
+                                   "cisco"=>{"asa"=>{"outcome"=>"Deny", "network"=>{"transport"=>"103"}, "rule_name"=>"S_OUTSIDE_TO_INSIDE"}}
+      else
+        expect(subject['action']).to eq('Deny')
+        expect(subject['src_interface']).to eq('outside')
+        expect(subject['dst_interface']).to eq('inside')
+        expect(subject['protocol']).to eq('103')
+        expect(subject['src_ip']).to eq('192.168.1.1')
+        expect(subject['dst_ip']).to eq('192.168.1.2')
+        expect(subject['policy_id']).to eq('S_OUTSIDE_TO_INSIDE')
+      end
     end
   end
 
@@ -97,14 +216,379 @@ describe_pattern "CISCOFW106023" do
 
     let(:message) { 'Deny tcp src outside:192.168.1.1/50240 dst inside:www.example.com/23 by access-group "S_OUTSIDE_TO_INSIDE" [0x54c7fa80, 0x0]' }
 
-    it 'should break the message up into fields' do
-      expect(subject['action']).to eq('Deny')
-      expect(subject['src_interface']).to eq('outside')
-      expect(subject['dst_interface']).to eq('inside')
-      expect(subject['protocol']).to eq('tcp')
-      expect(subject['src_ip']).to eq('192.168.1.1')
-      expect(subject['dst_ip']).to eq('www.example.com')
-      expect(subject['policy_id']).to eq('S_OUTSIDE_TO_INSIDE')
+    it 'matches' do
+      if ecs_compatibility?
+        expect(subject).to include "destination"=>{"port"=>23, "address"=>"www.example.com"}
+        expect(subject).to include "source"=>{"port"=>50240, "ip"=>"192.168.1.1"}
+        expect(subject).to include "observer"=>{"ingress"=>{"interface"=>{"name"=>"outside"}}, "egress"=>{"interface"=>{"name"=>"inside"}}}
+      else
+        expect(subject['action']).to eq('Deny')
+        expect(subject['src_interface']).to eq('outside')
+        expect(subject['dst_interface']).to eq('inside')
+        expect(subject['protocol']).to eq('tcp')
+        expect(subject['src_ip']).to eq('192.168.1.1')
+        expect(subject['dst_ip']).to eq('www.example.com')
+        expect(subject['policy_id']).to eq('S_OUTSIDE_TO_INSIDE')
+      end
+    end
+  end
+
+end
+
+describe_pattern "CISCOFW304001", ['legacy', 'ecs-v1'] do
+
+  let(:message) { "10.20.30.40(DOMAIN\\login) Accessed URL 10.11.12.13:http://example.org/" }
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES + ['url'], if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include "source"=>{"ip"=>"10.20.30.40", "user"=>{"name"=>"DOMAIN\\login"}}
+      expect(subject).to include "url"=>{"original"=>"http://example.org/"}
+    else
+      expect(subject['src_ip']).to eq('10.20.30.40')
+      expect(subject['src_fwuser']).to eq('DOMAIN\\login')
+      expect(subject['dst_ip']).to eq('10.11.12.13')
+      expect(subject['dst_url']).to eq('http://example.org/')
+    end
+  end
+
+end
+
+describe_pattern "CISCOFW110002", ['legacy', 'ecs-v1'] do
+
+  let(:message) { "ASA-6-110002: Failed to locate egress interface for TCP from sourceInterfaceName:91.240.17.178/7777 to 192.168.2.2/123412" }
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include "event"=>{"reason"=>"Failed to locate egress interface"}
+      expect(subject).to include "cisco"=>{"asa"=>{"network"=>{"transport"=>"TCP"}}}
+      expect(subject).to include "source"=>{"port"=>7777, "ip"=>"91.240.17.178"}
+      expect(subject).to include "observer"=>{"ingress"=>{"interface"=>{"name"=>"sourceInterfaceName"}}}
+      expect(subject).to include "destination"=>{"port"=>123412, "ip"=>"192.168.2.2"}
+    else
+      expect(subject['src_ip']).to eq('91.240.17.178')
+      expect(subject['dst_ip']).to eq('192.168.2.2')
+    end
+  end
+
+end
+
+describe_pattern "CISCOFW302013_302014_302015_302016", ['legacy', 'ecs-v1'] do
+
+  let(:message) { "ASA-6-302013: Built outbound TCP connection 11757 for outside:100.66.205.104/80 (100.66.205.104/80) to inside:172.31.98.44/1772 (172.31.98.44/1772)" }
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include "source"=>{"ip"=>"100.66.205.104", "port"=>80, "nat"=>{"ip"=>"100.66.205.104", "port"=>80}}
+      expect(subject).to include "cisco"=>{"asa"=>{"network"=>{"direction"=>"outbound", "transport"=>"TCP"}, "outcome"=>"Built", "connection_id"=>"11757"}}
+      expect(subject).to include "observer"=>{"egress"=>{"interface"=>{"name"=>"inside"}}, "ingress"=>{"interface"=>{"name"=>"outside"}}}
+    else
+      expect(subject['src_ip']).to eq('100.66.205.104')
+      expect(subject['dst_ip']).to eq('172.31.98.44')
+    end
+  end
+
+end
+
+describe_pattern "CISCOFW302020_302021", ['legacy', 'ecs-v1'] do
+
+  let(:message) { "302020: Built inbound ICMP connection for faddr 10.137.200.251/18425 gaddr 10.137.10.1/0 laddr 10.137.10.10/0" }
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include("cisco"=>{"asa"=>{
+          "outcome"=>"Built", "icmp_seq"=>18425, "network"=>{"direction"=>"inbound", "transport"=>"ICMP"}, "icmp_type"=>0
+      }})
+      expect(subject).to include("source"=>{"nat"=>{"ip"=>"10.137.10.1"}, "ip"=>"10.137.10.10"}, "destination"=>{"ip"=>"10.137.200.251"})
+    else
+      expect(subject['src_ip']).to eq('10.137.10.10')
+      expect(subject['dst_ip']).to eq('10.137.200.251')
+    end
+  end
+
+  context '302021' do
+
+    let(:message) { "6|Nov 28 2014 12:59:03|302021: Teardown ICMP connection for faddr 10.137.200.251/18425 gaddr 10.137.10.1/0 laddr 10.137.10.10/0" }
+
+    it 'matches' do
+      if ecs_compatibility?
+        expect(subject).to include "cisco"=>{"asa"=>{"outcome"=>"Teardown", "network"=>{"transport"=>"ICMP"}, "icmp_seq"=>18425, "icmp_type"=>0}}
+        expect(subject).to include "source"=>{"nat"=>{"ip"=>"10.137.10.1"}, "ip"=>"10.137.10.10"}, "destination"=>{"ip"=>"10.137.200.251"}
+      else
+        expect(subject['src_ip']).to eq('10.137.10.10')
+        expect(subject['dst_ip']).to eq('10.137.200.251')
+      end
+    end
+
+  end
+
+end
+
+describe_pattern "CISCOFW305011", ['legacy', 'ecs-v1'] do
+
+  let(:message) { "Built dynamic TCP translation from inside:172.31.98.44/1772 to outside:100.66.98.44/8256" }
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include "source"=>{"ip"=>"172.31.98.44", "port"=>1772}
+      expect(subject).to include "destination"=>{"ip"=>"100.66.98.44", "port"=>8256}
+      expect(subject).to include "observer"=>{"ingress"=>{"interface"=>{"name"=>"inside"}}, "egress"=>{"interface"=>{"name"=>"outside"}}}
+      expect(subject).to include "cisco"=>{"asa"=>{"network"=>{"transport"=>"TCP"}, "outcome"=>"Built"}}
+    else
+      expect(subject['src_ip']).to eq('172.31.98.44')
+      expect(subject['src_xlated_ip']).to eq('100.66.98.44')
+      expect(subject).to include "src_xlated_interface"=>"outside", "src_interface"=>"inside"
+    end
+  end
+
+end
+
+describe_pattern "CISCOFW313001_313004_313008", ['legacy', 'ecs-v1'] do
+
+  let(:message) { "ASA-3-313001: Denied ICMP type=3, code=3 from 10.2.3.5 on interface Outside" }
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include "source"=>{"ip"=>"10.2.3.5"}
+      expect(subject).to include "cisco"=>{"asa"=>{"outcome"=>"Denied", "network"=>{"transport"=>"ICMP"}, "icmp_type"=>3, "icmp_code"=>3}}
+    else
+      expect(subject['src_ip']).to eq('10.2.3.5')
+    end
+  end
+
+end
+
+describe_pattern "CISCOFW313005", ['legacy', 'ecs-v1'] do
+
+  let(:message) do
+    "No matching connection for ICMP error message: icmp src fw111:10.192.33.100 dst fw111:192.18.4.1 (type 3, code 3) " +
+        "on fw111 interface. Original IP payload: udp src 192.18.4.1/53 dst 8.8.8.8/10872."
+  end
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include "event"=>{"reason"=>"No matching connection"}
+      expect(subject).to include "source"=>{"ip"=>"10.192.33.100"}, "destination"=>{"ip"=>"192.18.4.1"}
+      expect(subject).to include "observer"=>{"ingress"=>{"interface"=>{"name"=>"fw111"}}, "egress"=>{"interface"=>{"name"=>"fw111"}}}
+
+      expect(subject).to include("cisco"=>{"asa"=>{
+          "icmp_type"=>3, "icmp_code"=>3, "network"=>{"transport"=>"ICMP"},
+          "original_ip_payload"=>{
+              "destination"=>{"ip"=>"8.8.8.8", "port"=>10872},
+              "network"=>{"transport"=>"udp"},
+              "source"=>{"ip"=>"192.18.4.1", "port"=>53}
+          }
+      }})
+    else
+      # YAY, fails to match!
+    end
+  end
+
+end
+
+describe_pattern "CISCOFW402117", ['legacy', 'ecs-v1'] do
+
+  let(:message) do
+    "%ASA-4-402117: IPSEC: Received a non-IPSec packet (protocol= ICMP) from 10.5.1.127 to 192.168.6.102."
+  end
+
+  include_examples 'to-level namespaces', ['cisco', 'source', 'destination'], if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include("cisco"=>{"asa"=>{"network"=>{"transport"=>"ICMP", "type"=>"IPSEC"}}},
+                                 "source"=>{"ip"=>"10.5.1.127"}, "destination"=>{"ip"=>"192.168.6.102"})
+
+    else
+      expect(subject).to include "src_ip"=>"10.5.1.127", "orig_protocol"=>"ICMP", "protocol"=>"IPSEC", "dst_ip"=>"192.168.6.102"
+    end
+  end
+
+end
+
+describe_pattern "CISCOFW402119", ['legacy', 'ecs-v1'] do
+
+  let(:message) do
+    "%ASA-4-402119: IPSEC: Received an ESP packet (SPI= 0x1B86506B, sequence number= 0x28B) from 68.18.122.4 (user= Bangalo) to 10.10.1.1 that failed anti-replay checking."
+  end
+
+  include_examples 'to-level namespaces', ['cisco', 'source', 'destination'], if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include "destination"=>{"ip"=>"10.10.1.1"},
+                                 "cisco"=>{"asa"=>{
+                                     "ipsec"=>{"spi"=>"0x1B86506B", "protocol"=>"ESP", "seq_num"=>"0x28B"},
+                                     "network"=>{"type"=>"IPSEC"}
+                                 }},
+                                 "source"=>{"ip"=>"68.18.122.4", "user"=>{"name"=>"Bangalo"}}
+    else
+      expect(subject).to include "dst_ip"=>"10.10.1.1", "src_ip"=>"68.18.122.4",
+                                 "spi"=>"0x1B86506B", "seq_num"=>"0x28B",
+                                 "protocol"=>"IPSEC", "orig_protocol"=>"ESP",
+                                 "user"=>"Bangalo"
+    end
+  end
+
+end
+
+describe_pattern "CISCOFW419001", ['legacy', 'ecs-v1'] do
+
+  let(:message) do
+    "%ASA-4-419001: Dropping TCP packet from outside:65.55.184.155/80 to inside:192.168.10.11/49043, reason: MSS exceeded, MSS 1380, data 1460"
+  end
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include("source"=>{"port"=>80, "ip"=>"65.55.184.155"},
+                                 "destination"=>{"port"=>49043, "ip"=>"192.168.10.11"},
+                                 "cisco"=>{"asa"=>{
+                                     "outcome"=>"Dropping", "network"=>{"transport"=>"TCP"}
+                                 }},
+                                 "observer"=>{
+                                     "ingress"=>{"interface"=>{"name"=>"outside"}},
+                                     "egress"=>{"interface"=>{"name"=>"inside"}}
+                                 })
+      expect(subject).to include "event"=>{"reason"=>"MSS exceeded, MSS 1380, data 1460"}
+    else
+      expect(subject).to include "src_ip"=>"65.55.184.155", "src_port"=>"80", "src_interface"=>"outside",
+                                 "dst_ip"=>"192.168.10.11", "dst_port"=>"49043", "dst_interface"=>"inside",
+                                 "protocol"=>"TCP", "action"=>"Dropping",
+                                 "reason"=>"MSS exceeded, MSS 1380, data 1460"
+    end
+  end
+
+end
+
+describe_pattern "CISCOFW419002", ['legacy', 'ecs-v1'] do
+
+  let(:message) do
+    "%ASA-4-419002: Duplicate TCP SYN from OUTSIDE:10.10.66.2/65087 to INSIDE:10.10.1.6/443 with different initial sequence number."
+  end
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include "event"=>{"reason"=>"Duplicate TCP SYN"},
+                                 "source"=>{"port"=>65087, "ip"=>"10.10.66.2"},
+                                 "destination"=>{"port"=>443, "ip"=>"10.10.1.6"},
+                                 "observer"=>{"egress"=>{"interface"=>{"name"=>"INSIDE"}}, "ingress"=>{"interface"=>{"name"=>"OUTSIDE"}}}
+    else
+      expect(subject).to include "src_ip"=>"10.10.66.2", "src_port"=>"65087", "src_interface"=>"OUTSIDE",
+                                 "dst_ip"=>"10.10.1.6", "dst_port"=>"443", "dst_interface"=>"INSIDE",
+                                 "reason"=>"Duplicate TCP SYN"
+    end
+  end
+
+end
+
+describe_pattern "CISCOFW602303_602304", ['legacy', 'ecs-v1'] do
+
+  let(:message) do
+    "%ASA-6-602303: IPSEC: An outbound LAN-to-LAN SA (SPI= 0xF81283) between 91.240.17.178 and 192.168.2.2 (user= admin) has been created."
+  end
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include("cisco"=>{"asa"=>{
+                                    "network"=>{"direction"=>"outbound", "type"=>"IPSEC"},
+                                    "outcome"=>"created",
+                                    "ipsec"=>{"spi"=>"0xF81283", "tunnel_type"=>"LAN-to-LAN"}}},
+                                 "destination"=>{"ip"=>"192.168.2.2"},
+                                 "source"=>{"ip"=>"91.240.17.178", "user"=>{"name"=>"admin"}})
+    else
+      expect(subject).to include "protocol"=>"IPSEC", "direction"=>"outbound", "tunnel_type"=>"LAN-to-LAN",
+                                 "src_ip"=>"91.240.17.178", "dst_ip"=>"192.168.2.2",
+                                 "spi"=>"0xF81283", "user"=>"admin", "action"=>"created"
+    end
+  end
+
+end
+
+describe_pattern "CISCOFW710001_710002_710003_710005_710006", ['legacy', 'ecs-v1'] do
+
+  let(:message) do
+    "%PIX-7-710001: TCP access requested from 192.168.1.2/2354 to inside:192.168.1.1/443"
+  end
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include("destination"=>{"port"=>443, "ip"=>"192.168.1.1"},
+                                 "observer"=>{"egress"=>{"interface"=>{"name"=>"inside"}}},
+                                 "cisco"=>{"asa"=>{"outcome"=>"requested", "network"=>{"transport"=>"TCP"}}})
+    else
+      expect(subject).to include "src_ip"=>"192.168.1.2", "src_port"=>"2354",
+                                 "dst_ip"=>"192.168.1.1", "dst_port"=>"443", "dst_interface"=>"inside",
+                                 "action"=>"requested"
+    end
+  end
+
+end
+
+describe_pattern "CISCOFW713172", ['legacy', 'ecs-v1'] do
+
+  let(:message) do
+    "%ASA-6-713172: Group = 212.9.5.245, IP = 212.9.5.245, Automatic NAT Detection Status:    " +
+        "Remote end is NOT behind a NAT device    This  end  IS  behind a NAT device"
+  end
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include("source"=>{"ip"=>"212.9.5.245"}, "cisco"=>{"asa"=>{"source"=>{"group"=>"212.9.5.245"}}})
+      expect(event.get('@metadata')).to include "cisco"=>{"asa"=>{"local_nat"=>"IS", "remote_nat"=>"is NOT"}} # needs processing
+    else
+      expect(subject).to include("group"=>"212.9.5.245", "src_ip"=>"212.9.5.245",
+                                 "is_local_natted"=>"IS", "is_remote_natted"=>"is NOT")
+    end
+  end
+
+end
+
+describe_pattern "CISCOFW733100", ['legacy', 'ecs-v1'] do
+
+  let(:message) do
+    "%ASA-4-733100: [192.168.2.2] drop rate-1 exceeded. Current burst rate is 0 per second, max configured rate is -4; " +
+        "Current average rate is 7 per second, max configured rate is -5; Cumulative total count is 9063"
+  end
+
+  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect(subject).to include "cisco"=>{"asa"=>{"burst"=>{
+                                    "object"=>"192.168.2.2", "id"=>"rate-1",
+                                    "configured_rate"=>-4, "current_rate"=>0,
+                                    "avg_rate"=>7, "configured_avg_rate"=>-5,
+                                    "cumulative_count"=>9063}}}
+    else
+      expect(subject).to include "drop_type"=>"192.168.2.2", "drop_rate_id"=>"rate-1",
+                                 "drop_rate_current_avg"=>"7",
+                                 "drop_total_count"=>"9063",
+                                 "drop_rate_current_burst"=>"0",
+                                 "drop_rate_max_burst"=>"-4",
+                                 "drop_rate_max_avg"=>"-5"
     end
   end
 
