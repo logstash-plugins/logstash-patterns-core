@@ -103,18 +103,197 @@ describe "UNIXPATH" do
   let(:value)   { '/foo/bar' }
 
   it "should match the path" do
-    expect(grok_match(pattern,value)).to pass
+    expect(grok_match(pattern, value, true)).to pass
   end
 
   context "when using comma separators and other regexp" do
 
+    let(:pattern) { '((a=(?<a>%{UNIXPATH})?|b=(?<b>%{UNIXPATH})?)(,\s)?)+' }
+
+    let(:grok) do
+      grok = LogStash::Filters::Grok.new("match" => ["message", pattern])
+      grok.register
+      grok
+    end
+
     let(:value) { 'a=/some/path, b=/some/other/path' }
 
+    it "was expected to extract both but never really did" do # or maybe on JRuby 1.7
+      event = build_event(value)
+      grok.filter(event)
+      expect( event.to_hash['a'] ).to eql '/some/path,'
+      expect( event.to_hash['b'] ).to be nil
+    end
+
+  end
+
+  context 'relative path' do
+
+    let(:path_matcher) do # non-exact matcher
+      grok = LogStash::Filters::Grok.new("match" => ["message", '%{UNIXPATH:path}'])
+      grok.register
+      lambda { |msg| event = build_event(msg); grok.filter(event); event }
+    end
+
+    it "should not match (only partially)" do
+      expect(grok_match(pattern, 'a/./b/c', true)).to_not pass
+      event = path_matcher.('a/./b/c')
+      expect( event.to_hash['path'] ).to eql '/./b/c'
+
+      expect(grok_match(pattern, ',/.', true)).to_not pass
+      event = path_matcher.(',/.')
+      expect( event.to_hash['path'] ).to eql '/.'
+
+      expect(grok_match(pattern, '+/.../', true)).to_not pass
+      event = path_matcher.('+/.../')
+      expect( event.to_hash['path'] ).to eql '/.../'
+
+      expect(grok_match(pattern, '~/b/', true)).to_not pass
+      event = path_matcher.('~/b/')
+      expect( event.to_hash['path'] ).to eql '/b/'
+
+      expect(grok_match(pattern, './b//', true)).to_not pass
+      expect(grok_match(pattern, 'a//b', true)).to_not pass
+    end
+
+    it "should not match paths starting with ." do
+      expect(grok_match(pattern, '../0', true)).to_not pass
+      expect(grok_match(pattern, './~', true)).to_not pass
+      expect(grok_match(pattern, '.../-', true)).to_not pass
+      expect(grok_match(pattern, './', true)).to_not pass
+      expect(grok_match(pattern, './,', true)).to_not pass
+      expect(grok_match(pattern, '../', true)).to_not pass
+      expect(grok_match(pattern, '.a/', true)).to_not pass
+      expect(grok_match(pattern, '.~/', true)).to_not pass
+    end
+
+    it "should not match expression wout separator" do
+      expect(grok_match(pattern, '.')).to_not pass
+      expect(grok_match(pattern, '..')).to_not pass
+      expect(grok_match(pattern, '...')).to_not pass
+      expect(grok_match(pattern, '.,')).to_not pass
+      expect(grok_match(pattern, '.-')).to_not pass
+    end
+
+  end
+
+  context "dotted path" do
+
+    it "should match path containing ." do
+      expect(grok_match(pattern, '/some/./path/', true)).to pass
+      expect(grok_match(pattern, '/some/../path', true)).to pass
+      expect(grok_match(pattern, '/../.', true)).to pass
+      expect(grok_match(pattern, '/.', true)).to pass
+      expect(grok_match(pattern, '/..', true)).to pass
+      expect(grok_match(pattern, '/...', true)).to pass
+    end
+
+  end
+
+  context "separators" do
+
+    it "should match root" do
+      expect(grok_match(pattern, '/', true)).to pass
+    end
+
+    it "should match" do
+      expect(grok_match(pattern, '//', true)).to pass
+      expect(grok_match(pattern, '//00', true)).to pass
+      expect(grok_match(pattern, '///a', true)).to pass
+      expect(grok_match(pattern, '/a//', true)).to pass
+      expect(grok_match(pattern, '///a//b/c///', true)).to pass
+    end
+
+    it "should not match windows separator" do
+      expect(grok_match(pattern, "\\a", true)).to_not pass
+      expect(grok_match(pattern, '/0\\', true)).to_not pass
+      expect(grok_match(pattern, "/a\\b", true)).to_not pass
+    end
+
+  end
+
+  context "long path" do
+
+    let(:grok) do
+      grok = LogStash::Filters::Grok.new("match" => ["message", '%{UNIXPATH:path} '], 'timeout_millis' => 1500)
+      grok.register
+      grok
+    end
+
+    let(:value) { '/opt/abcdef/1/.22/3:3+3/foo@BAR/X-Y+Z/~Sample_l_SUBc b' }
+
     it "should match the path" do
-      expect(grok_match(pattern,value)).to pass
+      event = build_event(value)
+      grok.filter(event)
+      expect( event.to_hash['path'] ).to eql '/opt/abcdef/1/.22/3:3+3/foo@BAR/X-Y+Z/~Sample_l_SUBc'
+    end
+
+    it "should not match with invalid chars (or cause DoS)" do
+      event = build_event(value.sub('SUB', '&^_'))
+      grok.filter(event) # used to call a looong looop (DoS) despite the timeout guard
+      expect( event.to_hash['tags'] ).to include '_grokparsefailure'
     end
   end
 end
+
+describe "WINPATH" do
+
+  let(:pattern) { 'WINPATH' }
+  let(:value)   { 'C:\\foo\\bar' }
+
+  it "should match the path" do
+    expect(grok_match(pattern, value, true)).to pass
+  end
+
+  it "should match root path" do
+    expect(grok_match(pattern, 'C:\\', true)).to pass
+    expect(grok_match(pattern, 'C:\\\\', true)).to pass
+    expect(grok_match(pattern, 'a:\\', true)).to pass
+    expect(grok_match(pattern, 'x:\\\\', true)).to pass
+  end
+
+  it "should match paths with spaces" do
+    expect(grok_match(pattern, 'C:\\Documents and Settings\\Public', true)).to pass
+    expect(grok_match(pattern, 'C:\\\\Users\\\\Public\\\\.Mozilla Firefox', true)).to pass
+  end
+
+  it "should not match unix-style paths" do
+    expect(grok_match(pattern, '/foo', true)).to_not pass
+    expect(grok_match(pattern, '//C/path', true)).to_not pass
+    expect(grok_match(pattern, '/', true)).to_not pass
+    expect(grok_match(pattern, '/foo/bar', true)).to_not pass
+    expect(grok_match(pattern, '/..', true)).to_not pass
+    expect(grok_match(pattern, 'C://', true)).to_not pass
+  end
+
+  context 'relative paths' do
+
+    it "should not match" do
+      expect(grok_match(pattern, 'a\\bar', true)).to_not pass
+      expect(grok_match(pattern, 'foo\\bar', true)).to_not pass
+      expect(grok_match(pattern, 'C\\A\\B', true)).to_not pass
+      expect(grok_match(pattern, 'C\\\\0', true)).to_not pass
+      expect(grok_match(pattern, '.\\0', true)).to_not pass
+      expect(grok_match(pattern, '..\\', true)).to_not pass
+      expect(grok_match(pattern, '...\\-', true)).to_not pass
+      expect(grok_match(pattern, '.\\', true)).to_not pass
+      expect(grok_match(pattern, '.\\,', true)).to_not pass
+      expect(grok_match(pattern, '..\\', true)).to_not pass
+      expect(grok_match(pattern, '.a\\', true)).to_not pass
+    end
+
+    it "should not match expression wout separator" do
+      expect(grok_match(pattern, '.')).to_not pass
+      expect(grok_match(pattern, '..')).to_not pass
+      expect(grok_match(pattern, '...')).to_not pass
+      expect(grok_match(pattern, 'C:')).to_not pass
+      expect(grok_match(pattern, 'C')).to_not pass
+    end
+
+  end
+
+end
+
 
 describe "URIPROTO" do
   let(:pattern) { 'URIPROTO' }
