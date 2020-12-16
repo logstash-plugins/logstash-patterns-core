@@ -32,9 +32,9 @@ HOSTNAME \b(?:[0-9A-Za-z][0-9A-Za-z-]{0,62})(?:\.(?:[0-9A-Za-z][0-9A-Za-z-]{0,62
 IPORHOST (?:%{IP}|%{HOSTNAME})
 HOSTPORT %{IPORHOST}:%{POSINT}
 
-# paths
+# paths (only absolute paths are matched)
 PATH (?:%{UNIXPATH}|%{WINPATH})
-UNIXPATH (/([\w_%!$@:.,+~-]+|\\.)*)+
+UNIXPATH (/[\w_%!$@:.,+~-]*)+
 TTY (?:/dev/(pts|tty([pq])?)(\w+)?/?(?:[0-9]+))
 WINPATH (?>[A-Za-z]+:|\\)(?:\\[^\\?*]*)+
 URIPROTO [A-Za-z]([A-Za-z0-9+\-.]+)+
