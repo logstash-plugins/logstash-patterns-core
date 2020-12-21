@@ -2,7 +2,7 @@
 require "spec_helper"
 require "logstash/patterns/core"
 
-describe_pattern "MCOLLECTIVE" do
+describe_pattern "MCOLLECTIVE", ['legacy', 'ecs-v1'] do
 
   let(:message) { "I, [2010-12-29T11:15:32.321744 #11479]  INFO -- : mcollectived:33 The Marionette Collective 1.1.0 started logging at info level" }
 
