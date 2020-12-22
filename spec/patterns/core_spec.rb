@@ -234,6 +234,11 @@ describe "UNIXPATH" do
       expect( event.to_hash['tags'] ).to include '_grokparsefailure'
     end
   end
+
+  it "matches paths with non-ascii characters" do
+    expect(grok_match(pattern, '/opt/Čierný_Peter/.中', true)).to pass
+  end
+
 end
 
 describe "WINPATH" do
