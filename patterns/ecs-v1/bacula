@@ -7,7 +7,7 @@ BACULA_CAPACITY %{INT}{1,3}(,%{INT}{3})*
 BACULA_VERSION %{USER}
 BACULA_JOB %{USER}
 
-BACULA_LOG_MAX_CAPACITY User defined maximum volume capacity %{BACULA_CAPACITY:[bacula][volume][bytes]} exceeded on device \"%{BACULA_DEVICE:[bacula][volume][device]}\" \(%{BACULA_DEVICEPATH:[bacula][volume][path]}\).?
+BACULA_LOG_MAX_CAPACITY User defined maximum volume capacity %{BACULA_CAPACITY:[bacula][volume][max_capacity]} exceeded on device \"%{BACULA_DEVICE:[bacula][volume][device]}\" \(%{BACULA_DEVICEPATH:[bacula][volume][path]}\).?
 BACULA_LOG_END_VOLUME End of medium on Volume \"%{BACULA_VOLUME:[bacula][volume][name]}\" Bytes=%{BACULA_CAPACITY:[bacula][volume][bytes]} Blocks=%{BACULA_CAPACITY:[bacula][volume][blocks]} at %{BACULA_TIMESTAMP:[bacula][timestamp]}.
 BACULA_LOG_NEW_VOLUME Created new Volume \"%{BACULA_VOLUME:[bacula][volume][name]}\" in catalog.
 BACULA_LOG_NEW_LABEL Labeled new Volume \"%{BACULA_VOLUME:[bacula][volume][name]}\" on (?:file )?device \"%{BACULA_DEVICE:[bacula][volume][device]}\" \(%{BACULA_DEVICEPATH:[bacula][volume][path]}\).

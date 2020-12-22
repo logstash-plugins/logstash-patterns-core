@@ -10,7 +10,7 @@ describe_pattern "BACULA_LOG_MAX_CAPACITY", ['legacy', 'ecs-v1'] do
 
   it 'matches' do
     if ecs_compatibility?
-      should include "bacula"=>{"volume"=>{"bytes"=>"108,372,182,400", "device"=>"FStorage", "path"=>"/var/lib/bac/storage"}}
+      should include "bacula"=>{"volume"=>{"max_capacity"=>"108,372,182,400", "device"=>"FStorage", "path"=>"/var/lib/bac/storage"}}
     else
       should include("device"=>"FStorage")
     end
