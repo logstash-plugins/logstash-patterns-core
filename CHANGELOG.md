@@ -6,7 +6,9 @@
   - Fix: UNIXPATH to avoid DoS on long paths with unmatching chars [#292](https://github.com/logstash-plugins/logstash-patterns-core/pull/292)
 
     For longer paths, a non matching character towards the end of the path would cause the RegExp engine a long time to abort.
-    With this change we're also explicit about not supporting relative paths (using the `PATH` pattern), these won't be properly matched. 
+    With this change we're also explicit about not supporting relative paths (using the `PATH` pattern), these won't be properly matched.
+ 
+  - Feat: allow UNIXPATH to match non-ascii chars [#291](https://github.com/logstash-plugins/logstash-patterns-core/pull/291)
 
 ## 4.1.2
   - Fix some documentation issues
