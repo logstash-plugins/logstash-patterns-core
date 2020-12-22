@@ -266,6 +266,10 @@ describe "WINPATH" do
     expect(grok_match(pattern, 'C://', true)).to_not pass
   end
 
+  it "matches paths with non-ascii characters" do
+    expect(grok_match(pattern, 'C:\\Čierný Peter\\.中.exe', true)).to pass
+  end
+
   context 'relative paths' do
 
     it "should not match" do
