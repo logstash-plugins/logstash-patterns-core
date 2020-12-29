@@ -236,7 +236,9 @@ describe "UNIXPATH" do
   end
 
   it "matches paths with non-ascii characters" do
-    expect(grok_match(pattern, '/opt/Čierný_Peter/.中', true)).to pass
+    event = build_event path = '/opt/Čierný_Peter/.中'
+    build_grok('UNIXPATH:path').filter event
+    expect( event.get('path') ).to eql path
   end
 
 end
