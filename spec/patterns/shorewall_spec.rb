@@ -12,10 +12,9 @@ describe_pattern "SHOREWALL", ['legacy', 'ecs-v1'] do
     end
 
     it 'matches' do
-      should include("timestamp" => "May 28 17:23:25")
-
+      expect(subject).to include("timestamp" => "May 28 17:23:25")
       if ecs_compatibility?
-        expect(grok).to include(
+        expect(subject).to include(
                             "observer"=>{"hostname"=>"myHost", "ingress"=>{"interface"=>{"name"=>"eth2"}}, "egress"=>{"interface"=>{"name"=>"eth2"}}},
                             "shorewall"=>{'firewall'=>{"type"=>"FORWARD", "action"=>"REJECT"}},
                             "iptables"=>{
@@ -29,21 +28,21 @@ describe_pattern "SHOREWALL", ['legacy', 'ecs-v1'] do
                             "destination"=>{"ip"=>"192.168.0.10", "port"=>5335}
                         )
       else
-        should include("nf_host" => "myHost")
-        should include("nf_action1" => "FORWARD")
-        should include("nf_action2" => "REJECT")
-        should include("nf_in_interface" => "eth2")
-        should include("nf_out_interface" => "eth2")
-        should include("nf_src_ip" => "1.2.3.4")
-        should include("nf_dst_ip" => "192.168.0.10")
-        should include("nf_len" => "141")
-        should include("nf_tos" => "0x00")
-        should include("nf_prec" => "0x00")
-        should include("nf_ttl" => "63")
-        should include("nf_id" => "55251")
-        should include("nf_protocol" => "UDP")
-        should include("nf_src_port" => "5353")
-        should include("nf_dst_port" => "5335")
+        expect(subject).to include("nf_host" => "myHost")
+        expect(subject).to include("nf_action1" => "FORWARD")
+        expect(subject).to include("nf_action2" => "REJECT")
+        expect(subject).to include("nf_in_interface" => "eth2")
+        expect(subject).to include("nf_out_interface" => "eth2")
+        expect(subject).to include("nf_src_ip" => "1.2.3.4")
+        expect(subject).to include("nf_dst_ip" => "192.168.0.10")
+        expect(subject).to include("nf_len" => "141")
+        expect(subject).to include("nf_tos" => "0x00")
+        expect(subject).to include("nf_prec" => "0x00")
+        expect(subject).to include("nf_ttl" => "63")
+        expect(subject).to include("nf_id" => "55251")
+        expect(subject).to include("nf_protocol" => "UDP")
+        expect(subject).to include("nf_src_port" => "5353")
+        expect(subject).to include("nf_dst_port" => "5335")
       end
     end
 
@@ -58,9 +57,9 @@ describe_pattern "SHOREWALL", ['legacy', 'ecs-v1'] do
     end
 
     it 'matches' do
-      should include("timestamp" => "May 28 17:31:07")
+      expect(subject).to include("timestamp" => "May 28 17:31:07")
       if ecs_compatibility?
-        expect(grok).to include(
+        expect(subject).to include(
                             "observer"=>{"hostname"=>"server", "ingress"=>{"interface"=>{"name"=>"eth1"}}}, # no "output_interface"
                             "shorewall"=>{'firewall'=>{"type"=>"net2fw", "action"=>"DROP",}},
                             "iptables"=>{
@@ -75,26 +74,26 @@ describe_pattern "SHOREWALL", ['legacy', 'ecs-v1'] do
                             },
                             "network"=>{"transport"=>"TCP"}
                         )
-        expect(grok).to include("source"=>{"ip"=>"127.0.0.1", "port"=>59088, 'mac'=>"38:72:c0:6e:92:9c"})
-        expect(grok).to include("destination"=>{"ip"=>"1.2.3.4", "port"=>8080, 'mac'=>"00:02:b3:c7:2f:77"})
+        expect(subject).to include("source"=>{"ip"=>"127.0.0.1", "port"=>59088, 'mac'=>"38:72:c0:6e:92:9c"})
+        expect(subject).to include("destination"=>{"ip"=>"1.2.3.4", "port"=>8080, 'mac'=>"00:02:b3:c7:2f:77"})
       else
-        should include("nf_host" => "server")
-        should include("nf_action1" => "net2fw")
-        should include("nf_action2" => "DROP")
-        should include("nf_in_interface" => "eth1")
+        expect(subject).to include("nf_host" => "server")
+        expect(subject).to include("nf_action1" => "net2fw")
+        expect(subject).to include("nf_action2" => "DROP")
+        expect(subject).to include("nf_in_interface" => "eth1")
         expect(subject["nf_out_interface"]).to be nil
-        should include("nf_dst_mac" => "00:02:b3:c7:2f:77")
-        should include("nf_src_mac" => "38:72:c0:6e:92:9c")
-        should include("nf_src_ip" => "127.0.0.1")
-        should include("nf_dst_ip" => "1.2.3.4")
-        should include("nf_len" => "60")
-        should include("nf_tos" => "0x00")
-        should include("nf_prec" => "0x00")
-        should include("nf_ttl" => "49")
-        should include("nf_id" => "6480")
-        should include("nf_protocol" => "TCP")
-        should include("nf_src_port" => "59088")
-        should include("nf_dst_port" => "8080")
+        expect(subject).to include("nf_dst_mac" => "00:02:b3:c7:2f:77")
+        expect(subject).to include("nf_src_mac" => "38:72:c0:6e:92:9c")
+        expect(subject).to include("nf_src_ip" => "127.0.0.1")
+        expect(subject).to include("nf_dst_ip" => "1.2.3.4")
+        expect(subject).to include("nf_len" => "60")
+        expect(subject).to include("nf_tos" => "0x00")
+        expect(subject).to include("nf_prec" => "0x00")
+        expect(subject).to include("nf_ttl" => "49")
+        expect(subject).to include("nf_id" => "6480")
+        expect(subject).to include("nf_protocol" => "TCP")
+        expect(subject).to include("nf_src_port" => "59088")
+        expect(subject).to include("nf_dst_port" => "8080")
       end
     end
 
