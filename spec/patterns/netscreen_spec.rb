@@ -15,22 +15,22 @@ describe_pattern "NETSCREENSESSIONLOG", ['legacy', 'ecs-v1'] do
 
     it 'matches' do
       if ecs_compatibility?
-        should include("timestamp" => "Jun  2 14:53:31")
-        should include("netscreen"=>{
+        expect(subject).to include("timestamp" => "Jun  2 14:53:31")
+        expect(subject).to include("netscreen"=>{
             "session"=>{"id"=>"488451", "start_time"=>"2015-11-11 10:02:10", "duration"=>0, "type"=>"traffic", "reason"=>"Creation"},
             "policy_id"=>"244", "service"=>"https", "protocol_number"=>6, "device_id"=>"0000011001000011"
         })
-        should include("event"=>{"code"=>"00257", "action"=>"Permit"})
-        # should include("network"=>{"protocol"=>"https"})
-        should include("source"=>{"bytes"=>0, "nat"=>{"port"=>22041, "ip"=>"1.255.20.1"}, "port"=>1732, "address"=>"74.168.138.252"})
-        should include("destination"=>{"bytes"=>0, "nat"=>{"port"=>443, "ip"=>"1.244.136.50"}, "port"=>443, "address"=>"72.72.72.72"})
-        should include("observer"=>{
+        expect(subject).to include("event"=>{"code"=>"00257", "action"=>"Permit"})
+        # expect(subject).to include("network"=>{"protocol"=>"https"})
+        expect(subject).to include("source"=>{"bytes"=>0, "nat"=>{"port"=>22041, "ip"=>"1.255.20.1"}, "port"=>1732, "address"=>"74.168.138.252"})
+        expect(subject).to include("destination"=>{"bytes"=>0, "nat"=>{"port"=>443, "ip"=>"1.244.136.50"}, "port"=>443, "address"=>"72.72.72.72"})
+        expect(subject).to include("observer"=>{
             "ingress"=>{"zone"=>"Untrust"}, "hostname"=>"sample-host", "name"=>"isg1000-A2", "product"=>"NetScreen",
             "egress"=>{"zone"=>"Trust"}
         })
       else
-        should include("date" => "Jun  2 14:53:31")
-        should include(
+        expect(subject).to include("date" => "Jun  2 14:53:31")
+        expect(subject).to include(
                    "device"=>"sample-host",
                    "device_id"=>"0000011001000011",
                    "start_time"=>"\"2015-11-11 10:02:10\"",
@@ -62,16 +62,16 @@ describe_pattern "NETSCREENSESSIONLOG", ['legacy', 'ecs-v1'] do
 
     it 'matches in ECS mode' do
       if ecs_compatibility?
-        should include("timestamp" => "Mar 18 17:56:52")
-        should include("netscreen"=>{
+        expect(subject).to include("timestamp" => "Mar 18 17:56:52")
+        expect(subject).to include("netscreen"=>{
             "device_id"=>"netscreen2",
             "policy_id"=>"320001",
             "service"=>"msrpc Endpoint Mapper(tcp)",
             "protocol_number"=>6,
             "session"=>{"start_time"=>"2009-03-18 16:07:06", "type"=>"traffic", "duration"=>0}
         })
-        should include("source"=>{"address"=>"21.10.90.125", "bytes"=>0})
-        should include("destination"=>{"address"=>"23.16.1.1", "bytes"=>16384})
+        expect(subject).to include("source"=>{"address"=>"21.10.90.125", "bytes"=>0})
+        expect(subject).to include("destination"=>{"address"=>"23.16.1.1", "bytes"=>16384})
       else
         expect(grok['tags']).to include('_grokparsefailure')
       end
@@ -88,10 +88,10 @@ describe_pattern "NETSCREENSESSIONLOG", ['legacy', 'ecs-v1'] do
 
     it 'matches (in ECS mode)' do
       if ecs_compatibility?
-        should include("event"=>{"action"=>"Deny", "code"=>"00257"})
+        expect(subject).to include("event"=>{"action"=>"Deny", "code"=>"00257"})
       else
         expect(grok['tags']).to include('_grokparsefailure')
-        should_not include("date" => "Jun  2 14:53:31")
+        expect(subject).to_not include("date" => "Jun  2 14:53:31")
       end
     end
 
@@ -103,16 +103,16 @@ describe_pattern "NETSCREENSESSIONLOG", ['legacy', 'ecs-v1'] do
 
       it 'matches (in ECS mode)' do
         if ecs_compatibility?
-          should include("netscreen"=>hash_including("device_id"=>"aka1", "service"=>"udp/port:17210",
-                                                     "session"=>hash_including("reason"=>"Traffic Denied")))
-          should include("observer"=>{
+          expect(subject).to include("netscreen"=>hash_including("device_id"=>"aka1", "service"=>"udp/port:17210",
+                                     "session"=>hash_including("reason"=>"Traffic Denied")))
+          expect(subject).to include("observer"=>{
               "ingress"=>{"zone"=>"Trust"},
               "egress"=>{"zone"=>"DMZ"}, "hostname"=>"fire00", "name"=>"aka1",
               "product"=>"NetScreen"
           })
         else
           expect(grok['tags']).to include('_grokparsefailure')
-          should_not include("date" => "Jun  2 14:53:31")
+          expect(subject).to_not include("date" => "Jun  2 14:53:31")
         end
       end
 
