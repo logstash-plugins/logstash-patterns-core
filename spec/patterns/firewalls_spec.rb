@@ -10,7 +10,7 @@ describe_pattern "CISCOFW104001", ['legacy', 'ecs-v1'] do
 
   include_examples 'to-level namespaces', ['event'], if: -> { ecs_compatibility? }
 
-  it { should include("switch_reason" => "Service card in other unit has failed") unless ecs_compatibility? }
+  it { expect(subject).to include("switch_reason" => "Service card in other unit has failed") unless ecs_compatibility? }
 
   it "keeps message field" do
     expect(subject["message"]).to eql message
@@ -26,12 +26,12 @@ describe_pattern "CISCOFW106001", ['legacy', 'ecs-v1'] do
 
   it 'matches' do
     if ecs_compatibility?
-      should include "source"=>{"ip"=>"192.168.2.2", "port"=>43803}
-      should include "destination"=>{"ip"=>"10.10.10.10", "port"=>14322}
-      should include "observer"=>{"egress"=>{"interface"=>{"name"=>"out111"}}}
-      should include "cisco"=>{"asa"=>hash_including("network"=>{"transport"=>"TCP", "direction"=>"Inbound"}, "tcp_flags"=>"SYN")}
+      expect(subject).to include "source"=>{"ip"=>"192.168.2.2", "port"=>43803}
+      expect(subject).to include "destination"=>{"ip"=>"10.10.10.10", "port"=>14322}
+      expect(subject).to include "observer"=>{"egress"=>{"interface"=>{"name"=>"out111"}}}
+      expect(subject).to include "cisco"=>{"asa"=>hash_including("network"=>{"transport"=>"TCP", "direction"=>"Inbound"}, "tcp_flags"=>"SYN")}
     else
-      should include("src_ip"=>"192.168.2.2", "src_port"=>'43803')
+      expect(subject).to include("src_ip"=>"192.168.2.2", "src_port"=>'43803')
     end
   end
 
@@ -49,12 +49,12 @@ describe_pattern "CISCOFW106006_106007_106010", ['legacy', 'ecs-v1'] do
 
   it 'matches' do
     if ecs_compatibility?
-      should include "cisco" => {"asa"=>{"network"=>{"direction"=>"inbound", "transport"=>"UDP"}, "outcome"=>"Deny"}}
-      should include "source"=>{"ip"=>"192.168.2.2", "port"=>65020}
-      should include "destination"=>{"ip"=>"10.10.10.10", "port"=>65021}
-      should include "observer"=>{"egress"=>{"interface"=>{"name"=>"fw111"}}}
+      expect(subject).to include "cisco" => {"asa"=>{"network"=>{"direction"=>"inbound", "transport"=>"UDP"}, "outcome"=>"Deny"}}
+      expect(subject).to include "source"=>{"ip"=>"192.168.2.2", "port"=>65020}
+      expect(subject).to include "destination"=>{"ip"=>"10.10.10.10", "port"=>65021}
+      expect(subject).to include "observer"=>{"egress"=>{"interface"=>{"name"=>"fw111"}}}
     else
-      should include("src_ip"=>"192.168.2.2", "src_port"=>'65020')
+      expect(subject).to include("src_ip"=>"192.168.2.2", "src_port"=>'65020')
     end
   end
 
@@ -72,10 +72,10 @@ describe_pattern "CISCOFW106014", ['legacy', 'ecs-v1'] do
 
   it 'matches' do
     if ecs_compatibility?
-      should include "source"=>{"ip"=>"10.10.10.10"}
-      should include "destination"=>{"ip"=>"10.10.10.11"}
-      should include "cisco"=>{"asa"=>{"outcome"=>"Deny", "network"=>{"transport"=>"icmp", "direction"=>"inbound"}, "icmp_code"=>0, "icmp_type"=>8}}
-      should include "observer"=>{"ingress"=>{"interface"=>{"name"=>"fw111"}}, "egress"=>{"interface"=>{"name"=>"fw111"}}}
+      expect(subject).to include "source"=>{"ip"=>"10.10.10.10"}
+      expect(subject).to include "destination"=>{"ip"=>"10.10.10.11"}
+      expect(subject).to include "cisco"=>{"asa"=>{"outcome"=>"Deny", "network"=>{"transport"=>"icmp", "direction"=>"inbound"}, "icmp_code"=>0, "icmp_type"=>8}}
+      expect(subject).to include "observer"=>{"ingress"=>{"interface"=>{"name"=>"fw111"}}, "egress"=>{"interface"=>{"name"=>"fw111"}}}
     else
       # NOTE: does not match due expecting space: "10.10.10.11 (type 8, code 0)"
     end
@@ -95,9 +95,9 @@ describe_pattern "CISCOFW106015", ['legacy', 'ecs-v1'] do
 
   it 'matches' do
     if ecs_compatibility?
-      should include "observer"=>{"egress"=>{"interface"=>{"name"=>"eth0"}}}
+      expect(subject).to include "observer"=>{"egress"=>{"interface"=>{"name"=>"eth0"}}}
     else
-      should include("interface" => "eth0")
+      expect(subject).to include("interface" => "eth0")
     end
   end
 
@@ -115,11 +115,11 @@ describe_pattern "CISCOFW106021", ['legacy', 'ecs-v1'] do
 
   it 'matches' do
     if ecs_compatibility?
-      should include "source"=>{"ip"=>"192.168.2.2"}, "destination"=>{"ip"=>"10.10.10.10"}
-      should include "cisco"=>{"asa"=>{"network"=>{"transport"=>"TCP"}, "outcome"=>"Deny"}}
-      should include "observer"=>{"egress"=>{"interface"=>{"name"=>"fw111"}}}
+      expect(subject).to include "source"=>{"ip"=>"192.168.2.2"}, "destination"=>{"ip"=>"10.10.10.10"}
+      expect(subject).to include "cisco"=>{"asa"=>{"network"=>{"transport"=>"TCP"}, "outcome"=>"Deny"}}
+      expect(subject).to include "observer"=>{"egress"=>{"interface"=>{"name"=>"fw111"}}}
     else
-      should include("interface" => "fw111")
+      expect(subject).to include("interface" => "fw111")
     end
   end
 
@@ -137,9 +137,9 @@ describe_pattern "CISCOFW106100", ['legacy', 'ecs-v1'] do
 
   it 'matches' do
     if ecs_compatibility?
-      should include("cisco"=>{"asa"=>hash_including("rule_name" => "inside")})
+      expect(subject).to include("cisco"=>{"asa"=>hash_including("rule_name" => "inside")})
     else
-      should include("policy_id" => "inside")
+      expect(subject).to include("policy_id" => "inside")
     end
   end
 
@@ -157,9 +157,9 @@ describe_pattern "CISCOFW106100", ['legacy', 'ecs-v1'] do
 
   it 'matches' do
     if ecs_compatibility?
-      should include("cisco"=>{"asa"=>hash_including("rule_name" => "outside-entry")})
+      expect(subject).to include("cisco"=>{"asa"=>hash_including("rule_name" => "outside-entry")})
     else
-      should include("policy_id" => "outside-entry")
+      expect(subject).to include("policy_id" => "outside-entry")
     end
   end
 
