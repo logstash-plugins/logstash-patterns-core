@@ -41,7 +41,7 @@ BACULA_LOG_DUPLICATE Fatal error: JobId %{INT:duplicate} already running. Duplic
 BACULA_LOG_NOJOBSTAT Fatal error: No Job status returned from FD.
 BACULA_LOG_FATAL_CONN Fatal error: bsock.c:133 Unable to connect to (Client: %{BACULA_HOST:client}|Storage daemon) on %{HOSTNAME}:%{POSINT}. ERR=(?<berror>%{GREEDYDATA})
 BACULA_LOG_NO_CONNECT Warning: bsock.c:127 Could not connect to (Client: %{BACULA_HOST:client}|Storage daemon) on %{HOSTNAME}:%{POSINT}. ERR=(?<berror>%{GREEDYDATA})
-BACULA_LOG_NO_AUTH Fatal error: Unable to authenticate with File daemon at %{HOSTNAME}. Possible causes:
+BACULA_LOG_NO_AUTH Fatal error: Unable to authenticate with File daemon at %{DATA}. Possible causes:
 BACULA_LOG_NOSUIT No prior or suitable Full backup found in catalog. Doing FULL backup.
 BACULA_LOG_NOPRIOR No prior Full backup Job record found.
 
