@@ -8,7 +8,7 @@ describe_pattern "CISCOFW104001", ['legacy', 'ecs-v1'] do
 
   let(:message) { "(Secondary) Switching to ACTIVE - Service card in other unit has failed" }
 
-  include_examples 'to-level namespaces', ['event'], if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', ['event'], if: -> { ecs_compatibility? }
 
   it { expect(subject).to include("switch_reason" => "Service card in other unit has failed") unless ecs_compatibility? }
 
@@ -22,7 +22,7 @@ describe_pattern "CISCOFW106001", ['legacy', 'ecs-v1'] do
 
   let(:message) { "ASA-2-106001: Inbound TCP connection denied from 192.168.2.2/43803 to 10.10.10.10/14322 flags SYN on interface out111" }
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -45,7 +45,7 @@ describe_pattern "CISCOFW106006_106007_106010", ['legacy', 'ecs-v1'] do
 
   let(:message) { "ASA-2-106006: Deny inbound UDP from 192.168.2.2/65020 to 10.10.10.10/65021 on interface fw111" }
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -68,7 +68,7 @@ describe_pattern "CISCOFW106014", ['legacy', 'ecs-v1'] do
 
   let(:message) { "ASA-3-106014: Deny inbound icmp src fw111:10.10.10.10 dst fw111:10.10.10.11(type 8, code 0)" }
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -91,7 +91,7 @@ describe_pattern "CISCOFW106015", ['legacy', 'ecs-v1'] do
 
   let(:message) { "Deny TCP (no connection) from 192.168.150.65/2278 to 64.101.128.83/80 flags RST on interface eth0" }
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -111,7 +111,7 @@ describe_pattern "CISCOFW106021", ['legacy', 'ecs-v1'] do
 
   let(:message) { "ASA-4-106021: Deny TCP reverse path check from 192.168.2.2 to 10.10.10.10 on interface fw111" }
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -133,7 +133,7 @@ describe_pattern "CISCOFW106100", ['legacy', 'ecs-v1'] do
 
   let(:message) { "access-list inside permitted tcp inside/10.10.123.45(51763) -> outside/192.168.67.89(80) hit-cnt 1 first hit [0x62c4905, 0x0]" }
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -153,7 +153,7 @@ describe_pattern "CISCOFW106100", ['legacy', 'ecs-v1'] do
 
   let(:message) { "access-list outside-entry permitted tcp outside/10.11.12.13(54726) -> inside/192.168.17.18(80) hit-cnt 1 300-second interval [0x32b3835, 0x0]" }
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -173,7 +173,7 @@ describe_pattern "CISCOFW106023", ['legacy', 'ecs-v1'] do
 
   let(:message) { 'Deny tcp src outside:192.168.1.1/50240 dst inside:192.168.1.2/23 by access-group "S_OUTSIDE_TO_INSIDE" [0x54c7fa80, 0x0]' }
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -239,7 +239,7 @@ describe_pattern "CISCOFW304001", ['legacy', 'ecs-v1'] do
 
   let(:message) { "10.20.30.40(DOMAIN\\login) Accessed URL 10.11.12.13:http://example.org/" }
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES + ['url'], if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES + ['url'], if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -259,7 +259,7 @@ describe_pattern "CISCOFW110002", ['legacy', 'ecs-v1'] do
 
   let(:message) { "ASA-6-110002: Failed to locate egress interface for TCP from sourceInterfaceName:91.240.17.178/7777 to 192.168.2.2/123412" }
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -280,7 +280,7 @@ describe_pattern "CISCOFW302013_302014_302015_302016", ['legacy', 'ecs-v1'] do
 
   let(:message) { "ASA-6-302013: Built outbound TCP connection 11757 for outside:100.66.205.104/80 (100.66.205.104/80) to inside:172.31.98.44/1772 (172.31.98.44/1772)" }
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -299,7 +299,7 @@ describe_pattern "CISCOFW302020_302021", ['legacy', 'ecs-v1'] do
 
   let(:message) { "302020: Built inbound ICMP connection for faddr 10.137.200.251/18425 gaddr 10.137.10.1/0 laddr 10.137.10.10/0" }
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -335,7 +335,7 @@ describe_pattern "CISCOFW305011", ['legacy', 'ecs-v1'] do
 
   let(:message) { "Built dynamic TCP translation from inside:172.31.98.44/1772 to outside:100.66.98.44/8256" }
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -356,7 +356,7 @@ describe_pattern "CISCOFW313001_313004_313008", ['legacy', 'ecs-v1'] do
 
   let(:message) { "ASA-3-313001: Denied ICMP type=3, code=3 from 10.2.3.5 on interface Outside" }
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -376,7 +376,7 @@ describe_pattern "CISCOFW313005", ['legacy', 'ecs-v1'] do
         "on fw111 interface. Original IP payload: udp src 192.18.4.1/53 dst 8.8.8.8/10872."
   end
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -405,7 +405,7 @@ describe_pattern "CISCOFW402117", ['legacy', 'ecs-v1'] do
     "%ASA-4-402117: IPSEC: Received a non-IPSec packet (protocol= ICMP) from 10.5.1.127 to 192.168.6.102."
   end
 
-  include_examples 'to-level namespaces', ['cisco', 'source', 'destination'], if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', ['cisco', 'source', 'destination'], if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -425,7 +425,7 @@ describe_pattern "CISCOFW402119", ['legacy', 'ecs-v1'] do
     "%ASA-4-402119: IPSEC: Received an ESP packet (SPI= 0x1B86506B, sequence number= 0x28B) from 68.18.122.4 (user= Bangalo) to 10.10.1.1 that failed anti-replay checking."
   end
 
-  include_examples 'to-level namespaces', ['cisco', 'source', 'destination'], if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', ['cisco', 'source', 'destination'], if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -451,7 +451,7 @@ describe_pattern "CISCOFW419001", ['legacy', 'ecs-v1'] do
     "%ASA-4-419001: Dropping TCP packet from outside:65.55.184.155/80 to inside:192.168.10.11/49043, reason: MSS exceeded, MSS 1380, data 1460"
   end
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -481,7 +481,7 @@ describe_pattern "CISCOFW419002", ['legacy', 'ecs-v1'] do
     "%ASA-4-419002: Duplicate TCP SYN from OUTSIDE:10.10.66.2/65087 to INSIDE:10.10.1.6/443 with different initial sequence number."
   end
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -504,7 +504,7 @@ describe_pattern "CISCOFW602303_602304", ['legacy', 'ecs-v1'] do
     "%ASA-6-602303: IPSEC: An outbound LAN-to-LAN SA (SPI= 0xF81283) between 91.240.17.178 and 192.168.2.2 (user= admin) has been created."
   end
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -529,7 +529,7 @@ describe_pattern "CISCOFW710001_710002_710003_710005_710006", ['legacy', 'ecs-v1
     "%PIX-7-710001: TCP access requested from 192.168.1.2/2354 to inside:192.168.1.1/443"
   end
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -552,7 +552,7 @@ describe_pattern "CISCOFW713172", ['legacy', 'ecs-v1'] do
         "Remote end is NOT behind a NAT device    This  end  IS  behind a NAT device"
   end
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?
@@ -573,7 +573,7 @@ describe_pattern "CISCOFW733100", ['legacy', 'ecs-v1'] do
         "Current average rate is 7 per second, max configured rate is -5; Cumulative total count is 9063"
   end
 
-  include_examples 'to-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
+  include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
   it 'matches' do
     if ecs_compatibility?

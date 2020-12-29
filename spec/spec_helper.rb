@@ -122,7 +122,7 @@ RSpec::Matchers.define :match do |value|
   end
 end
 
-RSpec.shared_examples_for 'to-level namespaces' do |namespaces, opts|
+RSpec.shared_examples_for 'top-level namespaces' do |namespaces, opts|
   let(:internal_keys) { ['@timestamp', '@version'] }
   let(:allowed_keys) { namespaces }
   it "event is expected to only use namespaces: #{namespaces.inspect}" do
