@@ -22,8 +22,8 @@ HAPROXYCAPTUREDRESPONSEHEADERS %{DATA:[haproxy][http][response][captured_headers
 #  capture response header Cache-Control len 200
 #  capture response header Last-Modified len 200
 #
-# HAPROXYCAPTUREDREQUESTHEADERS %{DATA:request_header_host}\|%{DATA:request_header_x_forwarded_for}\|%{DATA:request_header_accept_language}\|%{DATA:request_header_referer}\|%{DATA:request_header_user_agent}
-# HAPROXYCAPTUREDRESPONSEHEADERS %{DATA:response_header_content_type}\|%{DATA:response_header_content_encoding}\|%{DATA:response_header_cache_control}\|%{DATA:response_header_last_modified}
+# HAPROXYCAPTUREDREQUESTHEADERS %{DATA:[haproxy][http][request][host]}\|%{DATA:[haproxy][http][request][x_forwarded_for]}\|%{DATA:[haproxy][http][request][accept_language]}\|%{DATA:[http][request][referrer]}\|%{DATA:[user_agent][original]}
+# HAPROXYCAPTUREDRESPONSEHEADERS %{DATA:[http][response][mime_type]}\|%{DATA:[haproxy][http][response][encoding]}\|%{DATA:[haproxy][http][response][cache_control]}\|%{DATA:[haproxy][http][response][last_modified]}
 
 HAPROXYURI (?:%{URIPROTO:[url][scheme]}://)?(?:%{USER:[url][username]}(?::[^@]*)?@)?(?:%{IPORHOST:[url][domain]}(?::%{POSINT:[url][port]:int})?)?(?:%{URIPATH:[url][path]}(?:\?%{URIQUERY:[url][query]})?)?
 
