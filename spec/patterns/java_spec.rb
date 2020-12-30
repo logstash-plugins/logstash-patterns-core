@@ -20,12 +20,12 @@ describe_pattern "JAVASTACKTRACEPART", [ 'legacy', 'ecs-v1' ] do
 
   it "matches" do
     if ecs_compatibility?
-      expect(grok).to include(
+      expect(subject).to include(
                           "log" => { "origin" => { "function" => 'aMethod', "file" => { "name" => 'StackTraceExample.java', "line" => 42 } } },
                           "java" => { "log" => { "origin" => { "class" => { "name" => 'com.sample.stacktrace.StackTraceExample' } } } }
                       )
     else
-      expect(grok).to include(
+      expect(subject).to include(
                           "message"=>"  at com.sample.stacktrace.StackTraceExample.aMethod(StackTraceExample.java:42)",
                           "method"=>"aMethod",
                           "class"=>"com.sample.stacktrace.StackTraceExample",
@@ -38,12 +38,18 @@ describe_pattern "JAVASTACKTRACEPART", [ 'legacy', 'ecs-v1' ] do
   context 'generated file' do
     let(:message) { '  at org.jruby.RubyMethod$INVOKER$i$call.call(RubyMethod$INVOKER$i$call.gen)' }
     it "matches" do
-      grok = grok_match(pattern, message, true)
-      expect(grok).to include({
-                                  "method"=>"call",
-                                  "class"=>"org.jruby.RubyMethod$INVOKER$i$call",
-                                  "file"=>"RubyMethod$INVOKER$i$call.gen",
-                              })
+      if ecs_compatibility?
+        expect(subject).to include(
+                               "log"=>{"origin"=>{"function"=>"call", "file"=>{"name"=>"RubyMethod$INVOKER$i$call.gen"}}},
+                               "java"=>{"log"=>{"origin"=>{"class"=>{"name"=>"org.jruby.RubyMethod$INVOKER$i$call"}}}}
+                           )
+      else
+        expect(subject).to include({
+                                    "method"=>"call",
+                                    "class"=>"org.jruby.RubyMethod$INVOKER$i$call",
+                                    "file"=>"RubyMethod$INVOKER$i$call.gen",
+                                })
+      end
     end
   end
 end
