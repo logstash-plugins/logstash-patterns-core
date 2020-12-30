@@ -52,4 +52,35 @@ describe_pattern "JAVASTACKTRACEPART", [ 'legacy', 'ecs-v1' ] do
       end
     end
   end
+
+end
+
+describe_pattern "TOMCATLOG", [ 'legacy', 'ecs-v1' ] do
+
+  context 'example format' do
+
+    let(:message) do
+      '2014-01-09 20:03:28,269 -0800 | ERROR | com.example.service.ExampleService - something compeletely unexpected happened...'
+    end
+
+    it "matches" do
+      expect(subject).to include "timestamp"=>"2014-01-09 20:03:28,269 -0800"
+      if ecs_compatibility?
+        expect(subject).to include "log"=>{"level"=>"ERROR"},
+                                   "java"=>{"log"=>{"origin"=>{"class"=>{"name"=>"com.example.service.ExampleService"}}}}
+      else
+        expect(subject).to include "level"=>"ERROR"
+      end
+    end
+
+    it "'generates' the message field" do
+      if ecs_compatibility?
+        expect(subject).to include "message"=>[message, "something compeletely unexpected happened..."]
+      else
+        expect(subject).to include("logmessage" => "something compeletely unexpected happened...")
+      end
+    end
+
+  end
+
 end

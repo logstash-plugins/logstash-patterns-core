@@ -54,15 +54,6 @@ describe "HTTP DATE parsing" do
 
 end
 
-describe "TOMCATLOG" do
-
-  let(:value) { '2014-01-09 20:03:28,269 -0800 | ERROR | com.example.service.ExampleService - something compeletely unexpected happened...'}
-
-  it "generates the logmessage field" do
-    expect(grok_match(subject, value)).to include("logmessage" => "something compeletely unexpected happened...")
-  end
-end
-
 describe 'LOGLEVEL' do
   it 'matches info label' do
     expect(grok_match(subject, 'INFO')).to pass
