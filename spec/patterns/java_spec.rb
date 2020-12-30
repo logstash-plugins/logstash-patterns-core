@@ -22,7 +22,7 @@ describe_pattern "JAVASTACKTRACEPART", [ 'legacy', 'ecs-v1' ] do
     if ecs_compatibility?
       expect(grok).to include(
                           "log" => { "origin" => { "function" => 'aMethod', "file" => { "name" => 'StackTraceExample.java', "line" => 42 } } },
-                          "java" => { "log" => { "origin" => { "class_name" => 'com.sample.stacktrace.StackTraceExample' } } }
+                          "java" => { "log" => { "origin" => { "class" => { "name" => 'com.sample.stacktrace.StackTraceExample' } } } }
                       )
     else
       expect(grok).to include(
