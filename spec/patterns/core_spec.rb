@@ -234,6 +234,13 @@ describe "UNIXPATH" do
       expect( event.to_hash['tags'] ).to include '_grokparsefailure'
     end
   end
+
+  it "matches paths with non-ascii characters" do
+    event = build_event path = '/opt/Čierný_Peter/.中'
+    build_grok('UNIXPATH:path').filter event
+    expect( event.get('path') ).to eql path
+  end
+
 end
 
 describe "WINPATH" do
@@ -264,6 +271,10 @@ describe "WINPATH" do
     expect(grok_match(pattern, '/foo/bar', true)).to_not pass
     expect(grok_match(pattern, '/..', true)).to_not pass
     expect(grok_match(pattern, 'C://', true)).to_not pass
+  end
+
+  it "matches paths with non-ascii characters" do
+    expect(grok_match(pattern, 'C:\\Čierný Peter\\.中.exe', true)).to pass
   end
 
   context 'relative paths' do
