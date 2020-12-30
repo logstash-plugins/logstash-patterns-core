@@ -181,10 +181,88 @@ LINE
 
 end
 
+describe_pattern "TOMCAT50_LOG", [ 'ecs-v1' ] do
+
+  context 'with message' do # Tomcat 4.1
+
+    let(:message) do
+      '2020-12-30 11:30:40 StandardManager[/admin]: Seeding random number generator class java.security.SecureRandom'
+    end
+
+    it "matches" do
+      expect(subject).to include "timestamp"=>"2020-12-30 11:30:40",
+                                 "message"=>[message, "Seeding random number generator class java.security.SecureRandom"],
+                                 "tomcat"=>{"context"=>{"name"=>"/admin"}}
+    end
+
+  end
+
+  context 'wout message' do # Tomcat 5.0
+
+    let(:message) do
+      '2020-12-30 11:28:14 StandardContext[/jsp-examples]ContextListener: contextDestroyed()'
+    end
+
+    it "matches" do
+      expect(subject).to include "timestamp"=>"2020-12-30 11:28:14",
+                                 "log"=>{"origin"=>{"function"=>"contextDestroyed"}},
+                                 "java"=>{"log"=>{"origin"=>{"class"=>{"name"=>"ContextListener"}}}},
+                                 "tomcat"=>{"context"=>{"name"=>"/jsp-examples"}}
+    end
+
+  end
+
+end
+
 describe_pattern "TOMCATLOG", [ 'legacy', 'ecs-v1' ] do
 
-  context 'example format' do
+  context 'Tomcat 8.0 message' do # same for 8.5, 9.0
 
+    let(:message) do
+      "31-Jul-2020 16:40:38.451 INFO [localhost-startStop-1] org.apache.catalina.core.ApplicationContext.log " +
+          "ContextListener: attributeAdded('StockTicker', 'async.Stockticker@42dd551d')"
+    end
+
+    it "matches" do
+      if ecs_compatibility?
+        expect(subject).to include "timestamp"=>"31-Jul-2020 16:40:38.451"
+        expect(subject).to include "log"=>{"level"=>"INFO", "origin"=>{"function"=>"log"}},
+                                   "java"=>{"log"=>{"origin"=>{
+                                       "class"=>{"name"=>"org.apache.catalina.core.ApplicationContext"},
+                                       "thread"=>{"name"=>"localhost-startStop-1"}
+                                   }}}
+        expect(subject['message']).to eql [message, "ContextListener: attributeAdded('StockTicker', 'async.Stockticker@42dd551d')"]
+      else
+        # not supported
+      end
+    end
+
+  end
+
+  context 'Tomcat 7.0 message' do # same in Tomcat 6.0
+
+    let(:message) do
+      "Jul 31, 2020 4:40:20 PM org.apache.catalina.core.ApplicationContext log\n" +
+          "INFO: SessionListener: contextDestroyed()"
+    end
+
+    it "matches" do
+      if ecs_compatibility?
+        expect(subject).to include "timestamp"=>"Jul 31, 2020 4:40:20 PM"
+        expect(subject).to include "log"=>{"level"=>"INFO", "origin"=>{"function"=>"log"}},
+                                   "java"=>{"log"=>{"origin"=>{
+                                       "class"=>{"name"=>"org.apache.catalina.core.ApplicationContext"}
+                                   }}}
+        expect(subject['message']).to eql [message, "SessionListener: contextDestroyed()"]
+      else
+        # not supported
+      end
+    end
+
+  end
+
+  context '(weird) example format' do
+    # the format we've started - seems custom, Tomcat all the way back to 4.x did no use | separator by default
     let(:message) do
       '2014-01-09 20:03:28,269 -0800 | ERROR | com.example.service.ExampleService - something compeletely unexpected happened...'
     end
