@@ -11,20 +11,24 @@ describe_pattern "SQUID3", ['legacy', 'ecs-v1'] do
     end
 
     it "matches" do
-      expect(grok).to include("timestamp" => "1525344856.899")
+      expect(subject).to include("timestamp" => "1525344856.899")
       if ecs_compatibility?
-        expect(grok).to include(
+        expect(subject).to include(
                             "event" => { "action" => "TCP_TUNNEL" },
                             "squid" => {
                                 "request" => { "duration" => 16867 },
                                 "hierarchy_code" => "HIER_DIRECT"
                             })
-        expect(grok).to include("destination" => { "address" => "53.140.206.134" })
-        expect(grok).to include("http" => { "request" => { "method" => "CONNECT" }, "response" => { "bytes" => 6256, "status_code" => 200 } })
-        expect(grok).to include("url" => { "original" => "logs.ap-southeast-2.amazonaws.com:443" })
-        expect(grok).to include("source" => { "ip" => "10.170.72.111" })
+        expect(subject).to include("destination" => { "address" => "53.140.206.134" })
+        expect(subject).to include("http" => {
+            "request" => { "method" => "CONNECT" },
+            "response" => { "bytes" => 6256, "status_code" => 200 }
+            # does not include missing ('-') as http.response.mime_type
+        })
+        expect(subject).to include("url" => { "original" => "logs.ap-southeast-2.amazonaws.com:443" })
+        expect(subject).to include("source" => { "ip" => "10.170.72.111" })
       else
-        expect(grok).to include(
+        expect(subject).to include(
                             "duration" => "16867",
                             "client_address" => "10.170.72.111",
                             "cache_result" => "TCP_TUNNEL",
@@ -42,13 +46,7 @@ describe_pattern "SQUID3", ['legacy', 'ecs-v1'] do
 
     it "does not include missing ('-') user-name" do
       if ecs_compatibility?
-        expect(grok.keys).to_not include("user") # "user" => { "name" => "-" }
-      end
-    end
-
-    it "does not include missing ('-') content-type" do
-      if ecs_compatibility?
-        expect(grok['squid'].keys).to_not include("response") # "squid" => { "response" => { "content_type" => "-" } }
+        expect(subject.keys).to_not include("user") # "user" => { "name" => "-" }
       end
     end
 
@@ -61,22 +59,24 @@ describe_pattern "SQUID3", ['legacy', 'ecs-v1'] do
     end
 
     it "matches" do
-      expect(grok).to include("timestamp" => "1525334330.556")
+      expect(subject).to include("timestamp" => "1525334330.556")
       if ecs_compatibility?
-        expect(grok).to include(
+        expect(subject).to include(
                             "event" => { "action" => "TCP_REFRESH_MISS" },
                             "squid" => {
                                 "request" => { "duration" => 3 },
-                                "response" => { "content_type" => "text/plain" },
                                 "hierarchy_code" => "DIRECT"
                             })
-        expect(grok).to include("destination" => { "address" => "www.sample.com" })
-        expect(grok).to include("http" => { "request" => { "method" => "GET" }, "response" => { "bytes" => 2014, "status_code" => 200 } })
-        expect(grok).to include("url" => { "original" => "http://www.sample.com/hellow_world.txt" })
-        expect(grok).to include("source" => { "ip" => "120.65.1.1" })
-        expect(grok).to include("user" => { "name" => "public-user" })
+        expect(subject).to include("destination" => { "address" => "www.sample.com" })
+        expect(subject).to include("http" => {
+            "request" => { "method" => "GET" },
+            "response" => { "bytes" => 2014, "status_code" => 200, "mime_type" => 'text/plain' }
+        })
+        expect(subject).to include("url" => { "original" => "http://www.sample.com/hellow_world.txt" })
+        expect(subject).to include("source" => { "ip" => "120.65.1.1" })
+        expect(subject).to include("user" => { "name" => "public-user" })
       else
-        expect(grok).to include(
+        expect(subject).to include(
                             "duration"=>"3",
                             "client_address"=>"120.65.1.1",
                             "cache_result"=>"TCP_REFRESH_MISS",
@@ -93,7 +93,7 @@ describe_pattern "SQUID3", ['legacy', 'ecs-v1'] do
     end
 
     it "retains message" do
-      expect(grok).to include("message" => message)
+      expect(subject).to include("message" => message)
     end
 
   end
