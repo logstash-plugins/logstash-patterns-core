@@ -8,10 +8,20 @@ JAVASTACKTRACEPART %{SPACE}at %{JAVACLASS:[java][log][origin][class][name]}\.%{J
 # Java Logs
 JAVATHREAD (?:[A-Z]{2}-Processor[\d]+)
 JAVALOGMESSAGE (.*)
+
 # MMM dd, yyyy HH:mm:ss eg: Jan 9, 2014 7:13:13 AM
-CATALINA_DATESTAMP %{MONTH} %{MONTHDAY}, 20%{YEAR} %{HOUR}:?%{MINUTE}(?::?%{SECOND}) (?:AM|PM)
+# matches default logging configuration in Tomcat 4.1, 5.0, 5.5, 6.0, 7.0
+CATALINA7_DATESTAMP %{MONTH} %{MONTHDAY}, %{YEAR} %{HOUR}:?%{MINUTE}(?::?%{SECOND}) (?:AM|PM)
+CATALINA7_LOG %{CATALINA7_DATESTAMP:timestamp} %{JAVACLASS:[java][log][origin][class][name]}(?: %{JAVAMETHOD:[log][origin][function]})?\s*(?:%{LOGLEVEL:[log][level]}:)? %{JAVALOGMESSAGE:message}
+
+# 31-Jul-2020 16:40:38.578 in Tomcat 8.5/9.0
+CATALINA8_DATESTAMP %{MONTHDAY}-%{MONTH}-%{YEAR} %{HOUR}:%{MINUTE}:%{SECOND}
+CATALINA8_LOG %{CATALINA8_DATESTAMP:timestamp} %{LOGLEVEL:[log][level]} \[%{DATA:[java][log][origin][thread][name]}\] %{JAVACLASS:[java][log][origin][class][name]}\.(?:%{JAVAMETHOD:[log][origin][function]})? %{JAVALOGMESSAGE:message}
+
+CATALINA_DATESTAMP (?:%{CATALINA8_DATESTAMP})|(?:%{CATALINA7_DATESTAMP})
+CATALINALOG (?:%{CATALINA8_LOG})|(?:%{CATALINA7_LOG})
+
 # yyyy-MM-dd HH:mm:ss,SSS ZZZ eg: 2014-01-09 17:32:25,527 -0800
-TOMCAT_DATESTAMP 20%{YEAR}-%{MONTHNUM}-%{MONTHDAY} %{HOUR}:?%{MINUTE}(?::?%{SECOND}) %{ISO8601_TIMEZONE}
-CATALINALOG %{CATALINA_DATESTAMP:timestamp} %{JAVACLASS:[java][log][origin][class][name]} %{JAVALOGMESSAGE:message}
 # 2014-01-09 20:03:28,269 -0800 | ERROR | com.example.service.ExampleService - something compeletely unexpected happened...
 TOMCATLOG %{TOMCAT_DATESTAMP:timestamp} \| %{LOGLEVEL:[log][level]} \| %{JAVACLASS:[java][log][origin][class][name]} - %{JAVALOGMESSAGE:message}
+TOMCAT_DATESTAMP %{YEAR}-%{MONTHNUM}-%{MONTHDAY} %{HOUR}:?%{MINUTE}(?::?%{SECOND}) %{ISO8601_TIMEZONE}
