@@ -12,48 +12,48 @@ describe_pattern "HAPROXYHTTP", ['legacy', 'ecs-v1'] do
 
     it "matches" do
       if ecs_compatibility?
-        should include("timestamp"=>"Dec  9 13:01:26")
-        should include("host"=>{"hostname"=>"localhost"})
-        should include("process"=>{"pid"=>28029, "name"=>"haproxy"})
-        should include("source"=>{"port"=>39759, "address"=>"127.0.0.1", "bytes"=>83285})
-        should include("haproxy" => hash_including("request_date"=>"09/Dec/2013:12:59:46.633"))
-        should include("haproxy" => hash_including("frontend_name"=>"loadbalancer", "backend_name"=>"default", "server_name"=>"instance8"))
-        should include("haproxy" => hash_including(
+        expect(subject).to include("timestamp"=>"Dec  9 13:01:26")
+        expect(subject).to include("host"=>{"hostname"=>"localhost"})
+        expect(subject).to include("process"=>{"pid"=>28029, "name"=>"haproxy"})
+        expect(subject).to include("source"=>{"port"=>39759, "address"=>"127.0.0.1", "bytes"=>83285})
+        expect(subject).to include("haproxy" => hash_including("request_date"=>"09/Dec/2013:12:59:46.633"))
+        expect(subject).to include("haproxy" => hash_including("frontend_name"=>"loadbalancer", "backend_name"=>"default", "server_name"=>"instance8"))
+        expect(subject).to include("haproxy" => hash_including(
             "total_waiting_time_ms"=>51536, "connection_wait_time_ms"=>1, "total_time_ms"=>"99627",
             "http" => hash_including("request"=>hash_including("time_wait_ms"=>0, "time_wait_without_data_ms"=>48082))
         ))
-        should include("http" => hash_including("response"=>{"status_code"=>200}))
+        expect(subject).to include("http" => hash_including("response"=>{"status_code"=>200}))
 
-        should include("haproxy" => hash_including("termination_state"=>"----"))
+        expect(subject).to include("haproxy" => hash_including("termination_state"=>"----"))
 
-        should include("haproxy" => hash_including("connections"=>{"active"=>87, "frontend"=>87, "backend"=>87, "server"=>1, "retries"=>0}))
-        should include("haproxy" => hash_including("backend_queue"=>67, "server_queue"=>0))
+        expect(subject).to include("haproxy" => hash_including("connections"=>{"active"=>87, "frontend"=>87, "backend"=>87, "server"=>1, "retries"=>0}))
+        expect(subject).to include("haproxy" => hash_including("backend_queue"=>67, "server_queue"=>0))
 
-        should include("http" => hash_including("request" => {"method"=>'GET'}, "version" => '1.1'))
+        expect(subject).to include("http" => hash_including("request" => {"method"=>'GET'}, "version" => '1.1'))
 
-        should include("url" => { "original"=>"/path/to/image", "path"=>"/path/to/image" })
+        expect(subject).to include("url" => { "original"=>"/path/to/image", "path"=>"/path/to/image" })
       else
-        should include("syslog_timestamp" => "Dec  9 13:01:26")
-        should include("syslog_server" => "localhost")
-        should include("http_request" => "/path/to/image", "http_status_code" => "200", "http_verb" => "GET", "http_version" => "1.1")
-        should include("program" => "haproxy")
-        should include("client_ip" => "127.0.0.1")
-        should include("http_verb" => "GET")
-        should include("server_name" => "instance8")
+        expect(subject).to include("syslog_timestamp" => "Dec  9 13:01:26")
+        expect(subject).to include("syslog_server" => "localhost")
+        expect(subject).to include("http_request" => "/path/to/image", "http_status_code" => "200", "http_verb" => "GET", "http_version" => "1.1")
+        expect(subject).to include("program" => "haproxy")
+        expect(subject).to include("client_ip" => "127.0.0.1")
+        expect(subject).to include("http_verb" => "GET")
+        expect(subject).to include("server_name" => "instance8")
       end
     end
 
     it "has no captured cookies" do
       if ecs_compatibility?
-        expect((grok['haproxy']['http']['request'] || {}).keys).to_not include('captured_cookie')
-        expect((grok['haproxy']['http']['response'] || {}).keys).to_not include('captured_cookie')
+        expect((subject['haproxy']['http']['request'] || {}).keys).to_not include('captured_cookie')
+        expect((subject['haproxy']['http']['response'] || {}).keys).to_not include('captured_cookie')
       end
     end
 
     it "includes header captures" do
       if ecs_compatibility?
-        expect((grok['haproxy']['http'])).to include('request' => hash_including('captured_headers' => '77.24.148.74'))
-        expect((grok['haproxy']['http']['response'] || {}).keys).to_not include('captured_headers')
+        expect((subject['haproxy']['http'])).to include('request' => hash_including('captured_headers' => '77.24.148.74'))
+        expect((subject['haproxy']['http']['response'] || {}).keys).to_not include('captured_headers')
       end
     end
 
@@ -71,29 +71,29 @@ describe_pattern "HAPROXYHTTP", ['legacy', 'ecs-v1'] do
 
     it "matches" do
       if ecs_compatibility?
-        should include("timestamp"=>"2015-08-26T02:09:48+02:00")
-        should include("host"=>{"hostname"=>"localhost"})
-        should include("process"=>{"pid"=>14389, "name"=>"haproxy"})
+        expect(subject).to include("timestamp"=>"2015-08-26T02:09:48+02:00")
+        expect(subject).to include("host"=>{"hostname"=>"localhost"})
+        expect(subject).to include("process"=>{"pid"=>14389, "name"=>"haproxy"})
 
-        should include("haproxy" => hash_including("connections"=>{"active"=>1, "frontend"=>1, "backend"=>0, "server"=>1, "retries"=>0}))
-        should include("haproxy" => hash_including("backend_queue"=>0, "server_queue"=>0))
+        expect(subject).to include("haproxy" => hash_including("connections"=>{"active"=>1, "frontend"=>1, "backend"=>0, "server"=>1, "retries"=>0}))
+        expect(subject).to include("haproxy" => hash_including("backend_queue"=>0, "server_queue"=>0))
 
-        should include("haproxy" => hash_including("frontend_name"=>"services~"))
+        expect(subject).to include("haproxy" => hash_including("frontend_name"=>"services~"))
 
-        should include("http"=>{"response"=>{"status_code"=>304}, "version"=>"1.1", "request"=>{"method"=>"GET"}})
-        should include("url"=>hash_including("path"=>"/component---src-pages-index-js-4b15624544f97cf0bb8f.js"))
+        expect(subject).to include("http"=>{"response"=>{"status_code"=>304}, "version"=>"1.1", "request"=>{"method"=>"GET"}})
+        expect(subject).to include("url"=>hash_including("path"=>"/component---src-pages-index-js-4b15624544f97cf0bb8f.js"))
       else
-        should include("program" => "haproxy")
-        should include("client_ip" => "5.196.2.38")
-        should include("http_verb" => "GET")
-        should include("server_name" => "api")
+        expect(subject).to include("program" => "haproxy")
+        expect(subject).to include("client_ip" => "5.196.2.38")
+        expect(subject).to include("http_verb" => "GET")
+        expect(subject).to include("server_name" => "api")
       end
     end
 
     it "has no header captures" do
       if ecs_compatibility?
-        expect((grok['haproxy']['http']['request'] || {}).keys).to_not include('captured_headers')
-        expect((grok['haproxy']['http']['response'] || {}).keys).to_not include('captured_headers')
+        expect((subject['haproxy']['http']['request'] || {}).keys).to_not include('captured_headers')
+        expect((subject['haproxy']['http']['response'] || {}).keys).to_not include('captured_headers')
       end
     end
 
@@ -107,25 +107,25 @@ describe_pattern "HAPROXYHTTP", ['legacy', 'ecs-v1'] do
 
     it "matches" do
       if ecs_compatibility?
-        should include("timestamp"=>"Jul 30 09:03:52")
-        should include("host"=>{"hostname"=>"home.host"})
+        expect(subject).to include("timestamp"=>"Jul 30 09:03:52")
+        expect(subject).to include("host"=>{"hostname"=>"home.host"})
 
-        should include("haproxy" => hash_including("frontend_name"=>"incoming~"))
+        expect(subject).to include("haproxy" => hash_including("frontend_name"=>"incoming~"))
 
-        should include("http"=>{"response"=>{"status_code"=>304}, "version"=>"1.1", "request"=>{"method"=>"GET"}})
-        should include("url"=>hash_including("scheme"=>"http", "domain"=>"192.168.0.12", "port"=>8080,
+        expect(subject).to include("http"=>{"response"=>{"status_code"=>304}, "version"=>"1.1", "request"=>{"method"=>"GET"}})
+        expect(subject).to include("url"=>hash_including("scheme"=>"http", "domain"=>"192.168.0.12", "port"=>8080,
                                              "path"=>"/serv/login.php", "query"=>"lang=en&profile=2",
                                              "original"=>"http://192.168.0.12:8080/serv/login.php?lang=en&profile=2"))
       else
-        should include("client_ip" => "1.2.3.4")
-        should include("http_verb" => "GET")
+        expect(subject).to include("client_ip" => "1.2.3.4")
+        expect(subject).to include("http_verb" => "GET")
       end
     end
 
     it "has header captures" do
       if ecs_compatibility?
-        expect((grok['haproxy']['http']['request'])).to include('captured_headers' => 'docs.example.internal||')
-        expect((grok['haproxy']['http']['response'])).to include('captured_headers' => '|||')
+        expect((subject['haproxy']['http']['request'])).to include('captured_headers' => 'docs.example.internal||')
+        expect((subject['haproxy']['http']['response'])).to include('captured_headers' => '|||')
       end
     end
 
@@ -139,24 +139,24 @@ describe_pattern "HAPROXYHTTP", ['legacy', 'ecs-v1'] do
 
     it "matches" do
       if ecs_compatibility?
-        should include("timestamp"=>"Jul 18 17:05:30")
+        expect(subject).to include("timestamp"=>"Jul 18 17:05:30")
 
-        should include("haproxy" => hash_including("frontend_name"=>"http_proxy_ads"))
-        should include("haproxy" => hash_including("backend_name"=>"http_proxy_ads"))
-        expect( grok['haproxy'].keys ).to_not include('server_name')
-        should include("http"=>{"response"=>{"status_code"=>408}})
-        expect( grok['haproxy'].keys ).to_not include("total_waiting_time_ms", "connection_wait_time_ms")
-        should include("haproxy" => hash_including("total_time_ms"=>"6001"))
-        should include("source" => hash_including("bytes"=>212))
-        should include("haproxy" => hash_including("termination_state"=>"cR--"))
-        expect( grok.keys ).to_not include("url")
+        expect(subject).to include("haproxy" => hash_including("frontend_name"=>"http_proxy_ads"))
+        expect(subject).to include("haproxy" => hash_including("backend_name"=>"http_proxy_ads"))
+        expect(subject['haproxy'].keys).to_not include('server_name')
+        expect(subject).to include("http"=>{"response"=>{"status_code"=>408}})
+        expect(subject['haproxy'].keys).to_not include("total_waiting_time_ms", "connection_wait_time_ms")
+        expect(subject).to include("haproxy" => hash_including("total_time_ms"=>"6001"))
+        expect(subject).to include("source" => hash_including("bytes"=>212))
+        expect(subject).to include("haproxy" => hash_including("termination_state"=>"cR--"))
+        expect(subject.keys).to_not include("url")
       else
-        should include("backend_name"=>"http_proxy_ads", "frontend_name"=>"http_proxy_ads", "server_name"=>"<NOSRV>")
-        should include("http_status_code"=>"408")
-        should include("time_backend_connect"=>"-1", "time_queue"=>"-1", "time_backend_response"=>"-1")
-        should include("captured_request_cookie"=>"-", "captured_response_cookie"=>"-")
-        should include("bytes_read"=>"212")
-        should include("termination_state"=>"cR--")
+        expect(subject).to include("backend_name"=>"http_proxy_ads", "frontend_name"=>"http_proxy_ads", "server_name"=>"<NOSRV>")
+        expect(subject).to include("http_status_code"=>"408")
+        expect(subject).to include("time_backend_connect"=>"-1", "time_queue"=>"-1", "time_backend_response"=>"-1")
+        expect(subject).to include("captured_request_cookie"=>"-", "captured_response_cookie"=>"-")
+        expect(subject).to include("bytes_read"=>"212")
+        expect(subject).to include("termination_state"=>"cR--")
       end
     end
 
@@ -174,8 +174,8 @@ describe_pattern "HAPROXYHTTPBASE", ['ecs-v1', 'legacy'] do
 
     it 'matches' do
       if ecs_compatibility?
-        should include("source"=>{"port"=>39759, "address"=>"127.0.0.1", "bytes"=>83285})
-        should include("haproxy"=>hash_including("server_queue"=>0,
+        expect(subject).to include("source"=>{"port"=>39759, "address"=>"127.0.0.1", "bytes"=>83285})
+        expect(subject).to include("haproxy"=>hash_including("server_queue"=>0,
                                   "http"=>{
                                       "request"=>{"time_wait_ms"=>0, "captured_headers"=>"77.24.148.74", "time_wait_without_data_ms"=>48082}
                                   },
@@ -184,13 +184,13 @@ describe_pattern "HAPROXYHTTPBASE", ['ecs-v1', 'legacy'] do
                                   # a '+' sign is prepended before the value, indicating that the final one will be larger
                                   "total_time_ms" => "+99627"
         ))
-        should include("url"=>{"path"=>"/", "original"=>"/"})
+        expect(subject).to include("url"=>{"path"=>"/", "original"=>"/"})
       else
         # Assume 'program' would be matched by the syslog input.
-        should include("client_ip" => "127.0.0.1")
-        should include("server_name" => "instance8")
-        should include("http_verb" => "GET", "http_request"=>"/", "http_version" => '1.1')
-        should include("time_duration" => "+99627")
+        expect(subject).to include("client_ip" => "127.0.0.1")
+        expect(subject).to include("server_name" => "instance8")
+        expect(subject).to include("http_verb" => "GET", "http_request"=>"/", "http_version" => '1.1')
+        expect(subject).to include("time_duration" => "+99627")
       end
     end
 
@@ -205,14 +205,14 @@ describe_pattern "HAPROXYHTTPBASE", ['ecs-v1', 'legacy'] do
     it 'matches' do
       if ecs_compatibility?
         # due compatibility with the legacy pattern we match the incomplete "REQUEST LINE ... (wout the ending '"')
-        should include("http"=>{"response"=>{"status_code"=>200}, "request"=>{"method"=>"GET"}})
-        should include("url"=>hash_including("original"=>"/path/to/request/that/exceeds/more/than/1024/characterssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"))
+        expect(subject).to include("http"=>{"response"=>{"status_code"=>200}, "request"=>{"method"=>"GET"}})
+        expect(subject).to include("url"=>hash_including("original"=>"/path/to/request/that/exceeds/more/than/1024/characterssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"))
       else
-        should include("client_ip" => "203.0.113.54")
-        should include("http_verb" => "GET")
-        should include("server_name" => "instance8")
-        should include("http_request" => "/path/to/request/that/exceeds/more/than/1024/characterssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
-        should_not have_key("http_version")
+        expect(subject).to include("client_ip" => "203.0.113.54")
+        expect(subject).to include("http_verb" => "GET")
+        expect(subject).to include("server_name" => "instance8")
+        expect(subject).to include("http_request" => "/path/to/request/that/exceeds/more/than/1024/characterssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
+        expect(subject).to_not have_key("http_version")
       end
     end
 
@@ -227,11 +227,11 @@ describe_pattern "HAPROXYHTTPBASE", ['ecs-v1', 'legacy'] do
 
     it 'matches' do
       if ecs_compatibility?
-        should include("http"=>hash_including("request"=>{"method"=>"CONNECT"}))
-        should include("url"=>{"port"=>8080, "original"=>"localhost:8080", "domain"=>"localhost"})
+        expect(subject).to include("http"=>hash_including("request"=>{"method"=>"CONNECT"}))
+        expect(subject).to include("url"=>{"port"=>8080, "original"=>"localhost:8080", "domain"=>"localhost"})
       else
-        should include("http_verb" => "CONNECT")
-        should include("http_host" => "localhost:8080")
+        expect(subject).to include("http_verb" => "CONNECT")
+        expect(subject).to include("http_host" => "localhost:8080")
       end
     end
 
@@ -247,7 +247,7 @@ describe_pattern "HAPROXYTCP", ['legacy', 'ecs-v1'] do
 
   it 'matches' do
     if ecs_compatibility?
-      expect( grok ).to include(
+      expect(subject).to include(
                             "timestamp"=>"Sep 20 15:44:23",
                             "host"=>{"hostname"=>"127.0.0.1"},
                             "process"=>{"pid"=>25457, "name"=>"haproxy"},
@@ -261,7 +261,7 @@ describe_pattern "HAPROXYTCP", ['legacy', 'ecs-v1'] do
                                 "server_queue"=>0, "backend_queue"=>0
                             })
     else
-      expect(grok).to include(
+      expect(subject).to include(
                             "syslog_timestamp"=>"Sep 20 15:44:23",
                             "syslog_server"=>"127.0.0.1",
                             "program"=>"haproxy", "pid"=>"25457",
