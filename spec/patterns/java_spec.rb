@@ -181,38 +181,38 @@ LINE
 
 end
 
-describe_pattern "TOMCAT50_LOG", [ 'ecs-v1' ] do
-
-  context 'with message' do # Tomcat 4.1
-
-    let(:message) do
-      '2020-12-30 11:30:40 StandardManager[/admin]: Seeding random number generator class java.security.SecureRandom'
-    end
-
-    it "matches" do
-      expect(subject).to include "timestamp"=>"2020-12-30 11:30:40",
-                                 "message"=>[message, "Seeding random number generator class java.security.SecureRandom"],
-                                 "tomcat"=>{"context"=>{"name"=>"/admin"}}
-    end
-
-  end
-
-  context 'wout message' do # Tomcat 5.0
-
-    let(:message) do
-      '2020-12-30 11:28:14 StandardContext[/jsp-examples]ContextListener: contextDestroyed()'
-    end
-
-    it "matches" do
-      expect(subject).to include "timestamp"=>"2020-12-30 11:28:14",
-                                 "log"=>{"origin"=>{"function"=>"contextDestroyed"}},
-                                 "java"=>{"log"=>{"origin"=>{"class"=>{"name"=>"ContextListener"}}}},
-                                 "tomcat"=>{"context"=>{"name"=>"/jsp-examples"}}
-    end
-
-  end
-
-end
+# describe_pattern "TOMCAT50_LOG", [ 'ecs-v1' ] do
+#
+#   context 'with message' do # Tomcat 4.1
+#
+#     let(:message) do
+#       '2020-12-30 11:30:40 StandardManager[/admin]: Seeding random number generator class java.security.SecureRandom'
+#     end
+#
+#     it "matches" do
+#       expect(subject).to include "timestamp"=>"2020-12-30 11:30:40",
+#                                  "message"=>[message, "Seeding random number generator class java.security.SecureRandom"],
+#                                  "tomcat"=>{"context"=>{"name"=>"/admin"}}
+#     end
+#
+#   end
+#
+#   context 'wout message' do # Tomcat 5.0
+#
+#     let(:message) do
+#       '2020-12-30 11:28:14 StandardContext[/jsp-examples]ContextListener: contextDestroyed()'
+#     end
+#
+#     it "matches" do
+#       expect(subject).to include "timestamp"=>"2020-12-30 11:28:14",
+#                                  "log"=>{"origin"=>{"function"=>"contextDestroyed"}},
+#                                  "java"=>{"log"=>{"origin"=>{"class"=>{"name"=>"ContextListener"}}}},
+#                                  "tomcat"=>{"context"=>{"name"=>"/jsp-examples"}}
+#     end
+#
+#   end
+#
+# end
 
 describe_pattern "TOMCATLOG", [ 'legacy', 'ecs-v1' ] do
 
