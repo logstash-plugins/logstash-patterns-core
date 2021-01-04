@@ -10,7 +10,7 @@ EXIM_DATE (:?%{YEAR}-%{MONTHNUM}-%{MONTHDAY} %{TIME})
 EXIM_PID \[%{POSINT:[process][pid]:int}\]
 EXIM_QT ((\d+y)?(\d+w)?(\d+d)?(\d+h)?(\d+m)?(\d+s)?)
 EXIM_EXCLUDE_TERMS (Message is frozen|(Start|End) queue run| Warning: | retry time not reached | no (IP address|host name) found for (IP address|host) | unexpected disconnection while reading SMTP command | no immediate delivery: |another process is handling this message)
-EXIM_REMOTE_HOST (H=(\[?%{NOTSPACE:[source][address]}\]? )?(\(%{NOTSPACE:[exim][log][remote_address]}\) )?\[%{IP:[source][ip]}\](?::%{POSINT:[source][port]:int})?)
+EXIM_REMOTE_HOST (H=(%{NOTSPACE:[source][address]} )?(\(%{NOTSPACE:[exim][log][remote_address]}\) )?\[%{IP:[source][ip]}\](?::%{POSINT:[source][port]:int})?)
 EXIM_INTERFACE (I=\[%{IP:[destination][ip]}\](?::%{NUMBER:[destination][port]:int}))
 EXIM_PROTOCOL (P=%{NOTSPACE:[network][protocol]})
 EXIM_MSG_SIZE (S=%{NUMBER:[exim][log][message][size]:int})
