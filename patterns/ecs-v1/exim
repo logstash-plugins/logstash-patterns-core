@@ -5,7 +5,7 @@ EXIM_MSGID [0-9A-Za-z]{6}-[0-9A-Za-z]{6}-[0-9A-Za-z]{2}
 # *>     delivery suppressed by -N
 # **     delivery failed; address bounced
 # ==     delivery deferred; temporary problem
-EXIM_FLAGS (<=|=>|->|*>|**|==|<>|>>)
+EXIM_FLAGS (?:<=|=>|->|\*>|\*\*|==|<>|>>)
 EXIM_DATE (:?%{YEAR}-%{MONTHNUM}-%{MONTHDAY} %{TIME})
 EXIM_PID \[%{POSINT:[process][pid]:int}\]
 EXIM_QT ((\d+y)?(\d+w)?(\d+d)?(\d+h)?(\d+m)?(\d+s)?)
