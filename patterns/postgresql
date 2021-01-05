@@ -1,3 +1,20 @@
 # Default postgresql pg_log format pattern
 POSTGRESQL %{DATESTAMP:timestamp} %{TZ} %{DATA:user_id} %{GREEDYDATA:connection_id} %{POSINT:pid}
 
+# Date format as in postgresql log file
+PG_TIMESTAMP %{YEAR}-%{MONTHNUM}-%{MONTHDAY} %{HOUR}:%{MINUTE}:%{SECOND} [A-Z]{3,4}
+
+# List of error prefixes
+PG_ERROR_PATTERN (ERROR|WARNING|FATAL|PANIC)
+
+# log_line_prefix uniquely identifies the PostgreSQL log file
+PG_PREFIX %{PG_TIMESTAMP} datname:(%{DATA:datname})?,client:(%{DATA:client_host})?,app:(%{DATA:app_name})?,usename:(%{USER:usename})?,session:(%{DATA:session})?
+
+# Add the ability to use log_level as a label in metrics
+PG_ERROR_LEVEL %{PG_ERROR_PATTERN:log_level}:
+
+# We identify the event of successful authorization
+PG_EVENT_AUTH LOG:  connection authorized:
+
+# We identify the event of receiving the SIGHUP signal, for re-reading the configuration
+PG_EVENT_RELOAD LOG:  received SIGHUP, reloading configuration files
