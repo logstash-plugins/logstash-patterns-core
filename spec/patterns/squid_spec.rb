@@ -98,4 +98,22 @@ describe_pattern "SQUID3", ['legacy', 'ecs-v1'] do
 
   end
 
+  context 'GET with invalid status' do # code 0 means unavailable - no response received
+
+    let(:message) do
+      '1426235912.366     16 192.168.3.50 TCP_MISS_ABORTED/000 0 GET http://garfield.com/comic/2015-03-13 - HIER_DIRECT/193.135.59.44 -'
+    end
+
+    it "matches" do
+      expect(subject).to include("timestamp" => "1426235912.366")
+      if ecs_compatibility?
+        expect(subject).to include("event"=>{"action"=>"TCP_MISS_ABORTED"},
+                                   "http"=>{"response"=>{"bytes"=>0}, "request"=>{"method"=>"GET"}})
+      else
+        expect(subject).to include("status_code"=>'000')
+      end
+    end
+
+  end
+
 end
