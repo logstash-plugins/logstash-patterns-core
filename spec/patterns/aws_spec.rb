@@ -171,3 +171,41 @@ describe "CLOUDFRONT_ACCESS_LOG" do
     end
   end
 end
+
+describe "ALB_ACCESS_LOG" do
+
+    let(:pattern) { "ALB_ACCESS_LOG" }
+  
+    context "parsing a ALB (Application Load Balancer) access log" do
+  
+      let(:value) { "https 2020-04-09T23:51:41.309191Z app/OJProdLoadBalancer/278a3c7472bb5054 63.143.42.244:23863 172.31.2.30:5001 0.002 0.217 0.000 200 200 448 348 \"HEAD https://abc.com:443/packages HTTP/1.1\" \"Mozilla/5.0+(compatible; UptimeRobot/2.0; http://www.uptimerobot.com/)\" ECDHE-RSA-AES128-GCM-SHA256 TLSv1.2 arn:aws:elasticloadbalancing:ap-south-1:855430014109:targetgroup/ABC-FrontEnd/8c8983a24851ee4a \"Root=1-5e8fb50d-df9a95404831631626fb545e\" \"abc.com\" \"arn:aws:acm:ap-south-1:855430014109:certificate/e3fb2074-0c09-4be9-a32c-5c985e540144\" 0 2020-04-09T23:51:41.090000Z \"forward\" \"-\" \"-\" \"172.31.2.30:5001\" \"200\"" }
+  
+      subject { grok_match(pattern, value) }
+  
+      it { should include("request_type" => "https" ) }
+      it { should include("timestamp" => "2020-04-09T23:51:41.309191Z" ) }
+      it { should include("alb_resource_id" => "app/OJProdLoadBalancer/278a3c7472bb5054" ) }
+      it { should include("client_ip" => "63.143.42.244" ) }
+      it { should include("target_ip" =>  "172.31.2.30" ) }
+      it { should include("verb" => "HEAD" ) }
+      it { should include("request" => "https://abc.com:443/packages" ) }
+      it { should include("httpversion" => "1.1" ) }
+      it { should include("ssl_cipher" => "ECDHE-RSA-AES128-GCM-SHA256" ) }
+      it { should include("ssl_protocol" => "TLSv1.2" ) }
+      it { should include("target_group_arn" => "arn:aws:elasticloadbalancing:ap-south-1:855430014109:targetgroup/ABC-FrontEnd/8c8983a24851ee4a") }
+      it { should include("trace_id" => "Root=1-5e8fb50d-df9a95404831631626fb545e" ) }
+      it { should include("domain_name" => "abc.com" ) }
+      it { should include("chosen_cert_arn" => "arn:aws:acm:ap-south-1:855430014109:certificate/e3fb2074-0c09-4be9-a32c-5c985e540144" ) }
+      it { should include("request_creation_time" => "2020-04-09T23:51:41.090000Z" ) }
+      it { should include("actions_executed" => "forward" ) }
+      it { should include("error_reason" => "-" ) }
+      it { should include("target_port_list" => "172.31.2.30:5001" ) }
+      it { should include("target_status_code_list" => "200" ) }
+  
+      ["tags", "params"].each do |attribute|
+        it "have #{attribute} as nil" do
+          expect(subject[attribute]).to be_nil
+        end
+      end
+    end
+  end
