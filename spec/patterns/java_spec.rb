@@ -126,8 +126,7 @@ describe_pattern "CATALINALOG", [ 'legacy', 'ecs-v1' ] do
 
   context 'multiline stack-trace' do
 
-  let(:message) do
-<<LINE
+    let(:message) do <<LINE
 30-Dec-2020 11:44:31.277 SEVERE [main] org.apache.catalina.util.LifecycleBase.handleSubClassException Failed to initialize component [Connector[HTTP/1.1-8080]]
 	org.apache.catalina.LifecycleException: Protocol handler initialization failed
 		at org.apache.catalina.connector.Connector.initInternal(Connector.java:1042)
@@ -159,23 +158,25 @@ describe_pattern "CATALINALOG", [ 'legacy', 'ecs-v1' ] do
 		at org.apache.catalina.connector.Connector.initInternal(Connector.java:1039)
 		... 13 more
 LINE
-  end
-
-  it "matches" do
-    if ecs_compatibility?
-      expect(subject).to include "timestamp"=>"30-Dec-2020 11:44:31.277"
-
-      expect(subject).to include "java"=>{"log"=>{"origin"=>{
-                                    "thread"=>{"name"=>"main"},
-                                    "class"=>{"name"=>"org.apache.catalina.util.LifecycleBase"}}}},
-                                 "log"=>{"level"=>"SEVERE", "origin"=>{"function"=>"handleSubClassException"}}
-
-      expect(subject['message'][0]).to eql message
-      expect(subject['message'][1]).to start_with 'Failed to initialize component [Connector[HTTP/1.1-8080]]'
-    else
-      # not supported in legacy mode
     end
-  end
+
+    it "matches" do
+      if ecs_compatibility?
+        expect(subject).to include "timestamp"=>"30-Dec-2020 11:44:31.277"
+
+        expect(subject).to include "java"=>{"log"=>{"origin"=>{
+                                      "thread"=>{"name"=>"main"},
+                                      "class"=>{"name"=>"org.apache.catalina.util.LifecycleBase"}}}},
+                                   "log"=>{"level"=>"SEVERE", "origin"=>{"function"=>"handleSubClassException"}}
+
+        expect(subject['message'][0]).to eql message
+        message = subject['message'][1]
+        expect(message).to start_with 'Failed to initialize component [Connector[HTTP/1.1-8080]]'
+        expect(message).to include 'Caused by: java.net.BindException: Address already in use'
+      else
+        # not supported in legacy mode
+      end
+    end
 
   end
 
@@ -256,6 +257,57 @@ describe_pattern "TOMCATLOG", [ 'legacy', 'ecs-v1' ] do
         expect(subject['message']).to eql [message, "SessionListener: contextDestroyed()"]
       else
         # not supported
+      end
+    end
+
+  end
+
+  context 'multi-line trace' do # multi-line Tomcat 7.0 like format
+
+    let(:message) do <<LINE
+Oct 30, 2013 11:10:05 AM org.apache.catalina.core.StandardWrapperValve invoke
+SEVERE: Servlet.service() for servlet [jsp] in context with path [] threw exception [java.lang.ClassCastException: org.apache.jasper.runtime.ELContextImpl cannot be cast to org.apache.jasper.el.ELContextImpl] with root cause
+java.lang.ClassCastException: org.apache.jasper.runtime.ELContextImpl cannot be cast to org.apache.jasper.el.ELContextImpl
+    at org.apache.jasper.runtime.PageContextImpl.proprietaryEvaluate(PageContextImpl.java:1023)
+    at org.apache.jsp.index_jsp._jspService(index_jsp.java:85)
+    at org.apache.jasper.runtime.HttpJspBase.service(HttpJspBase.java:70)
+    at javax.servlet.http.HttpServlet.service(HttpServlet.java:728)
+    at org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:432)
+    at org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:390)
+    at org.apache.jasper.servlet.JspServlet.service(JspServlet.java:334)
+    at javax.servlet.http.HttpServlet.service(HttpServlet.java:728)
+    at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:305)
+    at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:210)
+    at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:222)
+    at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:123)
+    at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:171)
+    at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:99)
+    at org.apache.catalina.valves.AccessLogValve.invoke(AccessLogValve.java:953)
+    at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:118)
+    at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:408)
+    at org.apache.coyote.http11.AbstractHttp11Processor.process(AbstractHttp11Processor.java:1023)
+    at org.apache.coyote.AbstractProtocol$AbstractConnectionHandler.process(AbstractProtocol.java:589)
+    at org.apache.tomcat.util.net.JIoEndpoint$SocketProcessor.run(JIoEndpoint.java:310)
+    at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+    at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+    at java.lang.Thread.run(Thread.java:724)
+LINE
+    end
+
+    it "matches" do
+      if ecs_compatibility?
+        expect(subject).to include "timestamp"=>"Oct 30, 2013 11:10:05 AM"
+
+        expect(subject).to include "java"=>{"log"=>{"origin"=>{
+                                      "class"=>{"name"=>"org.apache.catalina.core.StandardWrapperValve"}}
+                                    }},
+                                   "log"=>{"level"=>"SEVERE", "origin"=>{"function"=>"invoke"}}
+
+        message = subject['message'][1]
+        expect(message).to start_with 'Servlet.service() for servlet [jsp] in context with path [] threw exception [java.lang.ClassCastException: org.apache.jasper.runtime.ELContextImpl cannot be cast to org.apache.jasper.el.ELContextImpl] with root cause'
+        expect(message).to include('at java.lang.Thread.run(Thread.java')
+      else
+        # not supported in legacy mode
       end
     end
 
