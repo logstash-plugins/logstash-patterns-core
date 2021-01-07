@@ -11,4 +11,4 @@ if Dir.exist?(logstash_path) && use_logstash_source
 end
 
 # TODO till filter grok with ECS support is released :
-gem 'logstash-filter-grok', github: 'kares/logstash-filter-grok', ref: 'ecs-1-support'
+gem 'logstash-filter-grok', git: 'https://github.com/kares/logstash-filter-grok.git', ref: 'ecs-1-support'
