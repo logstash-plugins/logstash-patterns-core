@@ -1,6 +1,14 @@
 ARG ELASTIC_STACK_VERSION
 ARG DISTRIBUTION_SUFFIX
 FROM docker.elastic.co/logstash/logstash${DISTRIBUTION_SUFFIX}:${ELASTIC_STACK_VERSION}
+# TODO push upstream - run setup.sh before bundle install
+# install and enable password-less sudo for logstash user
+# allows modifying the system inside the container e.g. using the .ci/setup.sh hook
+USER root
+RUN yum install -y sudo
+RUN usermod -aG wheel logstash && \
+    echo "logstash ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/logstash && \
+    chmod 0440 /etc/sudoers.d/logstash
 USER logstash
 COPY --chown=logstash:logstash . /usr/share/plugins/plugin/
 RUN cp /usr/share/logstash/logstash-core/versions-gem-copy.yml /usr/share/logstash/versions.yml
@@ -15,11 +23,7 @@ ENV DISTRIBUTION=$DISTRIBUTION
 ARG INTEGRATION
 ENV INTEGRATION=$INTEGRATION
 WORKDIR /usr/share/plugins/plugin
-# TODO push upstream - run setup.sh before bundle install
-USER root
 RUN .ci/setup.sh
-USER logstash
-
 RUN gem install bundler -v '< 2'
 RUN bundle install --with test ci
 RUN bundle exec rake vendor
