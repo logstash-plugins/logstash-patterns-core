@@ -262,6 +262,24 @@ describe_pattern "HTTPD_ERRORLOG", ['legacy', 'ecs-v1'] do
     end
   end
 
+  context "a httpd 2.4 message witout module" do
+    let(:message) do
+      "[Tue Apr 14 14:27:52.605084 2020] [:error] [pid 5688] [client 192.168.10.110:8196] script '/login/wp-login.php' not found or unable to stat"
+    end
+
+    it "matches" do
+      expect(grok).to include('timestamp' => 'Tue Apr 14 14:27:52.605084 2020')
+      if ecs_compatibility?
+        expect(grok).to include("log"=>{"level" => "error"})
+        expect(grok).to include("process"=>{"pid" => 5688})
+        expect(grok).to include("process"=>{"pid" => 5688})
+        expect( ((grok['apache'] || {})['error'] || {}).keys ).to_not include('module')
+      else
+        expect(grok).to include('loglevel' => 'error', 'pid' => '5688')
+      end
+    end
+  end
+
   context 'a debug message' do
     let(:message) do
       '[Fri Feb 01 22:03:08.319124 2019] [authz_core:debug] [pid 9:tid 140597881775872] mod_authz_core.c(820): [client 172.17.0.1:50752] AH01626: authorization result of <RequireAny>: granted'
