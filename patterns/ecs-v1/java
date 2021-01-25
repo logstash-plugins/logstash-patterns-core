@@ -26,10 +26,9 @@ TOMCAT7_LOG %{CATALINA7_LOG}
 TOMCAT8_LOG %{CATALINA8_LOG}
 
 # NOTE: a weird log we started with - not sure what TC version this should match out of the box (due the | delimiters)
-# TODO: we should simply drop this completely!
 TOMCATLEGACY_DATESTAMP %{YEAR}-%{MONTHNUM}-%{MONTHDAY} %{HOUR}:%{MINUTE}:%{SECOND}(?: %{ISO8601_TIMEZONE})?
 TOMCATLEGACY_LOG %{TOMCATLEGACY_DATESTAMP:timestamp} \| %{LOGLEVEL:[log][level]} \| %{JAVACLASS:[java][log][origin][class][name]} - %{JAVALOGMESSAGE:message}
 
-TOMCAT_DATESTAMP (?:%{CATALINA8_DATESTAMP})|(?:%{CATALINA7_DATESTAMP})|(?:%{TOMCAT50_DATESTAMP})
+TOMCAT_DATESTAMP (?:%{CATALINA8_DATESTAMP})|(?:%{CATALINA7_DATESTAMP})|(?:%{TOMCATLEGACY_DATESTAMP})
 
 TOMCATLOG (?:%{TOMCAT8_LOG})|(?:%{TOMCAT7_LOG})|(?:%{TOMCATLEGACY_LOG})

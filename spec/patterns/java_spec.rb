@@ -340,3 +340,36 @@ LINE
   end
 
 end
+
+describe_pattern "TOMCAT_DATESTAMP", [ 'legacy', 'ecs-v1' ] do
+
+  context '<= 7.0 format' do
+
+    let(:message) { 'Jul 31, 2020 4:40:20 PM' }
+
+    it "matches" do
+      expect(grok_match(pattern, message, true)['tags']).to be nil if ecs_compatibility?
+    end
+
+  end
+
+  context '>= 8.0 format' do
+
+    let(:message) { '30-Jun-2020 16:40:38.451' }
+
+    it "matches" do
+      expect(grok_match(pattern, message, true)['tags']).to be nil if ecs_compatibility?
+    end
+
+  end
+
+  context 'legacy format' do
+
+    let(:message) { '2014-01-09 20:03:28,269 -0800' }
+
+    it "matches" do
+      expect(grok_match(pattern, message, true)['tags']).to be nil
+    end
+
+  end
+end
