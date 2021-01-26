@@ -272,7 +272,6 @@ describe_pattern "HTTPD_ERRORLOG", ['legacy', 'ecs-v1'] do
       if ecs_compatibility?
         expect(grok).to include("log"=>{"level" => "error"})
         expect(grok).to include("process"=>{"pid" => 5688})
-        expect(grok).to include("process"=>{"pid" => 5688})
         expect( ((grok['apache'] || {})['error'] || {}).keys ).to_not include('module')
       else
         expect(grok).to include('loglevel' => 'error', 'pid' => '5688')
