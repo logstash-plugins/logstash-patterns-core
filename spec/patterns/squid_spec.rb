@@ -116,4 +116,24 @@ describe_pattern "SQUID3", ['legacy', 'ecs-v1'] do
 
   end
 
+  context 'GET with optional server ip' do
+
+    let(:message) do
+      '1066037222.352     132 144.157.100.17 TCP_MISS/504 1293 GET http://at.atremis.com/image/93101912/xyz - NONE/- -'
+    end
+
+    it "matches" do
+      expect(subject).to include("timestamp" => "1066037222.352")
+      if ecs_compatibility?
+        expect(subject).to include("event"=>{"action"=>"TCP_MISS"},
+                                   "http"=>{"response"=>{"bytes"=>1293, "status_code"=>504}, "request"=>{"method"=>"GET"}})
+        expect(subject.keys).not_to include('destination')
+      else
+        expect(subject).to include("status_code"=>'504')
+        expect(subject.keys).not_to include('server')
+      end
+    end
+
+  end
+
 end
