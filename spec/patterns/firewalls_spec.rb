@@ -533,8 +533,9 @@ describe_pattern "CISCOFW710001_710002_710003_710005_710006", ['legacy', 'ecs-v1
 
   it 'matches' do
     if ecs_compatibility?
-      expect(subject).to include("destination"=>{"port"=>443, "ip"=>"192.168.1.1"},
-                                 "observer"=>{"egress"=>{"interface"=>{"name"=>"inside"}}},
+      expect(subject).to include("source"=>{"ip"=>"192.168.1.2", "port"=>2354})
+      expect(subject).to include("destination"=>{"ip"=>"192.168.1.1", "port"=>443})
+      expect(subject).to include("observer"=>{"egress"=>{"interface"=>{"name"=>"inside"}}},
                                  "cisco"=>{"asa"=>{"outcome"=>"requested", "network"=>{"transport"=>"TCP"}}})
     else
       expect(subject).to include "src_ip"=>"192.168.1.2", "src_port"=>"2354",
