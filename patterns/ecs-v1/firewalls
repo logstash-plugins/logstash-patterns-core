@@ -12,6 +12,7 @@ CISCO_DIRECTION Inbound|inbound|Outbound|outbound
 CISCO_INTERVAL first hit|%{INT}-second interval
 CISCO_XLATE_TYPE static|dynamic
 # helpers
+CISCO_HITCOUNT_INTERVAL hit-cnt %{INT:[cisco][asa][hit_count]:int} (?:first hit|%{INT:[cisco][asa][interval]:int}-second interval)
 CISCO_SRC_IP_USER %{NOTSPACE:[observer][ingress][interface][name]}:%{IP:[source][ip]}(?:\(%{DATA:[source][user][name]}\))?
 CISCO_DST_IP_USER %{NOTSPACE:[observer][egress][interface][name]}:%{IP:[destination][ip]}(?:\(%{DATA:[destination][user][name]}\))?
 CISCO_SRC_HOST_PORT_USER %{NOTSPACE:[observer][ingress][interface][name]}:(?:(?:%{IP:[source][ip]})|(?:%{HOSTNAME:[source][address]}))(?:/%{INT:[source][port]:int})?(?:\(%{DATA:[source][user][name]}\))?
@@ -47,7 +48,7 @@ CISCOFW106021 %{CISCO_ACTION:[cisco][asa][outcome]} %{WORD:[cisco][asa][network]
 # ASA-4-106023
 CISCOFW106023 %{CISCO_ACTION:[cisco][asa][outcome]}(?: protocol)? %{WORD:[cisco][asa][network][transport]} src %{CISCO_SRC_HOST_PORT_USER} dst %{CISCO_DST_HOST_PORT_USER}( \(type %{INT:[cisco][asa][icmp_type]:int}, code %{INT:[cisco][asa][icmp_code]:int}\))? by access-group "?%{DATA:[cisco][asa][rule_name]}"? \[%{DATA:[@metadata][cisco][asa][hashcode1]}, %{DATA:[@metadata][cisco][asa][hashcode2]}\]
 # ASA-4-106100, ASA-4-106102, ASA-4-106103
-CISCOFW106100_2_3 access-list %{NOTSPACE:[cisco][asa][rule_name]} %{CISCO_ACTION:[cisco][asa][outcome]} %{WORD:[cisco][asa][network][transport]} for user '%{DATA:[user][name]}' %{DATA:[observer][ingress][interface][name]}/%{IP:[source][ip]}\(%{INT:[source][port]:int}\) -> %{DATA:[observer][egress][interface][name]}/%{IP:[destination][ip]}\(%{INT:[destination][port]:int}\) hit-cnt %{INT:[cisco][asa][hit_count]:int} %{CISCO_INTERVAL} \[%{DATA:[@metadata][cisco][asa][hashcode1]}, %{DATA:[@metadata][cisco][asa][hashcode2]}\]
+CISCOFW106100_2_3 access-list %{NOTSPACE:[cisco][asa][rule_name]} %{CISCO_ACTION:[cisco][asa][outcome]} %{WORD:[cisco][asa][network][transport]} for user '%{DATA:[user][name]}' %{DATA:[observer][ingress][interface][name]}/%{IP:[source][ip]}\(%{INT:[source][port]:int}\) -> %{DATA:[observer][egress][interface][name]}/%{IP:[destination][ip]}\(%{INT:[destination][port]:int}\) %{CISCO_HITCOUNT_INTERVAL} \[%{DATA:[@metadata][cisco][asa][hashcode1]}, %{DATA:[@metadata][cisco][asa][hashcode2]}\]
 # ASA-5-106100
 CISCOFW106100 access-list %{NOTSPACE:[cisco][asa][rule_name]} %{CISCO_ACTION:[cisco][asa][outcome]} %{WORD:[cisco][asa][network][transport]} %{DATA:[observer][ingress][interface][name]}/%{IP:[source][ip]}\(%{INT:[source][port]:int}\)(?:\(%{DATA:[source][user][name]}\))? -> %{DATA:[observer][egress][interface][name]}/%{IP:[destination][ip]}\(%{INT:[destination][port]:int}\)(?:\(%{DATA:[source][user][name]}\))? hit-cnt %{INT:[cisco][asa][hit_count]:int} %{CISCO_INTERVAL} \[%{DATA:[@metadata][cisco][asa][hashcode1]}, %{DATA:[@metadata][cisco][asa][hashcode2]}\]
 # ASA-5-304001
