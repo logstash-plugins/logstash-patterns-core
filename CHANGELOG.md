@@ -1,5 +1,4 @@
 ## 4.2.0
-  - Fix: e-mail address's local part to match according to RFC [#273](https://github.com/logstash-plugins/logstash-patterns-core/pull/273)
   - Fix: Java stack trace's JAVAFILE to better match generated names
   - Fix: match Information/INFORMATION in LOGLEVEL [#274](https://github.com/logstash-plugins/logstash-patterns-core/pull/274)
   - Fix: NAGIOS TIMEPERIOD unknown (from/to) field matching [#275](https://github.com/logstash-plugins/logstash-patterns-core/pull/275)
