@@ -60,6 +60,10 @@ module GrokHelpers
     event.to_hash
   end
 
+  def grok_exact_match(label, message)
+    grok_match(label, message, true)
+  end
+
   def build_grok(label, exact_match = false)
     grok_opts = { "match" => [ "message", exact_match ? "^%{#{label}}$" : "%{#{label}}" ] }
     ecs_compat = ecs_compatibility # if not set use the plugin default
