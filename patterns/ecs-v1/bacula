@@ -23,7 +23,7 @@ BACULA_LOG_BEGIN_PRUNE_FILES Begin pruning Files.
 BACULA_LOG_PRUNED_JOBS Pruned %{INT} Jobs* for client %{BACULA_HOST:[bacula][client][name]} from catalog.
 BACULA_LOG_PRUNED_FILES Pruned Files from %{INT} Jobs* for client %{BACULA_HOST:[bacula][client][name]} from catalog.
 BACULA_LOG_ENDPRUNE End auto prune.
-BACULA_LOG_STARTJOB Start Backup JobId %{INT:[bacula][job][id]}, Job=%{BACULA_JOB:[bacula][job][name]}
+BACULA_LOG_STARTJOB Start Backup JobId %{INT}, Job=%{BACULA_JOB:[bacula][job][name]}
 BACULA_LOG_STARTRESTORE Start Restore Job %{BACULA_JOB:[bacula][job][name]}
 BACULA_LOG_USEDEVICE Using Device \"%{BACULA_DEVICE:[bacula][volume][device]}\"
 BACULA_LOG_DIFF_FS \s*%{UNIXPATH} is a different filesystem. Will not descend from %{UNIXPATH} into it.
