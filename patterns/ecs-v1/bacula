@@ -32,7 +32,7 @@ BACULA_LOG_NOPRUNE_JOBS No Jobs found to prune.
 BACULA_LOG_NOPRUNE_FILES No Files found to prune.
 BACULA_LOG_VOLUME_PREVWRITTEN Volume \"?%{BACULA_VOLUME:[bacula][volume][name]}\"? previously written, moving to end of data.
 BACULA_LOG_READYAPPEND Ready to append to end of Volume \"%{BACULA_VOLUME:[bacula][volume][name]}\" size=%{INT:[bacula][volume][size]:int}
-BACULA_LOG_CANCELLING Cancelling duplicate JobId=%{INT}.
+BACULA_LOG_CANCELLING Cancelling duplicate JobId=%{INT:[bacula][job][id]}.
 BACULA_LOG_MARKCANCEL JobId %{INT}, Job %{BACULA_JOB:[bacula][job][name]} marked to be canceled.
 BACULA_LOG_CLIENT_RBJ shell command: run ClientRunBeforeJob \"%{GREEDYDATA:[bacula][job][client_run_before_command]}\"
 BACULA_LOG_VSS (Generate )?VSS (Writer)?
