@@ -348,3 +348,20 @@ describe_pattern "BACULA_LOGLINE", ['legacy', 'ecs-v1'] do # BACULA_LOG_MARKCANC
   end
 
 end
+
+
+describe_pattern "BACULA_LOGLINE", ['legacy', 'ecs-v1'] do # BACULA_LOG_FATAL_CONN
+
+  let(:message) do
+    '25-Aug 09:02 marlin2-dir JobId 10783: Fatal Error: JobId 10782 already running. Duplicate job not allowed.'
+  end
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect( subject ).to include "bacula" => hash_including("job" => {'id' => '10783', 'other_id' => '10782'})
+    else
+      # NOTE: not matching due expecting 'error' instead of 'Error' in "Fatal Error: JobId ..."
+    end
+  end
+
+end
