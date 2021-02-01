@@ -37,7 +37,7 @@ BACULA_LOG_MARKCANCEL JobId %{INT:[bacula][job][id]}, Job %{BACULA_JOB:[bacula][
 BACULA_LOG_CLIENT_RBJ shell command: run ClientRunBeforeJob \"%{GREEDYDATA:[bacula][job][client_run_before_command]}\"
 BACULA_LOG_VSS (Generate )?VSS (Writer)?
 BACULA_LOG_MAXSTART Fatal error: Job canceled because max start delay time exceeded.
-BACULA_LOG_DUPLICATE Fatal error: JobId %{INT} already running. Duplicate job not allowed.
+BACULA_LOG_DUPLICATE Fatal error: JobId %{INT:[bacula][job][id]} already running. Duplicate job not allowed.
 BACULA_LOG_NOJOBSTAT Fatal error: No Job status returned from FD.
 BACULA_LOG_FATAL_CONN Fatal error: bsock.c:133 Unable to connect to (Client: %{BACULA_HOST:[bacula][client][name]}|Storage daemon) on %{IPORHOST:[client][address]}:%{POSINT:[client][port]:int}. ERR=%{GREEDYDATA:[error][message]}
 BACULA_LOG_NO_CONNECT Warning: bsock.c:127 Could not connect to (Client: %{BACULA_HOST:[bacula][client][name]}|Storage daemon) on %{IPORHOST:[client][address]}:%{POSINT:[client][port]:int}. ERR=%{GREEDYDATA:[error][message]}
