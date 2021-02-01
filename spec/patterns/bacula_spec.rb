@@ -315,3 +315,19 @@ describe_pattern "BACULA_LOGLINE", ['legacy', 'ecs-v1'] do # BACULA_LOG_NO_AUTH
   end
 
 end
+
+describe_pattern "BACULA_LOGLINE", ['legacy', 'ecs-v1'] do # BACULA_LOG_CANCELLING
+
+  let(:message) do
+    '03-Aug 06:20 DIRECTOR JobId 316677: Cancelling duplicate JobId=316646.'
+  end
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect( subject ).to include "bacula" => hash_including("job" => {'id' => '316677', 'duplicate_id' => '316646'})
+    else
+      expect( subject ).to include "jobid" => "316677"
+    end
+  end
+
+end
