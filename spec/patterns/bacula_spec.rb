@@ -324,7 +324,7 @@ describe_pattern "BACULA_LOGLINE", ['legacy', 'ecs-v1'] do # BACULA_LOG_CANCELLI
 
   it 'matches' do
     if ecs_compatibility?
-      expect( subject ).to include "bacula" => hash_including("job" => {'id' => '316677', 'duplicate_id' => '316646'})
+      expect( subject ).to include "bacula" => hash_including("job" => {'id' => '316677', 'other_id' => '316646'})
     else
       expect( subject ).to include "jobid" => "316677"
     end
