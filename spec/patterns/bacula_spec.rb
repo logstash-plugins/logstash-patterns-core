@@ -331,3 +331,20 @@ describe_pattern "BACULA_LOGLINE", ['legacy', 'ecs-v1'] do # BACULA_LOG_CANCELLI
   end
 
 end
+
+describe_pattern "BACULA_LOGLINE", ['legacy', 'ecs-v1'] do # BACULA_LOG_MARKCANCEL
+
+  let(:message) do
+    '09-Aug 15:14 InternetServer-sd JobId 122971, Job nyi_maildir.2013-03-03_22.00.00_51 marked to be canceled.'
+  end
+
+  it 'matches' do
+    if ecs_compatibility?
+      expect( subject ).to include "bacula" => hash_including(
+          "job" => {'id' => '122971', 'name' => 'nyi_maildir.2013-03-03_22.00.00_51'})
+    else
+      expect( subject ).to include "job" => "nyi_maildir.2013-03-03_22.00.00_51"
+    end
+  end
+
+end
