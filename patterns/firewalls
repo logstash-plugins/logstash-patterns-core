@@ -11,6 +11,8 @@ CISCO_REASON Duplicate TCP SYN|Failed to locate egress interface|Invalid transpo
 CISCO_DIRECTION Inbound|inbound|Outbound|outbound
 CISCO_INTERVAL first hit|%{INT}-second interval
 CISCO_XLATE_TYPE static|dynamic
+CISCO_XLATE_CATEGORY outbound static|identity|portmap|regular
+
 # ASA-1-104001
 CISCOFW104001 \((?:Primary|Secondary)\) Switching to ACTIVE - %{GREEDYDATA:switch_reason}
 # ASA-1-104002
@@ -37,6 +39,8 @@ CISCOFW106006_106007_106010 %{CISCO_ACTION:action} %{CISCO_DIRECTION:direction} 
 CISCOFW106014 %{CISCO_ACTION:action} %{CISCO_DIRECTION:direction} %{WORD:protocol} src %{DATA:src_interface}:%{IP:src_ip}(\(%{DATA:src_fwuser}\))? dst %{DATA:dst_interface}:%{IP:dst_ip}(\(%{DATA:dst_fwuser}\))? \(type %{INT:icmp_type}, code %{INT:icmp_code}\)
 # ASA-6-106015
 CISCOFW106015 %{CISCO_ACTION:action} %{WORD:protocol} \(%{DATA:policy_id}\) from %{IP:src_ip}/%{INT:src_port} to %{IP:dst_ip}/%{INT:dst_port} flags %{DATA:tcp_flags} on interface %{GREEDYDATA:interface}
+# ASA-2-106017
+CISCOFW106017 Deny IP due to Land Attack from %{IP:src_ip} to %{IP:dst_ip}
 # ASA-1-106021
 CISCOFW106021 %{CISCO_ACTION:action} %{WORD:protocol} reverse path check from %{IP:src_ip} to %{IP:dst_ip} on interface %{GREEDYDATA:interface}
 # ASA-4-106023
@@ -45,6 +49,8 @@ CISCOFW106023 %{CISCO_ACTION:action}( protocol)? %{WORD:protocol} src %{DATA:src
 CISCOFW106100_2_3 access-list %{NOTSPACE:policy_id} %{CISCO_ACTION:action} %{WORD:protocol} for user '%{DATA:src_fwuser}' %{DATA:src_interface}/%{IP:src_ip}\(%{INT:src_port}\) -> %{DATA:dst_interface}/%{IP:dst_ip}\(%{INT:dst_port}\) hit-cnt %{INT:hit_count} %{CISCO_INTERVAL:interval} \[%{DATA:hashcode1}, %{DATA:hashcode2}\]
 # ASA-5-106100
 CISCOFW106100 access-list %{NOTSPACE:policy_id} %{CISCO_ACTION:action} %{WORD:protocol} %{DATA:src_interface}/%{IP:src_ip}\(%{INT:src_port}\)(\(%{DATA:src_fwuser}\))? -> %{DATA:dst_interface}/%{IP:dst_ip}\(%{INT:dst_port}\)(\(%{DATA:src_fwuser}\))? hit-cnt %{INT:hit_count} %{CISCO_INTERVAL:interval} \[%{DATA:hashcode1}, %{DATA:hashcode2}\]
+# ASA-1-106101
+CISCOFW106101 Number of cached deny-flows for ACL log has reached limit \(%{INT:max_flows}\)
 # ASA-5-304001
 CISCOFW304001 %{IP:src_ip}(\(%{DATA:src_fwuser}\))? Accessed URL %{IP:dst_ip}:%{GREEDYDATA:dst_url}
 # ASA-6-110002
@@ -55,10 +61,18 @@ CISCOFW302010 %{INT:connection_count} in use, %{INT:connection_count_max} most u
 CISCOFW302013_302014_302015_302016 %{CISCO_ACTION:action}(?: %{CISCO_DIRECTION:direction})? %{WORD:protocol} connection %{INT:connection_id} for %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port}( \(%{IP:src_mapped_ip}/%{INT:src_mapped_port}\))?(\(%{DATA:src_fwuser}\))? to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}( \(%{IP:dst_mapped_ip}/%{INT:dst_mapped_port}\))?(\(%{DATA:dst_fwuser}\))?( duration %{TIME:duration} bytes %{INT:bytes})?(?: %{CISCO_REASON:reason})?( \(%{DATA:user}\))?
 # ASA-6-302020, ASA-6-302021
 CISCOFW302020_302021 %{CISCO_ACTION:action}(?: %{CISCO_DIRECTION:direction})? %{WORD:protocol} connection for faddr %{IP:dst_ip}/%{INT:icmp_seq_num}(?:\(%{DATA:fwuser}\))? gaddr %{IP:src_xlated_ip}/%{INT:icmp_code_xlated} laddr %{IP:src_ip}/%{INT:icmp_code}( \(%{DATA:user}\))?
+# ASA-6-303002
+CISCOFW303002 FTP connection from %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}, user %{DATA:dst_user} %{DATA:ftp_action} file %{DATA:filename}
+# ASA-3-305006
+CISCOFW305006 %{CISCO_XLATE_CATEGORY:xlate_category} translation creation failed for %{WORD:protocol} src %{DATA:src_interface}:%{IP:src_ip}(?:/%{INT:src_port})?(?: %{DATA:src_fwuser})? dst %{DATA:dst_interface}:%{IP:dst_ip}(?:/%{INT:dst_port})?(?: %{DATA:dst_fwuser})? ?%{GREEDYDATA:additional_data}?
 # ASA-6-305011
 CISCOFW305011 %{CISCO_ACTION:action} %{CISCO_XLATE_TYPE:xlate_type} %{WORD:protocol} translation from %{DATA:src_interface}:%{IP:src_ip}(/%{INT:src_port})?(\(%{DATA:src_fwuser}\))? to %{DATA:src_xlated_interface}:%{IP:src_xlated_ip}/%{DATA:src_xlated_port}
-# ASA-3-313001, ASA-3-313004, ASA-3-313008
-CISCOFW313001_313004_313008 %{CISCO_ACTION:action} %{WORD:protocol} type=%{INT:icmp_type}, code=%{INT:icmp_code} from %{IP:src_ip} on interface %{DATA:interface}( to %{IP:dst_ip})?
+# ASA-5-305013
+CISCOFW305013 Asymmetric NAT rules matched for forward and reverse flows; Connection for %{WORD:protocol} src %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port}(?: %{DATA:src_fwuser})? dst %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}(?: %{DATA:dst_fwuser})? %{CISCO_ACTION:action} due to NAT reverse path failure
+# ASA-3-313001, ASA-3-313008
+CISCOFW313001_313008 %{CISCO_ACTION:action} %{WORD:protocol} type=%{INT:icmp_type}, code=%{INT:icmp_code} from %{IP:src_ip} on interface %{DATA:interface}( to %{IP:dst_ip})?
+# ASA-3-313004
+CISCOFW313004 %{CISCO_ACTION:action} %{WORD:protocol} type=%{INT:icmp_type},(?: code=%{INT:icmp_code})? from laddr %{IP:src_ip} on interface %{DATA:interface} to %{IP:dst_ip}:\s*%{GREEDYDATA:reason}?
 # ASA-4-313005
 CISCOFW313005 %{CISCO_REASON:reason} for %{WORD:protocol} error message: %{WORD:err_protocol} src %{DATA:err_src_interface}:%{IP:err_src_ip}(\(%{DATA:err_src_fwuser}\))? dst %{DATA:err_dst_interface}:%{IP:err_dst_ip}(\(%{DATA:err_dst_fwuser}\))? \(type %{INT:err_icmp_type}, code %{INT:err_icmp_code}\) on %{DATA:interface} interface\.  Original IP payload: %{WORD:protocol} src %{IP:orig_src_ip}/%{INT:orig_src_port}(\(%{DATA:orig_src_fwuser}\))? dst %{IP:orig_dst_ip}/%{INT:orig_dst_port}(\(%{DATA:orig_dst_fwuser}\))?
 # ASA-5-321001
@@ -79,8 +93,22 @@ CISCOFW602303_602304 %{WORD:protocol}: An %{CISCO_DIRECTION:direction} %{GREEDYD
 CISCOFW710001_710002_710003_710005_710006 %{WORD:protocol} (?:request|access) %{CISCO_ACTION:action} from %{IP:src_ip}/%{INT:src_port} to %{DATA:dst_interface}:%{IP:dst_ip}/%{INT:dst_port}
 # ASA-6-713172
 CISCOFW713172 Group = %{GREEDYDATA:group}, IP = %{IP:src_ip}, Automatic NAT Detection Status:\s+Remote end\s*%{DATA:is_remote_natted}\s*behind a NAT device\s+This\s+end\s*%{DATA:is_local_natted}\s*behind a NAT device
+# ASA-5-713257
+CISCOFW713257 Phase %{INT:phase} failure:  Mismatched attribute types for class %{DATA:class}:  Rcv'd: %{DATA:received_attribute}  Cfg'd: %{GREEDYDATA:configured_attribute}
+# ASA-4-713903
+CISCOFW713903 (?:Group = %{DATA:group_policy}, )?(?:Username = %{DATA:src_fwuser}}, )?IP = %{IP:src_ip}, %{GREEDYDATA:event_description}
+# ASA-6-725001
+CISCOFW725001 Starting SSL handshake with %{DATA:peer_type} %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{IP:dst_ip}/%{INT:dst_port} for %{DATA:protocol} session
+# ASA-6-725002
+CISCOFW725002 Device completed SSL handshake with %{DATA:peer_type} %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{IP:dst_ip}/%{INT:dst_port} for %{DATA:protocol} session
+# ASA-6-725007
+CISCOFW725007 SSL session with %{DATA:peer_type} %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{IP:dst_ip}/%{INT:dst_port} terminated
+# ASA-6-725016
+CISCOFW725016 Device selects trust-point %{DATA:trust_point} for %{DATA:peer_type} %{DATA:src_interface}:%{IP:src_ip}/%{INT:src_port} to %{IP:dst_ip}/%{INT:dst_port}
 # ASA-4-733100
 CISCOFW733100 \[\s*%{DATA:drop_type}\s*\] drop %{DATA:drop_rate_id} exceeded. Current burst rate is %{INT:drop_rate_current_burst} per second, max configured rate is %{INT:drop_rate_max_burst}; Current average rate is %{INT:drop_rate_current_avg} per second, max configured rate is %{INT:drop_rate_max_avg}; Cumulative total count is %{INT:drop_total_count}
+# ASA-3-746016
+CISCOFW746016 user-identity: DNS lookup for %{HOSTNAME:dst_host} failed, reason:%{GREEDYDATA:reason}
 #== End Cisco ASA ==
 
 # Shorewall firewall logs
