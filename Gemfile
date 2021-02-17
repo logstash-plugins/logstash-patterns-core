@@ -9,3 +9,6 @@ if Dir.exist?(logstash_path) && use_logstash_source
   gem 'logstash-core', :path => "#{logstash_path}/logstash-core"
   gem 'logstash-core-plugin-api', :path => "#{logstash_path}/logstash-core-plugin-api"
 end
+
+# TODO till filter grok with ECS support is released :
+gem 'logstash-filter-grok', git: 'https://github.com/kares/logstash-filter-grok.git', ref: 'ecs-1-support'

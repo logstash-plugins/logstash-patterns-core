@@ -1,3 +1,101 @@
+## 4.3.0
+
+With **4.3.0** we're introducing a new set of pattern definitions compliant with Elastic Common Schema (ECS), on numerous 
+places patterns are capturing names prescribed by the schema or use custom namespaces that do not conflict with ECS ones.
+
+Changes are backwards compatible as much as possible and also include improvements to some of the existing patterns.
+
+Besides fields having new names, values for numeric (integer or floating point) types are usually converted to their 
+numeric representation to ease further event processing (e.g. `http.response.status_code` is now stored as an integer).
+
+NOTE: to leverage the new ECS pattern set in Logstash a grok filter upgrade to version >= 4.4.0 is required.
+
+- **aws**
+  * in ECS mode we dropped the (incomplete) attempt to capture `rawrequest` from `S3_REQUEST_LINE`
+  * `S3_ACCESS_LOG` will handle up-to-date S3 access-log formats (6 'new' field captures at the end)
+    Host Id -> Signature Version -> Cipher Suite -> Authentication Type -> Host Header -> TLS version
+  * `ELB_ACCESS_LOG` will handle optional (`-`) in legacy mode
+  * null values such as `-` or `-1` time values (e.g. `ELB_ACCESS_LOG`'s `request_processing_time`)
+    are not captured in ECS mode
+
+- **bacula**
+  - Fix: improve matching of `BACULA_HOST` as `HOSTNAME`
+  - Fix: legacy `BACULA_` patterns to handle (optional) spaces
+  - Fix: handle `BACULA_LOG` 'Job Id: X' prefix as optional
+  - Fix: legacy matching of BACULA fatal error lines
+
+- **bind**
+  - `BIND9`'s legacy `querytype` was further split into multiple fields as:
+     `dns.question.type` and `bind.log.question.flags`
+  - `BIND9` patterns (legacy as well) were adjusted to handle Bind9 >= 9.11 compatibility
+  - `BIND9_QUERYLOGBASE` was introduced for potential re-use
+
+- **bro**
+  * `BRO_` patterns are stricter in ECS mode - won't mistakenly match newer BRO/Zeek formats
+  * place holders such as `(empty)` tags and `-` null values won't be captured
+  * each `BRO_` pattern has a newer `ZEEK_` variant that supports latest Zeek 3.x versions
+    e.g. `ZEEK_HTTP` as a replacement for `BRO_HTTP` (in ECS mode only),
+    there's a new file **zeek** where all of the `ZEEK_XXX` pattern variants live
+
+- **exim**
+  * introduced `EXIM` (`EXIM_MESSAGE_ARRIVAL`) to match message arrival log lines - in ECS mode!
+
+- **firewalls**
+  * introduced `IPTABLES` pattern which is re-used within `SHOREWALL` and `SFW2`
+  * `SHOREWALL` now supports IPv6 addresses (in ECS mode - due `IPTABLES` pattern)
+  * `timestamp` fields will be captured for `SHOREWALL` and `SFW2` in legacy mode as well
+  * `SHOREWALL` became less strict in containing the `kernel:` sub-string
+  * `NETSCREENSESSIONLOG` properly handles optional `session_id=... reason=...` suffix
+  * `interval` and `xlate_type` (legacy) CISCO fields are not captured in ECS mode
+
+- **core** (grok-patterns)
+  * `SYSLOGFACILITY` type casts facility code and priority in ECS mode
+  * `SYSLOGTIMESTAMP` will be captured (from `SYSLOGBASE`) as `timestamp`
+  * Fix: e-mail address's local part to match according to RFC (#273)
+
+- **haproxy**
+  * several ECS-ified fields will be type-casted to integer in ECS mode e.g. *haproxy.bytes_read*
+  * fields containing null value (`-`) are no longer captured
+    (e.g. in legacy mode `captured_request_cookie` gets captured even if `"-"`)
+
+- **httpd**
+  * optional fields (e.g. `http.request.referrer` or `user_agent`) are only captured when not null (`-`)
+  * `source.port` (`clientport` in legacy mode) is considered optional
+  * dropped raw data (`rawrequest` legacy field) in ECS mode
+  * Fix: HTTPD_ERRORLOG should match when module missing (#299)
+
+- **java**
+  * `JAVASTACKTRACEPART`'s matched line number will be converted to an integer
+  * `CATALINALOG` matching was updated to handle Tomcat 7/8/9 logging format
+  * `TOMCATLOG` handles the default Tomcat 7/8/9 logging format
+  * old (custom) legacy TOMCAT format is handled by the added `TOMCATLEGACY_LOG`
+  * `TOMCATLOG` and `TOMCAT_DATESTAMP` still match the legacy format, 
+      however this might change at a later point - if you rely on the old format use `TOMCATLEGACY_` patterns
+
+- **junos**
+  * integer fields (e.g. `juniper.srx.elapsed_time`) are captured as integer values
+
+- **linux-syslog**
+  * `SYSLOG5424LINE` captures (overwrites) the `message` field instead of using a custom field name
+  * regardless of the format used, in ECS mode, timestamps are always captured as `timestamp`
+  * fields such as `log.syslog.facility.code` and `process.pid` are converted to integers
+
+- **mcollective**
+  * *mcollective-patterns* file was removed, it's all one *mcollective* in ECS mode
+  * `MCOLLECTIVE`'s `process.pid` (`pid` previously) is not type-casted to an integer
+
+- **nagios**
+  * numeric fields such as `nagios.log.attempt` are converted to integer values in ECS mode
+
+- **rails**
+  * request duration times from `RAILS3` log will be converted to floating point values
+
+- **squid**
+  * `SQUID3`'s `duration` http.response `status_code` and `bytes` are type-casted to int
+  * `SQUID3` pattern won't capture null ('-') `user.name` or `squid.response.content_type`
+  * Fix: allow to parse SQUID log with status 0 (#298)
+  * Fix: handle optional server address (#298)
+
 ## 4.2.0
   - Fix: Java stack trace's JAVAFILE to better match generated names
   - Fix: match Information/INFORMATION in LOGLEVEL [#274](https://github.com/logstash-plugins/logstash-patterns-core/pull/274)
