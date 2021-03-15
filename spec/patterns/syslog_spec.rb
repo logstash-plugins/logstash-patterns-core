@@ -95,7 +95,7 @@ describe_pattern "SYSLOG5424LINE", ['legacy', 'ecs-v1'] do
     message = "<174>1 2016-11-14T09:49:23+01:00 10.23.16.6 named 2255 - -  info: client 10.23.56.93#63295 (i1.tmg.com): query: i1.tmg.com IN A + (10.23.4.13)"
     match = grok_match pattern, message
     if ecs_compatibility?
-      expect(match).to include("log" => { "syslog" => { "facility" => { "code" => 174 }}})
+      expect(match).to include("log" => { "syslog" => { "priority" => 174 }})
       expect(match).to include("host" => { "hostname" => "10.23.16.6"})
       expect(match).to include("process" => { "name" => "named", "pid" => 2255 })
       expect(match).to include("system" => { "syslog" => { "version" => "1" }})
