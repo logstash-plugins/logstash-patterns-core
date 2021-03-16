@@ -1,3 +1,8 @@
+## 4.3.1
+
+- Fix: incorrect syslog (priority) field name [#303](https://github.com/logstash-plugins/logstash-patterns-core/pull/303)
+- Fix: missed `ciscotag` field ECS-ification (`cisco.asa.tag`) for the `CISCO_TAGGED_SYSLOG` pattern 
+
 ## 4.3.0
 
 With **4.3.0** we're introducing a new set of pattern definitions compliant with Elastic Common Schema (ECS), on numerous 
