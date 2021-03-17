@@ -1,0 +1,5 @@
+### Nginx grok patterns
+
+# Nginx error.log line
+# 2017/05/12 15:31:07 [error] 1234#0: *7777777 connect() failed (111: Connection refused) while connecting to upstream, client: 10.10.10.10, server: _, request: "GET /foo HTTP/1.1", upstream: "http://127.0.0.1/foo", host: "bar.example.com"
+NGINX_ERRORLOG (?<timestamp>%{YEAR}[./]%{MONTHNUM}[./]%{MONTHDAY} %{TIME}) \[%{LOGLEVEL:loglevel}\] %{POSINT:process_id}#%{NUMBER:thread_id}\: \*%{NUMBER:connection_id} %{GREEDYDATA:error_message}, client: %{IPORHOST:client}, server: %{GREEDYDATA:server}, request: "(?<http_request>%{WORD:http_command} %{UNIXPATH:http_file} HTTP/(?<http_version>[0-9.]*))"(, upstream: "%{URI:upstream}")?(, host: "%{IPORHOST:host}")?
