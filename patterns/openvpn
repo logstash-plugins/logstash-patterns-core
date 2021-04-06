@@ -1,0 +1,5 @@
+openvpnConnected %{GREEDYDATA} %{YEAR} %{USER:user}/%{IP:src_ip}:%{INT:src_port} MULTI: primary virtual IP for %{GREEDYDATA}: %{IP:virt_ip}'
+
+openvpnAuth \[\-\] %{DATA:status}( on | {')%{GREEDYDATA} ('user': |\(user=)'%{USERNAME:user}'
+
+openvpnLock %{GREEDYDATA} 'reason': '%{WORD:status}: %{DATA:reason}'%{GREEDYDATA}'user': '%{USER:user}%{GREEDYDATA}
