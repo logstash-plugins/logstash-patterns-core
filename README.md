@@ -87,5 +87,5 @@ It is more important to the community that you are able to contribute.
 
 For more information about contributing, see the [CONTRIBUTING](https://github.com/elastic/logstash/blob/master/CONTRIBUTING.md) file.
 
-[1]: /tree/master/patterns
+[1]: https://github.com/logstash-plugins/logstash-patterns-core/tree/master/patterns
 [2]: https://github.com/logstash-plugins/logstash-filter-grok
