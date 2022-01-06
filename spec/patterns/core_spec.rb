@@ -2,20 +2,20 @@
 require "spec_helper"
 require "logstash/patterns/core"
 
-describe "SYSLOGLINE" do
+describe_pattern "SYSLOGLINE", ['legacy', 'ecs-v1'] do
 
-  let(:value)   { "Mar 16 00:01:25 evita postfix/smtpd[1713]: connect from camomile.cloud9.net[168.100.1.3]" }
-  let(:grok)    { grok_match(subject, value) }
+  let(:message) { "Mar 16 00:01:25 evita postfix/smtpd[1713]: connect from camomile.cloud9.net[168.100.1.3]" }
+
   it "a pattern pass the grok expression" do
     expect(grok).to pass
   end
 
-  it "matches a simple message" do
-    expect(subject).to match(value)
-  end
-
   it "generates the program field" do
-    expect(grok_match(subject, value)).to include("program" => "postfix/smtpd")
+    if ecs_compatibility?
+      expect(grok).to include("process" => hash_including('name' => 'postfix/smtpd'))
+    else
+      expect(grok).to include("program" => "postfix/smtpd")
+    end
   end
 
 end
