@@ -1,3 +1,7 @@
+## 4.3.3
+
+- Fix: parsing x-edge-location in CLOUDFRONT_ACCESS_LOG (ECS mode) [#311](https://github.com/logstash-plugins/logstash-patterns-core/pull/311)
+
 ## 4.3.2
 
 - Fix: typo in BIN9_QUERYLOG pattern (in ECS mode) [#307](https://github.com/logstash-plugins/logstash-patterns-core/pull/307)
