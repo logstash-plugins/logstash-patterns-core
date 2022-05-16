@@ -401,24 +401,6 @@ describe_pattern "CLOUDFRONT_ACCESS_LOG", ['legacy', 'ecs-v1'] do
       it 'matches' do
         skip 'fixed in ECS mode only' unless ecs_compatibility?
 
-        # pattern = "%{CLOUDFRONT_ACCESS_LOG}"
-        # pattern = "(?<timestamp>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}\t%{TIME})\t" +
-        #     #"%{HOSTNAME:[aws][cloudfront][x_edge_location]}\t(?:-|%{INT:[destination][bytes]:int})" +
-        #     "%{CLOUDFRONT_EDGE_LOCATION:[aws][cloudfront][x_edge_location]}\t(?:-|%{INT:[destination][bytes]:int})" +
-        #     ""
-        # #"%{IPORHOST:[source][ip]}\t%{WORD:[http][request][method]}\t%{HOSTNAME:[url][domain]}\t%{NOTSPACE:[url][path]}\t(?:(?:000)|%{INT:[http][response][status_code]:int})\t(?:-|%{DATA:[http][request][referrer]})\t%{DATA:[user_agent][original]}\t(?:-|%{DATA:[url][query]})\t(?:-|%{DATA:[aws][cloudfront][http][request][cookie]})\t%{WORD:[aws][cloudfront][x_edge_result_type]}\t%{NOTSPACE:[aws][cloudfront][x_edge_request_id]}\t%{HOSTNAME:[aws][cloudfront][http][request][host]}\t%{URIPROTO:[network][protocol]}\t(?:-|%{INT:[source][bytes]:int})\t%{NUMBER:[aws][cloudfront][time_taken]:float}\t(?:-|%{IP:[network][forwarded_ip]})\t(?:-|%{DATA:[aws][cloudfront][ssl_protocol]})\t(?:-|%{NOTSPACE:[tls][cipher]})\t%{WORD:[aws][cloudfront][x_edge_response_result_type]}(?:\t(?:-|HTTP/%{NUMBER:[http][version]})\t(?:-|%{DATA:[aws][cloudfront][fle_status]})\t(?:-|%{DATA:[aws][cloudfront][fle_encrypted_fields]})\t%{INT:[source][port]:int}\t%{NUMBER:[aws][cloudfront][time_to_first_byte]:float}\t(?:-|%{DATA:[aws][cloudfront][x_edge_detailed_result_type]})\t(?:-|%{NOTSPACE:[http][request][mime_type]})\t(?:-|%{INT:[aws][cloudfront][http][request][size]:int})\t(?:-|%{INT:[aws][cloudfront][http][request][range][start]:int})\t(?:-|%{INT:[aws][cloudfront][http][request][range][end]:int}))?"
-        #
-        # grok_opts = { "match" => [ "message", pattern ] }
-        # grok_opts["ecs_compatibility"] = 'v1'
-        # grok = LogStash::Filters::Grok.new(grok_opts)
-        # grok.register
-        # grok
-        #
-        # event = LogStash::Event.new("message" => message)
-        # grok.filter(event)
-        # p event.to_hash
-        # expect( event.get('[aws][cloudfront]')).to_not be nil
-
         should include("timestamp" => "2021-08-24\t00:24:40")
         should include("url"=>{"domain"=>"d1236u0ikuk2zt.cloudfront.net", "path"=>"/p/101/thumbnail/entry_id/0_50xpj7v0/width/290/height/150/type/3"})
         should include("http"=>{
