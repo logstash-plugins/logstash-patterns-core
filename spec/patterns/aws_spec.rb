@@ -390,6 +390,56 @@ describe_pattern "CLOUDFRONT_ACCESS_LOG", ['legacy', 'ecs-v1'] do
       end
     end
 
+    context 'GH-306' do
+
+      let(:message) do
+        #Version: 1.0
+        #Fields: date time x-edge-location sc-bytes c-ip cs-method cs(Host) cs-uri-stem sc-status cs(Referer) cs(User-Agent) cs-uri-query cs(Cookie) x-edge-result-type x-edge-request-id x-host-header cs-protocol cs-bytes time-taken x-forwarded-for ssl-protocol ssl-cipher x-edge-response-result-type cs-protocol-version fle-status fle-encrypted-fields c-port time-to-first-byte x-edge-detailed-result-type sc-content-type sc-content-len sc-range-start sc-range-end
+        "2021-08-24	00:24:40	LHR62-C3	33517	82.44.60.119	GET	d1236u0ikuk2zt.cloudfront.net	/p/101/thumbnail/entry_id/0_50xpj7v0/width/290/height/150/type/3	200	https://www.liverpoolfc.com/	Mozilla/5.0%20(iPhone;%20CPU%20iPhone%20OS%2014_7_1%20like%20Mac%20OS%20X)%20AppleWebKit/605.1.15%20(KHTML,%20like%20Gecko)%20Version/14.1.2%20Mobile/15E148%20Safari/604.1	-	-	Hit	YoIRNxF4o0fam7eNcIJ_QG24jMjjMNBvWK0xoveWisgYoWVzvyYFvQ==	open.http.mp.streamamg.com	https	289	0.003	-	TLSv1.3	TLS_AES_128_GCM_SHA256	Hit	HTTP/2.0	-	-	54902	0.003	Hit	image/jpeg	33046	-	-"
+      end
+
+      it 'matches' do
+        skip 'fixed in ECS mode only' unless ecs_compatibility?
+
+        # pattern = "%{CLOUDFRONT_ACCESS_LOG}"
+        # pattern = "(?<timestamp>%{YEAR}-%{MONTHNUM}-%{MONTHDAY}\t%{TIME})\t" +
+        #     #"%{HOSTNAME:[aws][cloudfront][x_edge_location]}\t(?:-|%{INT:[destination][bytes]:int})" +
+        #     "%{CLOUDFRONT_EDGE_LOCATION:[aws][cloudfront][x_edge_location]}\t(?:-|%{INT:[destination][bytes]:int})" +
+        #     ""
+        # #"%{IPORHOST:[source][ip]}\t%{WORD:[http][request][method]}\t%{HOSTNAME:[url][domain]}\t%{NOTSPACE:[url][path]}\t(?:(?:000)|%{INT:[http][response][status_code]:int})\t(?:-|%{DATA:[http][request][referrer]})\t%{DATA:[user_agent][original]}\t(?:-|%{DATA:[url][query]})\t(?:-|%{DATA:[aws][cloudfront][http][request][cookie]})\t%{WORD:[aws][cloudfront][x_edge_result_type]}\t%{NOTSPACE:[aws][cloudfront][x_edge_request_id]}\t%{HOSTNAME:[aws][cloudfront][http][request][host]}\t%{URIPROTO:[network][protocol]}\t(?:-|%{INT:[source][bytes]:int})\t%{NUMBER:[aws][cloudfront][time_taken]:float}\t(?:-|%{IP:[network][forwarded_ip]})\t(?:-|%{DATA:[aws][cloudfront][ssl_protocol]})\t(?:-|%{NOTSPACE:[tls][cipher]})\t%{WORD:[aws][cloudfront][x_edge_response_result_type]}(?:\t(?:-|HTTP/%{NUMBER:[http][version]})\t(?:-|%{DATA:[aws][cloudfront][fle_status]})\t(?:-|%{DATA:[aws][cloudfront][fle_encrypted_fields]})\t%{INT:[source][port]:int}\t%{NUMBER:[aws][cloudfront][time_to_first_byte]:float}\t(?:-|%{DATA:[aws][cloudfront][x_edge_detailed_result_type]})\t(?:-|%{NOTSPACE:[http][request][mime_type]})\t(?:-|%{INT:[aws][cloudfront][http][request][size]:int})\t(?:-|%{INT:[aws][cloudfront][http][request][range][start]:int})\t(?:-|%{INT:[aws][cloudfront][http][request][range][end]:int}))?"
+        #
+        # grok_opts = { "match" => [ "message", pattern ] }
+        # grok_opts["ecs_compatibility"] = 'v1'
+        # grok = LogStash::Filters::Grok.new(grok_opts)
+        # grok.register
+        # grok
+        #
+        # event = LogStash::Event.new("message" => message)
+        # grok.filter(event)
+        # p event.to_hash
+        # expect( event.get('[aws][cloudfront]')).to_not be nil
+
+        should include("timestamp" => "2021-08-24\t00:24:40")
+        should include("url"=>{"domain"=>"d1236u0ikuk2zt.cloudfront.net", "path"=>"/p/101/thumbnail/entry_id/0_50xpj7v0/width/290/height/150/type/3"})
+        should include("http"=>{
+            "request"=>{"referrer"=>"https://www.liverpoolfc.com/", "mime_type"=>"image/jpeg", "method"=>"GET"},
+            "response"=>{"status_code"=>200}, "version"=>"2.0"
+        })
+        should include("tls"=>{"cipher"=>"TLS_AES_128_GCM_SHA256"})
+        should include("aws"=>{"cloudfront"=>{
+            "x_edge_location"=>"LHR62-C3",
+            "x_edge_response_result_type"=>"Hit",
+            "x_edge_detailed_result_type"=>"Hit",
+            "x_edge_result_type"=>"Hit",
+            "ssl_protocol"=>"TLSv1.3",
+            "http"=>{"request"=>{"size"=>33046, "host"=>"open.http.mp.streamamg.com"}},
+            "time_to_first_byte"=>0.003, "time_taken"=>0.003,
+            "x_edge_request_id"=>"YoIRNxF4o0fam7eNcIJ_QG24jMjjMNBvWK0xoveWisgYoWVzvyYFvQ=="
+        }})
+      end
+
+    end
+
   end
 
 end
