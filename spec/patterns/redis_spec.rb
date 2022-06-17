@@ -134,7 +134,7 @@ describe_pattern 'REDISMONLOG', [ 'legacy', 'ecs-v1' ] do
 
 end
 
-describe_pattern "REDISMONLOG" do
+describe_pattern "REDISMONLOG", [ 'legacy', 'ecs-v1' ] do
 
   context 'two param command' do
 
@@ -149,23 +149,43 @@ describe_pattern "REDISMONLOG" do
     end
 
     it "generates the database field" do
-      expect(grok).to include("database" => "0")
+      if ecs_compatibility?
+        expect(grok).to include("redis" => hash_including('database' => hash_including('id' => '0')))
+      else
+        expect(grok).to include("database" => "0")
+      end
     end
 
     it "generates the client field" do
-      expect(grok).to include("client" => "127.0.0.1")
+      if ecs_compatibility?
+        expect(grok).to include("client" => hash_including('ip' => '127.0.0.1'))
+      else
+        expect(grok).to include("client" => "127.0.0.1")
+      end
     end
 
     it "generates the port field" do
-      expect(grok).to include("port" => "39404")
+      if ecs_compatibility?
+        expect(grok).to include("client" => hash_including('port' => 39404))
+      else
+        expect(grok).to include("port" => "39404")
+      end
     end
 
     it "generates the command field" do
-      expect(grok).to include("command" => "rpush")
+      if ecs_compatibility?
+        expect(grok).to include("redis" => hash_including('command' => hash_including('name' => 'rpush')))
+      else
+        expect(grok).to include("command" => "rpush")
+      end
     end
 
     it "generates the params field" do
-      expect(grok).to include("params" => "\"my:special:key\" \"{\\\"data\\\":\"cdr\\\",\\\"payload\\\":\\\"json\\\"}\"")
+      if ecs_compatibility?
+        expect(grok).to include("redis" => hash_including('command' => hash_including('args' => "\"my:special:key\" \"{\\\"data\\\":\"cdr\\\",\\\"payload\\\":\\\"json\\\"}\"")))
+      else
+        expect(grok).to include("params" => "\"my:special:key\" \"{\\\"data\\\":\"cdr\\\",\\\"payload\\\":\\\"json\\\"}\"")
+      end
     end
 
   end
@@ -183,23 +203,43 @@ describe_pattern "REDISMONLOG" do
     end
 
     it "generates the database field" do
-      expect(grok).to include("database" => "15")
+      if ecs_compatibility?
+        expect(grok).to include("redis" => hash_including('database' => hash_including('id' => '15')))
+      else
+        expect(grok).to include("database" => "15")
+      end
     end
 
     it "generates the client field" do
-      expect(grok).to include("client" => "195.168.1.1")
+      if ecs_compatibility?
+        expect(grok).to include("client" => hash_including('ip' => '195.168.1.1'))
+      else
+        expect(grok).to include("client" => "195.168.1.1")
+      end
     end
 
     it "generates the port field" do
-      expect(grok).to include("port" => "52500")
+      if ecs_compatibility?
+        expect(grok).to include("client" => hash_including('port' => 52500))
+      else
+        expect(grok).to include("port" => "52500")
+      end
     end
 
     it "generates the command field" do
-      expect(grok).to include("command" => "intentionally")
+      if ecs_compatibility?
+        expect(grok).to include("redis" => hash_including('command' => hash_including('name' => 'intentionally')))
+      else
+        expect(grok).to include("command" => "intentionally")
+      end
     end
 
     it "generates the params field" do
-      expect(grok).to include("params" => "\"broken\" \"variadic\" \"log\" \"entry\"")
+      if ecs_compatibility?
+        expect(grok).to include("redis" => hash_including('command' => hash_including('args' => "\"broken\" \"variadic\" \"log\" \"entry\"")))
+      else
+        expect(grok).to include("params" => "\"broken\" \"variadic\" \"log\" \"entry\"")
+      end
     end
 
   end

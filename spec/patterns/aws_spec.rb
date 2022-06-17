@@ -390,6 +390,38 @@ describe_pattern "CLOUDFRONT_ACCESS_LOG", ['legacy', 'ecs-v1'] do
       end
     end
 
+    context 'GH-306' do
+
+      let(:message) do
+        #Version: 1.0
+        #Fields: date time x-edge-location sc-bytes c-ip cs-method cs(Host) cs-uri-stem sc-status cs(Referer) cs(User-Agent) cs-uri-query cs(Cookie) x-edge-result-type x-edge-request-id x-host-header cs-protocol cs-bytes time-taken x-forwarded-for ssl-protocol ssl-cipher x-edge-response-result-type cs-protocol-version fle-status fle-encrypted-fields c-port time-to-first-byte x-edge-detailed-result-type sc-content-type sc-content-len sc-range-start sc-range-end
+        "2021-08-24	00:24:40	LHR62-C3	33517	82.44.60.119	GET	d1236u0ikuk2zt.cloudfront.net	/p/101/thumbnail/entry_id/0_50xpj7v0/width/290/height/150/type/3	200	https://www.liverpoolfc.com/	Mozilla/5.0%20(iPhone;%20CPU%20iPhone%20OS%2014_7_1%20like%20Mac%20OS%20X)%20AppleWebKit/605.1.15%20(KHTML,%20like%20Gecko)%20Version/14.1.2%20Mobile/15E148%20Safari/604.1	-	-	Hit	YoIRNxF4o0fam7eNcIJ_QG24jMjjMNBvWK0xoveWisgYoWVzvyYFvQ==	open.http.mp.streamamg.com	https	289	0.003	-	TLSv1.3	TLS_AES_128_GCM_SHA256	Hit	HTTP/2.0	-	-	54902	0.003	Hit	image/jpeg	33046	-	-"
+      end
+
+      it 'matches' do
+        skip 'fixed in ECS mode only' unless ecs_compatibility?
+
+        should include("timestamp" => "2021-08-24\t00:24:40")
+        should include("url"=>{"domain"=>"d1236u0ikuk2zt.cloudfront.net", "path"=>"/p/101/thumbnail/entry_id/0_50xpj7v0/width/290/height/150/type/3"})
+        should include("http"=>{
+            "request"=>{"referrer"=>"https://www.liverpoolfc.com/", "mime_type"=>"image/jpeg", "method"=>"GET"},
+            "response"=>{"status_code"=>200}, "version"=>"2.0"
+        })
+        should include("tls"=>{"cipher"=>"TLS_AES_128_GCM_SHA256"})
+        should include("aws"=>{"cloudfront"=>{
+            "x_edge_location"=>"LHR62-C3",
+            "x_edge_response_result_type"=>"Hit",
+            "x_edge_detailed_result_type"=>"Hit",
+            "x_edge_result_type"=>"Hit",
+            "ssl_protocol"=>"TLSv1.3",
+            "http"=>{"request"=>{"size"=>33046, "host"=>"open.http.mp.streamamg.com"}},
+            "time_to_first_byte"=>0.003, "time_taken"=>0.003,
+            "x_edge_request_id"=>"YoIRNxF4o0fam7eNcIJ_QG24jMjjMNBvWK0xoveWisgYoWVzvyYFvQ=="
+        }})
+      end
+
+    end
+
   end
 
 end

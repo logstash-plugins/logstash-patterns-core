@@ -4,7 +4,7 @@ NETSCREENSESSIONLOG %{SYSLOGTIMESTAMP:timestamp} %{IPORHOST:[observer][hostname]
 # :long - %{INT:[destination][bytes]:int}
 
 #== Cisco ASA ==
-CISCO_TAGGED_SYSLOG ^<%{POSINT:[log][syslog][facility][code]:int}>%{CISCOTIMESTAMP:timestamp}( %{SYSLOGHOST:[host][hostname]})? ?: %%{CISCOTAG:ciscotag}:
+CISCO_TAGGED_SYSLOG ^<%{POSINT:[log][syslog][priority]:int}>%{CISCOTIMESTAMP:timestamp}( %{SYSLOGHOST:[host][hostname]})? ?: %%{CISCOTAG:[cisco][asa][tag]}:
 CISCOTIMESTAMP %{MONTH} +%{MONTHDAY}(?: %{YEAR})? %{TIME}
 CISCOTAG [A-Z0-9]+-%{INT}-(?:[A-Z0-9_]+)
 # Common Particles

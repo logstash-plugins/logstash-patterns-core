@@ -98,7 +98,7 @@ describe_pattern "NETSCREENSESSIONLOG", ['legacy', 'ecs-v1'] do
     context "(with session id)" do
 
       let(:message) do
-        super + ' session_id=0 reason=Traffic Denied'
+        super() + ' session_id=0 reason=Traffic Denied'
       end
 
       it 'matches (in ECS mode)' do

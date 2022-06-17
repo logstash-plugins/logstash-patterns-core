@@ -14,10 +14,10 @@ describe_pattern "BIND9", ['legacy', 'ecs-v1'] do
       should include("log" => hash_including("level" => "info"))
       should include("client" => { "ip" => "172.26.0.1", "port" => 12345 })
       should include("dns" => { "question" => { "name" => "test.example.com", "type" => 'A', "class" => 'IN' }})
-      should include("bind" => { "log" => { "question" => hash_including("flags" => '+E(0)K')}})
+      should include("bind" => { "log" => hash_including("question" => hash_including("flags" => '+E(0)K'))})
       should include("server" => { "ip" => "172.26.0.3" })
       # NOTE: duplicate but still captured since we've been doing that before as well :
-      should include("bind" => { "log" => { "question" => hash_including("name" => 'test.example.com')}})
+      should include("bind" => { "log" => hash_including("question" => hash_including("name" => 'test.example.com'))})
     else
       should include("loglevel" => "info")
       should include("clientip" => "172.26.0.1")
@@ -48,7 +48,7 @@ describe_pattern "BIND9", ['legacy', 'ecs-v1'] do
         should include("log" => hash_including("level" => "info"))
         should include("client" => { "ip" => "192.168.10.48", "port" => 60061 })
         should include("dns" => { "question" => { "name" => "91.2.10.170.in-addr.internal", "type" => 'PTR', "class" => 'IN' }})
-        should include("bind" => { "log" => { "question" => hash_including("flags" => '+')}})
+        should include("bind" => { "log" => hash_including("question" => hash_including("flags" => '+')) })
         should include("server" => { "ip" => "192.168.2.2" })
       else
         should include("loglevel" => "info")
@@ -72,7 +72,21 @@ describe_pattern "BIND9_QUERYLOGBASE", ['ecs-v1'] do
   it 'matches' do
     should include("client" => { "ip" => "127.0.0.1", "port" => 42520 })
     should include("dns" => { "question" => { "name" => "ci.elastic.co", "type" => 'A', "class" => 'IN' }})
-    should include("bind" => { "log" => { "question" => hash_including("flags" => '+E(0)K') }})
+    should include("bind" => { "log" => hash_including("question" => hash_including("flags" => '+E(0)K') )})
     should include("server" => { "ip" => "35.193.103.164" })
+  end
+end
+
+describe_pattern "BIND9_QUERYLOG", ['ecs-v1'] do
+  let(:message) do
+    '01-May-2019 00:27:48.084 queries: info: client @0x7f82bc11d4e0 192.168.1.111#53995 (google.com): query: google.com IN A +E(0) (10.80.1.88)'
+  end
+
+  it 'matches' do
+    should include("client" => { "ip" => "192.168.1.111", "port" => 53995 })
+    should include("dns" => { "question" => { "name" => "google.com", "type" => 'A', "class" => 'IN' }})
+    should include("bind" => { "log" => hash_including("question" => { "flags" => '+E(0)', "name" => 'google.com' })})
+    should include("server" => { "ip" => "10.80.1.88" })
+    should include("log" => { "level" => "info" })
   end
 end

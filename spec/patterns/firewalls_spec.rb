@@ -595,6 +595,44 @@ describe_pattern "CISCOFW733100", ['legacy', 'ecs-v1'] do
 
 end
 
+describe_pattern "CISCO_TAGGED_SYSLOG", ['legacy', 'ecs-v1'] do
+
+  let(:message) { "<191>Jan 24 11:28:30.407: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/0, changed state to down" }
+
+  it 'matches' do
+    expect(subject).to include("timestamp"=>'Jan 24 11:28:30.407')
+    if ecs_compatibility?
+      expect(subject).to include('log' => {'syslog' => {'priority' => 191}})
+      expect(subject).to include('cisco' => {'asa' => {'tag' => 'LINEPROTO-5-UPDOWN'}})
+    else
+      expect(subject).to include("syslog_pri"=>'191')
+      expect(subject).to include("ciscotag"=>'LINEPROTO-5-UPDOWN')
+    end
+  end
+
+  context 'with host' do
+
+    let(:message) do
+      '<191>Aug  1 14:01:20 abc-asa1: %ASA-6-302013: Built outbound TCP connection 906569140 for out-v1101:10.125.126.86/2010 (10.125.126.86/2010) to ent-v1124:100.100.100.111/51444 (10.125.1.11/37785)'
+    end
+
+    it 'matches' do
+      expect(subject).to include("timestamp"=>'Aug  1 14:01:20')
+      if ecs_compatibility?
+        expect(subject).to include('log' => {'syslog' => {'priority' => 191}})
+        expect(subject).to include('host' => {'hostname' => 'abc-asa1'})
+        expect(subject).to include('cisco' => {'asa' => {'tag' => 'ASA-6-302013'}})
+      else
+        expect(subject).to include("syslog_pri"=>'191')
+        expect(subject).to include("sysloghost"=>'abc-asa1')
+        expect(subject).to include("ciscotag"=>'ASA-6-302013')
+      end
+    end
+
+  end
+
+end
+
 
 describe_pattern 'SFW2', ['legacy', 'ecs-v1'] do
 
