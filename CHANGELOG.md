@@ -1,5 +1,5 @@
 ## 4.3.4
-  - fix CISCOFW302013_302014_302015_302016 grok pattern [#313](https://api.github.com/repos/logstash-plugins/logstash-patterns-core/pulls/313)
+  - fix CISCOFW302013_302014_302015_302016 grok pattern [#313](https://github.com/logstash-plugins/logstash-patterns-core/pull/313)
 
 ## 4.3.3
 
