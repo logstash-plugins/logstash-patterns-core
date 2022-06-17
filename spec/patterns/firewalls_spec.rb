@@ -278,7 +278,7 @@ end
 
 describe_pattern "CISCOFW302013_302014_302015_302016", ['legacy', 'ecs-v1'] do
 
-  let(:message) { "ASA-6-302013: Built outbound TCP connection 11757 for outside:100.66.205.104/80 (100.66.205.104/80) to inside:172.31.98.44/1772 (172.31.98.44/1772)(some.user)" }
+  let(:message) { "ASA-6-302013: Built outbound TCP connection 11757 for outside:100.66.205.104/80 (100.66.205.104/80)(some.user) to inside:172.31.98.44/1772 (172.31.98.44/1772)" }
 
   include_examples 'top-level namespaces', CISCOFW_ALLOWED_TOP_LEVEL_NAMESPACES, if: -> { ecs_compatibility? }
 
