@@ -538,12 +538,13 @@ describe_pattern "EMAILADDRESS", ['legacy', 'ecs-v1'] do
 
 end
 
-describe 'TIMESTAMP_CN' do
+describe "TIMESTAMP_CN" do
 
-    let(:value) { '2022-02-22 22:20:20.222' }
+    let(:pattern) { "TIMESTAMP_CN" }
+    let(:simple)  { "2022-02-22 22:20:20.222" }
 
-    it 'matches a Chinese style timestamp format' do
-        expect(grok_match(subject, value)).to pass
+    it "matches a Chinese style timestamp format" do
+        expect(grok_match(pattern, simple)).to pass
     end
 
 end
