@@ -1,0 +1,38 @@
+# This workflow automates changelog entry updates and version bumps for pull requests
+# in logstash-plugins repositories. It is triggered when a PR is opened or merged,
+# and delegates to the reusable pr-prepare workflow which reads /pr_prepare comments
+# to determine the type of changelog entry and the appropriate version bump.
+# Can also be triggered manually via workflow_dispatch for missed or late updates.
+
+name: Changelog & Version Update
+
+on:
+  pull_request_target:
+    types: [opened, closed]
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Type of update'
+        required: true
+        type: choice
+        options:
+          - release:patch
+          - release:minor
+          - release:major
+          - changelog:add
+      pr_number:
+        description: 'PR number to link in the changelog entry'
+        required: true
+        type: string
+      changelog_entry:
+        description: 'Custom changelog entry (defaults to PR title if omitted)'
+        required: false
+        type: string
+
+jobs:
+  changelog:
+    uses: logstash-plugins/.github/.github/workflows/pr-prepare.yml@main
+    with:
+      command: ${{ inputs.command }}
+      pr_number: ${{ inputs.pr_number }}
+      changelog_entry: ${{ inputs.changelog_entry }}
