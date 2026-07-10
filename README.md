@@ -1,6 +1,6 @@
 # Logstash Plugin
 
-[![Travis Build Status](https://travis-ci.com/logstash-plugins/logstash-patterns-core.svg)](https://travis-ci.com/logstash-plugins/logstash-patterns-core)
+[![Unit Tests](https://github.com/logstash-plugins/logstash-patterns-core/actions/workflows/unit-tests.yml/badge.svg?branch=main)](https://github.com/logstash-plugins/logstash-patterns-core/actions/workflows/unit-tests.yml)
 
 This plugin provides [pattern definitions][1] used by the [grok filter][2]. 
 
