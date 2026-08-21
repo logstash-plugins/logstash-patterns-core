@@ -279,6 +279,24 @@ describe_pattern "HTTPD_ERRORLOG", ['legacy', 'ecs-v1'] do
     end
   end
 
+  context "a httpd 2.4 proxy message" do
+    let(:message) do
+      "[Fri Sep 13 20:16:16.614584 2024] [proxy_fcgi:error] [pid 74738:tid 74765] (70008)Partial results are valid but processing is incomplete: [client 203.0.113.1:0] AH01075: Error dispatching request to : (reading input brigade)"
+    end
+
+    it "matches" do
+      expect(grok).to include('timestamp' => 'Fri Sep 13 20:16:16.614584 2024')
+      if ecs_compatibility?
+        expect(grok).to include("apache" => {"error" => {"module" => "proxy_fcgi", "proxy" => {"error" => {"code" => "70008", "message" => "Partial results are valid but processing is incomplete"}}}})
+        expect(grok).to include("log" => {"level" => "error"})
+        expect(grok).to include("process" => {"pid" => 74738, "thread" => {"id" => 74765}})
+        expect(grok).to include("source" => {"address" => "203.0.113.1", "port" => 0})
+        expect(grok).to include("error" => {"code" => "AH01075"})
+        expect(grok).to include("message" => [message, "Error dispatching request to : (reading input brigade)"])
+      end
+    end
+  end
+
   context 'a debug message' do
     let(:message) do
       '[Fri Feb 01 22:03:08.319124 2019] [authz_core:debug] [pid 9:tid 140597881775872] mod_authz_core.c(820): [client 172.17.0.1:50752] AH01626: authorization result of <RequireAny>: granted'
